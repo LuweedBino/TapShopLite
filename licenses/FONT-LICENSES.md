@@ -35,3 +35,7 @@ No proprietary commercial webfont subscription or remote font CDN is used. These
 - `original-source/fonts/ts-font-7.woff` → `font-sources/DejaVuSansMono-BoldOblique.ttf`
 - `original-source/fonts/ts-font-8.woff` → `font-sources/lmroman10-regular.otf`
 - `original-source/fonts/ts-font-9.woff` → `font-sources/lmroman10-bold.otf`
+
+## Home page demo clip
+
+`media/demo-talking.mp4` (and its cover frame `demo-talking.jpg`) is cut from "Sunlit Skincare Demo" on Coverr (coverr.co), offered with free commercial use rights. Trimmed to 9 s, 360×640, no sound.
