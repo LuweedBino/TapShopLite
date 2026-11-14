@@ -4,7 +4,7 @@ Sign-up is **email + password**, like TapShop: Supabase stores the accounts for 
 
 1. Supabase project: done (URL and publishable key are in `config.js`).
 2. In Supabase: **Authentication → Sign In / Providers → Email**: keep **Email** on, turn **Confirm email** **off**, and **Save**.
-3. **Authentication → URL Configuration**: Site URL `https://tapshoplite.vercel.app`, Redirect URL `https://tapshoplite.vercel.app/**`.
+3. **Authentication → URL Configuration**: Site URL `https://tapshoplite.app`, Redirect URLs `https://tapshoplite.app/**`, `https://www.tapshoplite.app/**` and `https://tapshoplite.vercel.app/**`.
 4. In `config.js` set `enabled: true`.
 
 Later, with a domain of your own and an email service (like Resend), you can turn on email checks and "forgot password" emails.
@@ -19,8 +19,8 @@ Until `config.js` has a Supabase URL and key, the video maker is open to everyon
 1. Go to supabase.com, sign up free, and create a new project (any name, e.g. TapShopLite; pick a region near you).
 2. Open **Project Settings → API keys**. Copy the **Project URL** and the **publishable key** (starts with `sb_publishable_`). Never use the secret key.
 3. Open **Authentication → URL Configuration**:
-   - Site URL: `https://tapshoplite.vercel.app`
-   - Redirect URLs: add `https://tapshoplite.vercel.app/**`
+   - Site URL: `https://tapshoplite.app`
+   - Redirect URLs: add `https://tapshoplite.app/**`, `https://www.tapshoplite.app/**` and `https://tapshoplite.vercel.app/**`
 
 ## 2. Email sign-in links (10 min, needed for real users)
 Supabase's built-in email only reaches your own team and only sends a couple of emails an hour, so connect a free email sender:
