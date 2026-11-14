@@ -264,18 +264,24 @@ footer{padding:30px 0 50px;color:var(--muted);font-size:14px;text-align:center}
           <button class="btn main" type="submit" id="emailBtn">Create my free account</button>
         </form>
         <p class="msg" id="msg" role="status" aria-live="polite"></p>
+        <p class="fine" id="forgotLine" hidden><a href="#" id="forgot">Forgot your password?</a></p>
         <p class="fine" id="switchLine">Already have an account? <a href="#" id="switch">Sign in</a></p>
       </div>
       <div id="sent" hidden>
         <div class="done">✉️</div><h2>Check your email</h2>
-        <p class="sub">We sent a sign-in link to <b id="sentTo"></b>. Tap it and you're in. (Check spam if it's not there in a minute.)</p>
-        <button class="btn" type="button" id="again">Use a different email</button>
+        <p class="sub" id="sentText">We sent an email to <b id="sentTo"></b>.</p>
+        <p class="fine">Not there in a minute? Check your spam or promotions folder.</p>
+        <button class="btn main" type="button" id="resend">Send it again</button>
+        <button class="btn" type="button" id="again">Back</button>
+        <p class="msg" id="sentMsg" role="status" aria-live="polite"></p>
       </div>
       <div id="signedIn" hidden>
         <div class="done">🎉</div><h2>You're in!</h2>
         <p class="sub" id="who"></p>
         <a class="btn main" href="studio.html">Open the video maker →</a>
+        <button class="btn" type="button" id="chpw">Change my password</button>
         <button class="btn" type="button" id="out">Sign out</button>
+        <p class="msg" id="inMsg" role="status" aria-live="polite"></p>
       </div>
       <div id="open" hidden>
         <h2>Jump right in</h2>
@@ -330,20 +336,34 @@ $('providers').innerHTML=A.providers.filter(p=>NAMES[p]).map(p=>`<button class="
 $('orLine').hidden=!A.providers.length;
 $('providers').onclick=async e=>{const b=e.target.closest('[data-p]');if(!b)return;b.disabled=true;msg('Opening '+NAMES[b.dataset.p]+'…');try{await A.provider(b.dataset.p)}catch(x){b.disabled=false;msg(x.message||'That didn’t work. Please try again.',true)}};
 let mode='up';const setMode=m=>{mode=m;const up=m==='up';$('emailBtn').textContent=up?'Create my free account':'Sign in';$('pass').placeholder=up?'Password (6+ characters)':'Your password';$('pass').autocomplete=up?'new-password':'current-password';
-  $('switchLine').innerHTML=up?'Already have an account? <a href="#" id="switch">Sign in</a>':'New here? <a href="#" id="switch">Create a free account</a>';$('joinH').textContent=up?'Create your free account':'Welcome back';msg('');$('switch').onclick=e=>{e.preventDefault();setMode(up?'in':'up')}};
+  $('forgotLine').hidden=up;$('switchLine').innerHTML=up?'Already have an account? <a href="#" id="switch">Sign in</a>':'New here? <a href="#" id="switch">Create a free account</a>';$('joinH').textContent=up?'Create your free account':'Welcome back';msg('');$('switch').onclick=e=>{e.preventDefault();setMode(up?'in':'up')}};
 $('eye').onclick=()=>{const p=$('pass'),show=p.type==='password';p.type=show?'text':'password';p.classList.toggle('pwt',show);$('eye').setAttribute('aria-label',show?'Hide password':'Show password')};
 $('emailForm').onsubmit=async e=>{e.preventDefault();const v=$('email').value.trim(),pw=$('pass').value;
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)){msg('Please type your email, like you@email.com',true);$('email').focus();return}
   if(pw.length<6){msg('Your password needs at least 6 characters.',true);$('pass').focus();return}
   const label=$('emailBtn').textContent;$('emailBtn').disabled=true;$('emailBtn').textContent=mode==='up'?'Creating your account…':'Signing in…';msg('');
-  try{await (mode==='up'?A.signUp(v,pw):A.signIn(v,pw));location.href='studio.html'}
-  catch(x){const m=x.message||'';if(/already registered|already exists/i.test(m))setMode('in');msg(/already registered|already exists/i.test(m)?'You already have an account with this email. Type your password and tap Sign in.':/invalid login|invalid credentials/i.test(m)?'That email and password don’t match. Try again?':/rate|limit|429/i.test(m)?'Too many tries right now. Please wait a minute and try again.':(m||'That didn’t work. Please try again.'),true)}
+  try{const s=await (mode==='up'?A.signUp(v,pw):A.signIn(v,pw));if(mode==='up'&&!s){sent('confirm',v);return}location.href='studio.html'}
+  catch(x){const m=x.message||'';if(/already registered|already exists/i.test(m))setMode('in');
+    if(/not confirmed/i.test(m)){msg('Please confirm your email first: tap the link we emailed you. ');const a=document.createElement('a');a.href='#';a.textContent='Send the email again';a.onclick=ev=>{ev.preventDefault();sent('confirm',v,true)};$('msg').appendChild(a);return}
+    msg(/already registered|already exists/i.test(m)?'You already have an account with this email. Type your password and tap Sign in.':/invalid login|invalid credentials/i.test(m)?'That email and password don’t match. Try again, or tap “Forgot your password?”.':/rate|limit|429|security purposes/i.test(m)?'Too many tries right now. Please wait a minute and try again.':(m||'That didn’t work. Please try again.'),true)}
   finally{$('emailBtn').disabled=false;$('emailBtn').textContent=mode==='up'?'Create my free account':'Sign in'}};
+// "Check your email" for a confirmation (after sign-up) or a password reset link. again = send it now.
+let sentKind='',sentTo='';
+const SENT={confirm:'We sent an email to <b></b>. Tap the link inside to confirm it’s you, and you’re in.',reset:'We sent a password reset link to <b></b>. Tap it to choose a new password.'};
+async function sendNow(){const m=$('sentMsg');m.classList.remove('err');m.textContent='Sending…';$('resend').disabled=true;
+  try{await (sentKind==='reset'?A.resetPassword(sentTo):A.resend(sentTo));m.textContent='Sent! It can take a minute to arrive.'}
+  catch(x){m.classList.add('err');m.textContent=/rate|limit|429|security purposes|seconds/i.test(x.message||'')?'Please wait a minute before asking for another email.':(x.message||'We couldn’t send the email. Please try again.')}
+  finally{setTimeout(()=>$('resend').disabled=false,30000)}}
+function sent(kind,to,now){sentKind=kind;sentTo=to;$('sentText').innerHTML=SENT[kind];$('sentText').querySelector('b').textContent=to;$('sentMsg').textContent='';show('sent');$('join').scrollIntoView({block:'start'});if(now)sendNow()}
+$('resend').onclick=sendNow;
+$('forgot').onclick=e=>{e.preventDefault();const v=$('email').value.trim();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)){msg('Type your email above first, then tap “Forgot your password?” again.',true);$('email').focus();return}sent('reset',v,true)};
 $('again').onclick=()=>{show('signedOut');$('email').select()};
+$('chpw').onclick=async()=>{const s=await A.session().catch(()=>null),to=s?.user?.email;if(!to)return;$('chpw').disabled=true;$('inMsg').classList.remove('err');$('inMsg').textContent='Sending…';
+  try{await A.resetPassword(to);$('inMsg').textContent='We emailed a link to '+to+'. Tap it to choose a new password.'}catch(x){$('inMsg').classList.add('err');$('inMsg').textContent=/rate|limit|429|seconds/i.test(x.message||'')?'Please wait a minute and try again.':(x.message||'We couldn’t send the email.')}finally{$('chpw').disabled=false}};
 $('out').onclick=async()=>{await A.signOut();render(null)};
 function render(s){if(s){show('signedIn');$('who').textContent='Signed in as '+(s.user?.email||'you')+'.';$('navGo').textContent='Open video maker';$('navGo').href='studio.html';$('heroGo').textContent='Open the video maker →';$('heroGo').href='studio.html'}
   else{show('signedOut');$('navGo').textContent='Sign up free';$('navGo').href='#join';$('heroGo').textContent='Start free in 10 seconds →';$('heroGo').href='#join'}}
-setMode('up');if(signin){$('joinSub').textContent='Create a free account (or sign in) to open the video maker.';setTimeout(()=>$('join').scrollIntoView(),50)}
+setMode(/[?&]login=1/.test(location.search)?'in':'up');if(/[?&]login=1/.test(location.search))setTimeout(()=>$('join').scrollIntoView(),50);if(signin){$('joinSub').textContent='Create a free account (or sign in) to open the video maker.';setTimeout(()=>$('join').scrollIntoView(),50)}
 A.session().then(render,()=>render(null));A.onChange(render);
 })();
 </script>
