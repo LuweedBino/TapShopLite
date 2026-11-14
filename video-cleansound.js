@@ -66,9 +66,12 @@ function hook(a){if(a._cleanHooked)return;a._cleanHooked=true;const v=a.video;
   v.addEventListener('ratechange',()=>{if(el())el().playbackRate=v.playbackRate});
   v.addEventListener('timeupdate',()=>{if(live()&&Math.abs(el().currentTime-v.currentTime)>.12)el().currentTime=v.currentTime})}
 // Point the asset's sound at the clean copy (or back at the video) once the audio graph exists.
+// The video's own sound must stay plugged into the speakers (here at zero volume): the browser times the
+// picture by its sound, and a video whose sound goes nowhere stutters, which made the preview flash.
 function route(a){if(typeof audioCtx==='undefined'||!audioCtx||!a.gain||!a.node)return;
   if(a.cleanEl&&!a.cleanNode){a.cleanNode=audioCtx.createMediaElementSource(a.cleanEl);a.cleanNode.connect(a.gain)}
-  try{a.node.disconnect(a.gain)}catch{}if(!a.cleanEl)a.node.connect(a.gain)}
+  if(!a.silent){a.silent=audioCtx.createGain();a.silent.gain.value=0;a.silent.connect(audioCtx.destination)}
+  try{a.node.disconnect()}catch{}a.node.connect(a.cleanEl?a.silent:a.gain)}
 const prevEnsure=ensureAudio;ensureAudio=async function(){await prevEnsure();for(const a of assets)if(a.cleanEl)route(a)};
 
 const busy=new Map();
