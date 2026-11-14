@@ -368,7 +368,7 @@ async function build(){if(exporting)return;const btn=dlg.querySelector('#brBuild
     if(listen&&autoCloud&&todo.length&&window.veCloudOn?.()){btn.textContent='Cloud AI is listening…';
       try{const r=await veCloudWords(todo.map(c=>({assetId:c.asset.id,in:c.in,out:c.out})),m=>btn.textContent=m);cloud=new Map(todo.map((c,i)=>[c,r.words[i]]));if(r.left!=null)cloudNote=` Cloud AI videos left today: ${r.left}.`}
       catch(e){console.warn('Cloud AI skipped:',e);cloudNote=e.code==='limit'?' '+e.message+' We used the on-device AI instead.':e.code==='off'?'':' The cloud AI wasn’t available, so we used the on-device AI.'}}
-    let t=0,talky=false,failed=false,listened=false,n=0,moveN=0;const spans=[],capWords=[],MOVES=['zoomIn','panLeft','zoomOut','panRight','panUp','zoomIn','panDown'];
+    let t=0,talky=false,failed=false,listened=false,n=0,moveN=0,skipped=0;const spans=[],capWords=[],MOVES=['zoomIn','panLeft','zoomOut','panRight','panUp','zoomIn','panDown'];
     for(let j=0;j<tp.parts.length;j++){const p=tp.parts[j];if(!parts[j].length)continue;let s=t;
       for(const c of parts[j]){let [a,b]=cut(c,p,beat),segs=[[a,b]],words=null;
         if(listen&&!failed&&todo.includes(c)){btn.textContent=`Listening to clip ${++n} of ${todo.length}…`;
@@ -376,6 +376,9 @@ async function build(){if(exporting)return;const btn=dlg.querySelector('#brBuild
             if(words.length>=4){talky=true;a=Math.max(c.in,words[0].s-.15);b=Math.min(c.out,words.at(-1).e+.35);segs=[[a,b]]}
             if(autoTidy&&words.length&&!words.est)segs=tidy(words,a,b)}
           catch(e){failed=true;console.warn('Speech engine unavailable:',e)}}
+        // A throwaway take (only "um", "ok", "alright"… or words the cloud AI marked as a mistake) is left out
+        // completely, as long as the video still has other clips.
+        if(autoTidy&&words?.length&&!words.est&&words.every(junk)&&parts.flat().length>1){skipped++;continue}
         if(c.talking)talky=true;
         segs.forEach(([x,y],si)=>{let cl=makeClip(c.asset);Object.assign(cl,{in:x,out:y,fit:shape==='16:9'?'contain':'cover'});
           if(autoMove){const speaking=(words&&words.length>=4)||c.talking;
@@ -385,7 +388,7 @@ async function build(){if(exporting)return;const btn=dlg.querySelector('#brBuild
           clips.push(cl);
           if(words)for(const w of words)if(w.e>x&&w.s<y&&!(autoTidy&&!words.est&&(w.drop||FILLER.test(String(w.w).replace(/[^a-z]/gi,'')))))capWords.push({w:w.w,s:Math.round((t+Math.max(0,w.s-x))*100)/100,e:Math.round((t+Math.min(y,w.e)-x)*100)/100});
           t+=y-x})}
-      spans.push([p,s,t-s,j])}
+      if(t>s)spans.push([p,s,t-s,j])}
     btn.textContent='Building…';
     for(const [p,s,len,j] of spans){let text=String(partText(j)).trim();if(!text)continue;createGraphicTrack('text');let g=graphicTracks.at(-1);
       Object.assign(g,{name:p.label+': '+text.slice(0,18),text,color:p.color||'#ffffff',size:textFrac(text,W,H)*H*1280/W,x:50,y:p.y,bold:true,background:false,animation:p.anim,offset:Math.round(s*10)/10,length:Math.max(.8,Math.round(Math.min(len,p.textMax||len)*10)/10),boxColor:p.box,boxOpacity:1,boxPad:26,boxRadius:18})}
@@ -393,12 +396,15 @@ async function build(){if(exporting)return;const btn=dlg.querySelector('#brBuild
     $$('projectName').value='B-roll · '+tp.name;selected=-1;render();renderTracks();renderGraphicTracks();await seekTimeline(0);
     items=[];parts=null;dlg.close();
     let capped=autoCaps&&!failed?vePlaceCaptions(capWords):0;
-    toast((failed?'Your video is ready! Captions and pause-cutting didn’t work here, but you can try ✨ Captions in the toolbar.':capped?`Your video is ready, with captions (${capped} words)! Press ▶ to watch it.`:autoCaps&&listened?'Your video is ready! We didn’t hear any talking, so there are no captions. Press ▶ to watch it.':'Your video is ready! Press ▶ to watch it.')+cloudNote)}
+    toast((failed?'Your video is ready! Captions and pause-cutting didn’t work here, but you can try ✨ Captions in the toolbar.':capped?`Your video is ready, with captions (${capped} words)! Press ▶ to watch it.`:autoCaps&&listened?'Your video is ready! We didn’t hear any talking, so there are no captions. Press ▶ to watch it.':'Your video is ready! Press ▶ to watch it.')+(skipped?` We left out ${skipped} clip${skipped>1?'s':''} with only “um”, “ok” or a fumble.`:'')+cloudNote)}
   catch(e){toast('Couldn’t build the video: '+(e.message||e));btn.disabled=false;btn.textContent='🎬 Build my video'}}
 
 // Split a talking stretch [a, b] into the parts worth keeping: drop um/uh, fumbles the cloud AI marked (w.drop) and pauses over half a second,
 // leaving a little air around each word so cuts don't clip them.
 const FILLER=/^(u+m+|u+h+|uhm+|e+r+m*|a+h+|h+m+|m+h*m+)$/i;
+// Words that mean nothing on their own: a clip with only these (and fillers) is a throwaway take.
+const EMPTY=/^(ok(ay)?|k|alright|all|right|so|yeah|yep|yes|cool|and|well|mhm|uh-?huh|go|action|cut|again|one|more|time|sorry|wait|hold|on)$/i;
+const junk=w=>{const k=String(w.w).toLowerCase().replace(/[^a-z-]/g,'');return w.drop||!k||FILLER.test(k)||EMPTY.test(k)};
 function tidy(words,a,b){const ws=words.filter(w=>w.e>a&&w.s<b),isF=w=>w.drop||FILLER.test(String(w.w).replace(/[^a-z]/gi,'')),kept=ws.filter(w=>!isF(w));
   if(!kept.length)return [[a,b]];const out=[];let start=Math.max(a,kept[0].s-.12);
   for(let i=0;i<kept.length-1;i++){const cur=kept[i],nx=kept[i+1],gap=nx.s-cur.e,ums=ws.filter(w=>isF(w)&&w.s>=cur.e-.05&&w.e<=nx.s+.05);
