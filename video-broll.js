@@ -212,13 +212,15 @@ const st=document.createElement('style');st.textContent=`
 .br-clip .nm{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px;font-weight:600}
 .br-clip .tag{display:block;opacity:.75;margin-top:2px}.br-clip .said{display:block;font-style:italic;opacity:.65;margin-top:2px;max-height:2.6em;overflow:hidden}
 .br-clip select{width:100%;margin-top:4px;font-size:11px;padding:3px 4px}
-.br-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}#brListen{grid-column:1/-1;justify-self:end}.br-row label{display:flex;flex-direction:column;gap:4px;font-size:12px}
+.br-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.br-caps{display:flex;gap:10px;align-items:flex-start;margin:12px 0 4px;padding:10px 12px;border:1px solid var(--ts-border,#8a7aa855);border-radius:12px;cursor:pointer}.br-caps input{width:20px;height:20px;margin:2px 0 0;flex:none;accent-color:#ff3ea5}.br-caps b{display:block;font-size:13px}.br-caps small{display:block;font-size:12px;opacity:.75;margin-top:2px}#brListen{grid-column:1/-1;justify-self:end}.br-row label{display:flex;flex-direction:column;gap:4px;font-size:12px}
 .br-sec{border:1px solid var(--ts-border,#8883);border-radius:12px;padding:10px;margin:8px 0}
 .br-sec-h{display:flex;align-items:center;gap:8px}.br-sec-h b{font-size:13px;white-space:nowrap}.br-sec-h input{flex:1;min-width:0;font-size:13px;padding:6px 8px}
 .br-sec .br-empty{font-size:11px;opacity:.6;padding:6px 0}
 #brWork progress{width:100%}`;document.head.appendChild(st);
 
 let tp=TEMPLATES[0],mood=tp.mood,shape='9:16',items=[],parts=null,texts={},busy=false,stopped=false;
+// Auto captions (✨ Captions without its dialog) after building, remembered on this device; on unless turned off.
+let autoCaps=(()=>{try{return localStorage.getItem('tapshop-broll-captions')!=='off'}catch{return true}})();
 const shapes=()=>[...($$('aspect')?.options||[])].map(o=>[o.value,o.textContent]);
 // From the start screen the chosen platform has already set the shape; otherwise UGC defaults to vertical.
 function open(fromStart){if(exporting)return;stopped=false;parts=null;let a=$$('aspect')?.value;shape=(fromStart===true||clips.length)&&['9:16','1:1','4:5','16:9'].includes(a)?a:'9:16';if(!items.length&&clips.length)useTimeline(true);step1();dlg.showModal()}
@@ -234,6 +236,7 @@ function step1(){const flow=t=>t.parts.map(p=>p.label).join(' → ');
   <div class="br-clips">${items.length?items.map((c,i)=>`<div class="br-clip"><img alt="" src="${c.asset.thumb}"><button type="button" class="x" data-x="${i}" aria-label="Remove ${enc(c.asset.name)}">×</button><span class="nm">${enc(c.asset.name)}</span><span class="tag">${(c.out-c.in).toFixed(1)}s</span></div>`).join(''):'<p class="sub" style="margin:0">No clips yet. Add 3 or more for the best result.</p>'}</div>
   <h3>3. Look and sound</h3><div class="br-row"><label>Video shape<select id="brShape">${shapes().map(([v,l])=>`<option value="${enc(v)}"${v===shape?' selected':''}>${enc(l)}</option>`).join('')}</select></label>
   <label>Music<select id="brMood">${Object.entries(MOODS).map(([k,m])=>`<option value="${k}"${k===mood?' selected':''}>🎵 ${enc(m.name)} · ${m.bpm} BPM</option>`).join('')}<option value=""${mood?'':' selected'}>No music</option></select></label><button type="button" id="brListen" title="Hear a few seconds of this music">▶ Listen</button></div>
+  <label class="br-caps"><input type="checkbox" id="brCaps"${autoCaps?' checked':''}> <span><b>✨ Add captions when someone talks</b><small>We write the words people say on screen, like the ✨ Captions tool.</small></span></label>
   <p class="sub">The first time, your browser downloads the clip reader (a one-time download, about 130 MB). After that it’s saved. Phones are slower than computers.</p>
   <div class="row"><button type="button" id="brCancel">Cancel</button><button type="button" id="brSkip"${items.length?'':' disabled'}>Keep my order</button><button type="button" class="primary" id="brGo"${items.length?'':' disabled'}>✨ Sort my clips</button></div>`;
   dlg.querySelector('.dialog-x').onclick=dlg.querySelector('#brCancel').onclick=close;
@@ -242,7 +245,7 @@ function step1(){const flow=t=>t.parts.map(p=>p.label).join(' → ');
   const fi=dlg.querySelector('#brFiles');dlg.querySelector('#brChoose').onclick=()=>fi.click();fi.onchange=()=>{addFiles([...fi.files]);fi.value=''};
   dlg.querySelector('#brVault')?.addEventListener('click',()=>VaultPicker.open({title:'Pick a clip',kinds:['video'],onPick:async it=>{try{toast('Loading '+it.name+'…');await addFiles([await VaultPicker.file(it)])}catch(e){toast(e.message)}if(!dlg.open)dlg.showModal()}}));
   dlg.querySelector('#brTimeline')?.addEventListener('click',()=>{useTimeline();step1()});
-  dlg.querySelector('#brShape').onchange=e=>shape=e.target.value;dlg.querySelector('#brMood').onchange=e=>{mood=e.target.value;stopListen()};dlg.querySelector('#brListen').onclick=listen;if(!dlg._stopsMusic){dlg._stopsMusic=1;dlg.addEventListener('close',stopListen)}
+  dlg.querySelector('#brShape').onchange=e=>shape=e.target.value;dlg.querySelector('#brMood').onchange=e=>{mood=e.target.value;stopListen()};dlg.querySelector('#brListen').onclick=listen;dlg.querySelector('#brCaps').onchange=e=>{autoCaps=e.target.checked;try{localStorage.setItem('tapshop-broll-captions',autoCaps?'on':'off')}catch{}};if(!dlg._stopsMusic){dlg._stopsMusic=1;dlg.addEventListener('close',stopListen)}
   dlg.querySelector('#brGo').onclick=analyse;dlg.querySelector('#brSkip').onclick=()=>{number();parts=arrange(items,tp);step3('Kept your order. Move any clip with the menu under it.')}}
 async function addFiles(files){let got=0;for(const f of files){if(!/^video\//.test(f.type)&&!/\.(mp4|mov|webm|m4v)$/i.test(f.name))continue;try{toast('Loading '+f.name+'…');let a=await loadAsset(f);items.push({asset:a,in:0,out:a.duration});got++}catch(e){toast(e.message)}}if(got&&dlg.open)step1()}
 function useTimeline(quiet){let seen=new Set(items.map(c=>c.key));for(const c of clips){let a=asset(c);if(!a)continue;let key=c.id;if(seen.has(key))continue;items.push({asset:a,in:c.in,out:c.out,key})}if(!quiet)toast('Your timeline clips are in.')}
@@ -289,7 +292,7 @@ function cut(c,part,beat){let a=c.in,b=c.out;
   if(!beat)return [a,Math.min(b,a+6)];let n=Math.min(part.beats||6,Math.floor((b-a)/beat));if(n<2)return [a,b];let start=Math.min(a+.2,b-n*beat);return [Math.max(a,start),Math.max(a,start)+n*beat]}
 const textFrac=(s,W,H)=>{let f=.055,px=f*H,w=s.length*.6*px;return w>W*.84?W*.84/(s.length*.6)/H:f};
 async function build(){if(exporting)return;const btn=dlg.querySelector('#brBuild');btn.disabled=true;btn.textContent='Building…';
-  try{const used=parts.flat().map(c=>c.asset),M=MOODS[mood],beat=M?60/M.bpm:0;
+  try{const used=parts.flat().map(c=>c.asset),M=MOODS[mood],beat=M?60/M.bpm:0,heard=parts.flat().some(c=>c.words!==undefined);
     if(clips.length||graphicTracks.length||extraTracks.length){if(window.veNewProject)await veNewProject();else{clips=[];graphicTracks=[]}}
     for(const a of used)if(!assets.includes(a))assets.push(a);
     $$('aspect').value=shape;setAspect();const W=canvas.width,H=canvas.height;
@@ -299,8 +302,15 @@ async function build(){if(exporting)return;const btn=dlg.querySelector('#brBuild
       Object.assign(g,{name:p.label+': '+text.slice(0,18),text,color:p.color||'#ffffff',size:textFrac(text,W,H)*H*1280/W,x:50,y:p.y,bold:true,background:false,animation:p.anim,offset:Math.round(s*10)/10,length:Math.max(.8,Math.round(Math.min(len,p.textMax||len)*10)/10),boxColor:p.box,boxOpacity:1,boxPad:26,boxRadius:18})}
     if(M&&t>0){btn.textContent='Making your music…';let file=await makeBeat(t,mood);addTrack('audio');let tr=extraTracks.at(-1);tr.name='🎵 '+M.name+' beat';targetTrack=tr.id;await loadTrackMedia(file);tr.volume=talky?.22:.7;renderTracks()}
     $$('projectName').value='B-roll · '+tp.name;selected=-1;render();renderTracks();renderGraphicTracks();await seekTimeline(0);
-    items=[];parts=null;dlg.close();toast('Your video is ready! Press ▶ to watch it.')}
+    items=[];parts=null;dlg.close();
+    // Captions: when the clip reader heard talking, or when it didn't run (Keep my order) so we can't tell.
+    if(autoCaps&&window.veAutoCaptions&&(talky||!heard))captionsAfter();else toast('Your video is ready! Press ▶ to watch it.')}
   catch(e){toast('Couldn’t build the video: '+(e.message||e));btn.disabled=false;btn.textContent='🎬 Build my video'}}
+
+async function captionsAfter(){let last='';toast('Your video is ready! Now adding captions…');
+  try{let n=await veAutoCaptions(t=>{if(t!==last){last=t;toast('Captions: '+t)}});
+    toast(n?`Your video is ready, with captions (${n} words)! Press ▶ to watch it.`:'Your video is ready! We didn’t hear any talking, so there are no captions. Press ▶ to watch it.')}
+  catch(e){toast('Your video is ready, but captions didn’t work here. You can try ✨ Captions in the toolbar.')}}
 
 // ---------- ways in ----------
 window.openBroll=open;

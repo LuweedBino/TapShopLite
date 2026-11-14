@@ -192,25 +192,39 @@ function setBusy(on){let d=document.getElementById('capDialog');if(!d)return;d.q
 window.openCaptions=function(){if(exporting)return;pause();if(!clips.length){toast('Add a video first, then make captions.');return}let d=dialog();fillStyles();d.querySelector('#capErr').textContent='';setBusy(false);
   let old=graphicTracks.find(isCap);d.querySelector('#capGo').textContent=old?'Replace captions':'Create captions';d.showModal()};
 
-async function run(){let d=dialog(),status=d.querySelector('#capStatus'),prog=d.querySelector('#capProg'),err=d.querySelector('#capErr');err.textContent='';
-  let lang=d.querySelector('#capLang').value,q=d.querySelector('#capModel').value;try{localStorage.setItem('tapshop-captions',JSON.stringify({style:chosen,lang,model:q}))}catch{}
-  busy=true;cancelled=false;setBusy(true);let files={},say=(s,v)=>{status.textContent=s;if(v==null)prog.removeAttribute('value');else prog.value=v};
-  say('Starting the speech engine…');let all=[],list=clips.map((c,i)=>({c,i,start:startOf(i)}));
-  try{for(let k=0;k<list.length;k++){let {c,i,start}=list[k];if(cancelled)return;
+// Listens to every clip on the main timeline and returns its words placed on the timeline (null if cancelled).
+async function listenAll(lang,q,say){let files={},all=[],list=clips.map((c,i)=>({c,i,start:startOf(i)}));
+  say('Starting the speech engine…');
+  for(let k=0;k<list.length;k++){let {c,i,start}=list[k];if(cancelled)return;
       say(`Getting the sound from clip ${k+1} of ${list.length}…`);let audio;try{audio=await clipAudio(c)}catch(x){toast(x.message);continue}
       if(audio.length<1600)continue;let parts=pieces(audio);
       for(let pi=0;pi<parts.length;pi++){let part=parts[pi],dur=part.audio.length/16000,where=`clip ${k+1} of ${list.length}`+(parts.length>1?`, part ${pi+1} of ${parts.length}`:'');if(dur<.1)continue;
       let r=await ask({key:q,models:MODELS[q],gpu:'gpu' in navigator,language:lang,audio:part.audio},m=>{if(m.type==='dl'){files[m.file]=[m.loaded,m.total];let l=0,t=0;for(let [a,b] of Object.values(files)){l+=a;t+=b}say(`Downloading the speech engine (first time only)… ${Math.round(l/t*100)}%`,l/t)}else say(`Listening to ${where}… (this can take a minute)`)});
       if(cancelled)return;say(`Listening to ${where}… (this can take a minute)`);
       for(let w of toWords(r,dur)){let s=start+(part.at+Math.min(w.s,dur))/c.speed,e=start+(part.at+Math.min(w.e,dur))/c.speed;if(s<start+duration(c)-.02)all.push({w:w.w,s:Math.round(s*100)/100,e:Math.round(Math.min(e,start+duration(c))*100)/100})}}}
-    if(cancelled)return;
+  return cancelled?null:all.sort((a,b)=>a.s-b.s)}
+// Puts the words on the timeline as the one Captions track, replacing an old one (its style is kept when the preset matches).
+function placeCaptions(all,preset){snapshot();let old=graphicTracks.find(isCap),keepStyle=old&&old.style?.preset===preset?old.style:null;graphicTracks=graphicTracks.filter(t=>!isCap(t));
+  let t={id:uid(),type:'captions',name:'Captions',offset:0,length:Math.max(total(),all.at(-1).e+.6),hidden:false,words:all,style:keepStyle||presetStyle(preset)};
+  graphicTracks.push(t);renderGraphicTracks();draw();return t}
+async function run(){let d=dialog(),status=d.querySelector('#capStatus'),prog=d.querySelector('#capProg'),err=d.querySelector('#capErr');err.textContent='';
+  let lang=d.querySelector('#capLang').value,q=d.querySelector('#capModel').value;try{localStorage.setItem('tapshop-captions',JSON.stringify({style:chosen,lang,model:q}))}catch{}
+  busy=true;cancelled=false;setBusy(true);let say=(s,v)=>{status.textContent=s;if(v==null)prog.removeAttribute('value');else prog.value=v};
+  try{let all=await listenAll(lang,q,say);
+    if(!all)return;
     if(!all.length){err.textContent='We couldn’t hear any words. Check the video has speech and the right language is picked.';return}
-    all.sort((a,b)=>a.s-b.s);snapshot();let old=graphicTracks.find(isCap),keepStyle=old&&old.style?.preset===chosen?old.style:null;graphicTracks=graphicTracks.filter(t=>!isCap(t));
-    let t={id:uid(),type:'captions',name:'Captions',offset:0,length:Math.max(total(),all.at(-1).e+.6),hidden:false,words:all,style:keepStyle||presetStyle(chosen)};
-    graphicTracks.push(t);expandedStrip=t.id;renderGraphicTracks();draw();d.close();toast(`Captions added — ${all.length} words. Tap the Captions strip to style or fix them.`);
+    let t=placeCaptions(all,chosen);expandedStrip=t.id;renderGraphicTracks();d.close();toast(`Captions added — ${all.length} words. Tap the Captions strip to style or fix them.`);
     requestAnimationFrame(()=>document.querySelector(`#graphicTracks .strip-row[data-trackid="${t.id}"]`)?.scrollIntoView({block:'nearest',behavior:'smooth'}))}
   catch(x){if(!cancelled){err.textContent='Captions didn’t work: '+(x.message||x)+'. Check your internet connection for the first download, then try again.';worker?.terminate();worker=null}}
   finally{busy=false;setBusy(false)}}
+
+// Captions without the dialog, for makers like the B-roll builder: uses the last settings from the Captions
+// dialog (or Pop, English, Fast). say(text) reports progress. Resolves to the number of words added (0 = none heard).
+window.veAutoCaptions=async function(say=()=>{}){if(busy||exporting||!clips.length)return 0;
+  let s={};try{s=JSON.parse(localStorage.getItem('tapshop-captions')||'{}')}catch{}
+  let preset=hasPreset(s.style)?s.style:'pop',lang=s.lang!=null?s.lang:'english',q=MODELS[s.model]?s.model:'fast';
+  busy=true;cancelled=false;try{let all=await listenAll(lang,q,t=>say(t));if(!all||!all.length)return 0;placeCaptions(all,preset);return all.length}
+  catch(x){worker?.terminate();worker=null;throw x}finally{busy=false}};
 
 // ---------- styles and toolbar ----------
 let css=document.createElement('style');css.textContent=`.duration-strip[data-kind="captions"]{background:linear-gradient(#c2557a,#8a3354);border-color:#f19bbb}
