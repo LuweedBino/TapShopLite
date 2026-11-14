@@ -1,0 +1,90 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>My account · TapShopLite</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2216%22 fill=%22%23ff4f8b%22/%3E%3Cpath d=%22M25 19v26l21-13z%22 fill=%22white%22/%3E%3C/svg%3E">
+<script>/* Light or dark: the editor's saved choice, else the device's. */(()=>{let t;try{t=localStorage.getItem('forma-theme')}catch{}if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t})()</script>
+<script src="config.js"></script><script src="auth.js"></script>
+<style>
+:root{--bg:#fbf9fc;--card:#fff;--ink:#16141c;--muted:#6b6577;--line:#e7e2ec;--pink:#ff3ea5}
+[data-theme=dark]{--bg:#0f0e13;--card:#18161f;--ink:#f4f1f7;--muted:#a59fb0;--line:#2c2935}
+*{box-sizing:border-box}body{margin:0;font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+.top{display:flex;align-items:center;gap:10px;max-width:640px;margin:0 auto;padding:14px 16px}
+.brand{font-weight:800;letter-spacing:-.02em;font-size:20px;text-decoration:none;color:var(--ink)}.brand em{font-style:normal;color:var(--pink)}.sp{flex:1}
+.pill{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border-radius:999px;border:1px solid var(--line);color:var(--ink);text-decoration:none;font-weight:600;font-size:14px;white-space:nowrap}
+main{max-width:640px;margin:0 auto;padding:4px 16px 60px}
+.hero{display:flex;align-items:center;gap:14px;margin:8px 0 18px}.av{flex:none;width:56px;height:56px;border-radius:50%;background:var(--pink);color:#fff;display:grid;place-items:center;font-size:24px;font-weight:800}
+.hero h1{font-size:24px;margin:0;line-height:1.2;word-break:break-word}.hero p{margin:2px 0 0;color:var(--muted);font-size:14px;word-break:break-all}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;margin:0 0 14px}
+.card h2{font-size:17px;margin:0 0 4px}.sub{color:var(--muted);font-size:14px;margin:0 0 12px}
+label{display:block;font-size:13px;font-weight:600;margin:0 0 6px}
+input{width:100%;min-height:48px;border-radius:14px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;font-size:16px;padding:0 14px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:46px;padding:0 18px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-weight:700;font-size:15px;cursor:pointer;text-decoration:none;flex:1 1 auto}
+.btn.main{background:var(--pink);border-color:var(--pink);color:#fff}.btn.red{color:#e5484d;border-color:#e5484d66}.btn:disabled{opacity:.6}
+.msg{min-height:20px;font-size:14px;margin:8px 0 0}.msg.err{color:#e5484d}.msg.ok{color:#1a9f5b}
+.stat{display:flex;align-items:baseline;gap:8px}.stat b{font-size:28px}
+.danger{border-color:#e5484d44}
+</style></head>
+<body>
+<div class="top"><a class="brand" href="./">TapShop<em>Lite</em></a><span class="sp"></span><a class="pill" href="studio.html">← Video maker</a></div>
+<main id="page" hidden>
+  <div class="hero"><div class="av" id="av">?</div><div><h1 id="hi">My account</h1><p id="who"></p></div></div>
+
+  <section class="card"><h2>Your name</h2><p class="sub">Shown on your account menu.</p>
+    <form id="nameForm"><label for="name">Name</label><input id="name" autocomplete="name" maxlength="60" placeholder="Your name">
+    <div class="row"><button class="btn main" type="submit">Save name</button></div><p class="msg" id="nameMsg" role="status" aria-live="polite"></p></form></section>
+
+  <section class="card"><h2>Email</h2><p class="sub">You sign in with <b id="curEmail"></b>. To change it, type the new one: we'll email a link to confirm.</p>
+    <form id="emailForm"><label for="newEmail">New email</label><input id="newEmail" type="email" inputmode="email" autocomplete="email" placeholder="new@email.com">
+    <div class="row"><button class="btn main" type="submit">Change email</button></div><p class="msg" id="emailMsg" role="status" aria-live="polite"></p></form></section>
+
+  <section class="card"><h2>Password</h2><p class="sub">At least 6 characters.</p>
+    <form id="pwForm"><label for="pw">New password</label><input id="pw" type="password" autocomplete="new-password" minlength="6" placeholder="New password">
+    <div class="row"><button class="btn main" type="submit">Change password</button></div><p class="msg" id="pwMsg" role="status" aria-live="polite"></p></form></section>
+
+  <section class="card" id="aiCard" hidden><h2>☁️ Cloud AI today</h2><p class="sub">Better captions and fumble cutting in the B-roll Video Maker. It resets every night.</p>
+    <div class="stat"><b id="aiUsed">0</b><span class="sub" style="margin:0">cloud AI videos made today</span></div></section>
+
+  <section class="card"><h2>💌 Invite a friend</h2><p class="sub">TapShopLite is free right now. Share it with a creator friend.</p>
+    <div class="row"><button class="btn main" type="button" id="share">Share invite</button><button class="btn" type="button" id="copy">Copy link</button><a class="btn" id="mail" href="#">Email it</a></div>
+    <p class="msg" id="inviteMsg" role="status" aria-live="polite"></p></section>
+
+  <section class="card"><h2>Sign out</h2><p class="sub">Member since <span id="since"></span>.</p>
+    <div class="row"><button class="btn" type="button" id="out">Sign out</button><button class="btn" type="button" id="outAll">Sign out on all devices</button></div></section>
+
+  <section class="card danger"><h2>Delete my account</h2><p class="sub">This removes your account and email for good. Your videos stay on your devices (they were never uploaded). Type <b>DELETE</b> to confirm.</p>
+    <form id="delForm"><input id="delWord" autocomplete="off" placeholder="Type DELETE" aria-label="Type DELETE to confirm">
+    <div class="row"><button class="btn red" type="submit">Delete my account</button></div><p class="msg" id="delMsg" role="status" aria-live="polite"></p></form></section>
+</main>
+<script>
+// My account (linked from the 👤 menu): name, email, password, cloud AI use today, invite, sign out, delete.
+(async()=>{const $=id=>document.getElementById(id),A=window.TapAuth,SITE='https://tapshoplite.app/',INVITE='I make my short videos with TapShopLite. It’s free right now, try it:';
+  const note=(id,t,kind)=>{const m=$(id);m.textContent=t;m.className='msg'+(kind?' '+kind:'')};
+  const busy=(f,on,label)=>{const b=f.querySelector('[type=submit]');b.disabled=on;if(label)b.textContent=label};
+  const nice=x=>{const m=x?.message||'';return /rate|limit|429|seconds/i.test(m)?'Please wait a minute and try again.':/already.*(registered|exists)|in use/i.test(m)?'That email already has an account.':/same|different from the old/i.test(m)?'That’s your current one. Pick a new one.':/weak|short/i.test(m)?'Please pick a stronger password.':/reauth|recent/i.test(m)?'For safety, sign out and back in, then try again.':(m||'That didn’t work. Please try again.')};
+  if(!A||!A.on){location.replace('./');return}
+  let s=null;try{s=await A.session()}catch{}if(!s){location.replace('./?login=1#join');return}
+  let u=s.user;try{u=await A.user()}catch{}
+  const paint=()=>{const n=u.user_metadata?.name||'';$('av').textContent=(n||u.email||'?').trim()[0].toUpperCase();$('hi').textContent=n?'Hi, '+n:'My account';$('who').textContent=u.email;$('curEmail').textContent=u.email;
+    $('since').textContent=new Date(u.created_at).toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'});
+    if(u.new_email)note('emailMsg','Waiting for you to confirm '+u.new_email+'. Check that inbox (and your current one).')};
+  $('name').value=u.user_metadata?.name||'';paint();
+  const ai=u.app_metadata?.ai,today=new Date().toLocaleDateString('en-CA',{timeZone:'America/Los_Angeles'});
+  if(window.TAPSHOP_AI?.cloud){$('aiCard').hidden=false;$('aiUsed').textContent=ai&&ai.day===today?ai.n:0}
+  $('page').hidden=false;
+  $('nameForm').onsubmit=async e=>{e.preventDefault();const f=e.target,n=$('name').value.trim();busy(f,true);
+    try{u=await A.updateProfile({name:n});paint();note('nameMsg',n?'Saved!':'Name removed.','ok')}catch(x){note('nameMsg',nice(x),'err')}finally{busy(f,false)}};
+  $('emailForm').onsubmit=async e=>{e.preventDefault();const f=e.target,v=$('newEmail').value.trim();
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)){note('emailMsg','Please type the new email, like you@email.com','err');return}
+    if(v.toLowerCase()===u.email.toLowerCase()){note('emailMsg','That’s already your email.','err');return}
+    busy(f,true);try{await A.changeEmail(v);note('emailMsg','Almost done! We emailed a link to '+v+' (and maybe your current email too). Tap it to confirm the change.','ok');$('newEmail').value=''}catch(x){note('emailMsg',nice(x),'err')}finally{busy(f,false)}};
+  $('pwForm').onsubmit=async e=>{e.preventDefault();const f=e.target,v=$('pw').value;if(v.length<6){note('pwMsg','Your password needs at least 6 characters.','err');return}
+    busy(f,true);try{await A.updatePassword(v);$('pw').value='';note('pwMsg','Password changed!','ok')}catch(x){note('pwMsg',nice(x),'err')}finally{busy(f,false)}};
+  $('mail').href='mailto:?subject='+encodeURIComponent('Try TapShopLite')+'&body='+encodeURIComponent(INVITE+' '+SITE);
+  $('share').onclick=async()=>{if(navigator.share){try{await navigator.share({title:'TapShopLite',text:INVITE,url:SITE});return}catch(x){if(x?.name==='AbortError')return}}$('copy').click()};
+  $('copy').onclick=async()=>{try{await navigator.clipboard.writeText(INVITE+' '+SITE);note('inviteMsg','Copied! Paste it in a text, DM or email.','ok')}catch{note('inviteMsg','Copy this link: '+SITE)}};
+  $('out').onclick=async()=>{await A.signOut().catch(()=>{});location.href='./'};
+  $('outAll').onclick=async()=>{await A.signOut('global').catch(()=>{});location.href='./'};
+  $('delForm').onsubmit=async e=>{e.preventDefault();const f=e.target;if($('delWord').value.trim().toUpperCase()!=='DELETE'){note('delMsg','Type DELETE in the box first.','err');return}
+    busy(f,true,'Deleting…');try{await A.deleteAccount();location.href='./?deleted=1'}catch(x){note('delMsg',nice(x),'err');busy(f,false,'Delete my account')}};
+})();
+</script></body></html>
