@@ -93,7 +93,7 @@ const color=(id,key,v,label)=>`<label>${label}<input type="color" value="${v}" o
 const select=(id,key,v,label,opts,num)=>`<label>${label}<select onchange="capSet('${id}','${key}',${num?'+':''}this.value)">${opts.map(([k,l])=>`<option value="${esc(k)}" ${String(k)===String(v)?'selected':''}>${esc(l)}</option>`).join('')}</select></label>`;
 const toggle=(id,key,v,label)=>`<label>${label}<button type="button" class="graphic-toggle" aria-pressed="${!!v}" onclick="capSet('${id}','${key}',${!v})">${v?'On':'Off'}</button></label>`;
 function panel(t){let st=style(t),id=t.id;
-  return `<div class="cap-panel"><div class="cap-head"><b>Captions</b><span class="sub">${t.words.length} words · tap a style, then fine-tune</span><button type="button" onclick="editGraphic('${id}','hidden',${!t.hidden})">${t.hidden?'Show':'Hide'}</button><button type="button" onclick="capSaveStyle('${id}')">★ Save my style</button><button type="button" onclick="openCaptions()">Redo captions</button><button type="button" onclick="removeGraphic('${id}')">Delete captions</button></div>
+  return `<div class="cap-panel"><div class="cap-head"><b>Captions</b><span class="sub">${t.words.length} words · tap a style, then fine-tune</span><button type="button" onclick="editGraphic('${id}','hidden',${!t.hidden})">${t.hidden?'Show':'Hide'}</button><button type="button" onclick="capSaveStyle('${id}')">★ Save my style</button><button type="button" class="cap-redo" onclick="capRedo('${id}')">🔄 Redo captions</button><button type="button" onclick="removeGraphic('${id}')">Delete captions</button></div>
   <p class="cap-group">Styles</p><div class="cap-presets">${(list=>list.map(([k,p])=>`<span class="cap-pwrap"><button type="button" class="cap-preset ${st.preset===k?'on':''}" onclick="capPreset('${id}','${k}')"><img alt="" src="${previewCanvas(k)}"><span>${esc(p.label)}</span></button>${k.startsWith('my:')?`<button type="button" class="cap-pdel" aria-label="Delete ${esc(p.label)}" title="Delete this style" onclick="capDeleteStyle('${k}',event)">×</button>`:''}</span>`).join(''))(Object.entries(PRESETS))}</div>
   ${myPresets().length?`<p class="cap-group">★ My saved styles</p><div class="cap-presets">${(list=>list.map(([k,p])=>`<span class="cap-pwrap"><button type="button" class="cap-preset ${st.preset===k?'on':''}" onclick="capPreset('${id}','${k}')"><img alt="" src="${previewCanvas(k)}"><span>${esc(p.label)}</span></button>${k.startsWith('my:')?`<button type="button" class="cap-pdel" aria-label="Delete ${esc(p.label)}" title="Delete this style" onclick="capDeleteStyle('${k}',event)">×</button>`:''}</span>`).join(''))(myPresets())}</div>`:`<p class="sub cap-mytip">Tip: style your captions the way you like, then tap ★ Save my style to keep it here.</p>`}
   <div class="extra-track-fields cap-fields">
@@ -274,7 +274,7 @@ window.veCloudWords=async function(list,say=()=>{}){if(!veCloudOn())throw cloudE
 // fresh captions in the same style. Cloud AI first when it's on (one use of the daily limit), else on this device.
 const FILL=/^(u+m+|u+h+|uhm+|e+r+m*|a+h+|h+m+|m+h*m+)$/i;
 window.capRedo=async function(id){if(busy||exporting||!clips.length)return;pause();const old=graphicTracks.find(t=>t.id===id)||graphicTracks.find(isCap),keep=old?.style;
-  const btn=document.querySelector('.cap-redo'),say=s=>{if(btn)btn.textContent=s};busy=true;cancelled=false;let all=null,how='';
+  const btns=()=>document.querySelectorAll('.cap-redo'),say=s=>btns().forEach(b=>{b.textContent=s;b.disabled=true});busy=true;cancelled=false;let all=null,how='';
   try{let cloudOk=veCloudOn();try{cloudOk=cloudOk&&localStorage.getItem('tapshop-broll-cloud')!=='off'}catch{}
     if(cloudOk){try{busy=false;const r=await veCloudWords(clips.map(c=>({assetId:c.assetId,in:c.in,out:c.out})),say);busy=true;all=[];
         clips.forEach((c,i)=>{const st=startOf(i),sp=c.speed||1;for(const w of r.words[i]||[]){if(FILL.test(String(w.w).replace(/[^a-z]/gi,''))||w.e<=c.in||w.s>=c.out)continue;
@@ -286,7 +286,7 @@ window.capRedo=async function(id){if(busy||exporting||!clips.length)return;pause
     const t=placeCaptions(all,keep?.preset||lastSettings().preset);if(keep)t.style={...keep};expandedStrip=t.id;renderGraphicTracks();draw();
     toast(`Fresh captions: ${all.length} words.${how}`)}
   catch(e){worker?.terminate();worker=null;toast('Couldn’t redo the captions: '+(e.message||e))}
-  finally{busy=false;if(btn)btn.textContent='🔄 Redo captions'}};
+  finally{busy=false;btns().forEach(b=>{b.textContent='🔄 Redo captions';b.disabled=false})}};
 // Adds ready-made timeline words as the Captions track, in the last style used. Returns the number of words.
 window.vePlaceCaptions=function(words){if(!words?.length)return 0;placeCaptions([...words].sort((a,b)=>a.s-b.s),lastSettings().preset);return words.length};
 
