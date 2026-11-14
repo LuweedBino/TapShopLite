@@ -235,7 +235,7 @@ const css=`#veStart[hidden],#veStart [hidden]{display:none!important}
 #veStart .vs-plat small{display:block;font-weight:500;font-size:11px;opacity:.7;margin-top:2px;color:inherit!important}
 html body #veStart .vs-plat[aria-pressed="true"]{position:relative;background:var(--ts-primary,#171717)!important;color:var(--ts-on-primary,#fff)!important;border-color:var(--ts-primary,#171717)!important;box-shadow:0 0 0 3px #ff3ea5!important}
 #veStart .vs-plat[aria-pressed="true"]::after{content:'✓';position:absolute;top:-8px;right:-8px;width:20px;height:20px;box-shadow:0 0 0 2px var(--ts-bg,#fafafa);border-radius:50%;background:#ff3ea5;color:#fff;font-size:11px;font-weight:800;display:grid;place-items:center}
-#veStart .vs-quick{display:grid;gap:10px;margin:0 0 6px}.vs-quick .vs-qh h2{margin-top:8px}#veStart .vs-quick{border:3px solid #ff3ea566;border-radius:18px;padding:4px 14px 14px;margin:14px 0 6px}html.ts-dark #veStart .vs-quick{border-color:#ff3ea5b3}.vs-quick .vs-qh .vs-help{margin:0 0 2px}#veStart .vs-quick .vs-reviews{margin:0}
+#veStart .vs-quick{display:grid;gap:10px;margin:0 0 6px}.vs-quick .vs-qh h2{margin-top:8px}#veStart .vs-quick{border:3px solid #ff3ea566;border-radius:18px;padding:4px 14px 14px;margin:14px 0 6px}html.ts-dark #veStart .vs-quick{border-color:#ff3ea5b3}#veStart .vs-steps,#veStart .vs-quick{scroll-margin-top:12px}#veStart .vs-steps{border:3px solid #ff3ea566;border-radius:18px;padding:4px 14px 16px;margin:18px 0 6px}html.ts-dark #veStart .vs-steps{border-color:#ff3ea5b3}#veStart .vs-steps .vs-qh h2{margin-top:8px}#veStart .vs-steps .vs-qh .vs-help{margin:0 0 2px}#veStart .vs-steps .vs-qh+h2{margin-top:18px}#veStart .vs-steps .vs-tpls{margin:0 -14px;padding-left:14px;padding-right:14px;scroll-padding-left:14px}.vs-quick .vs-qh .vs-help{margin:0 0 2px}#veStart .vs-quick .vs-reviews{margin:0}
 #veStart .vs-drop{border:2px dashed var(--ts-border-strong,#d4d4d4);border-radius:16px;background:var(--ts-surface,#fff);padding:22px 16px;text-align:center}
 #veStart .vs-drop.over{border-color:var(--ts-primary,#171717);background:var(--ts-soft,#f5f5f5)}
 #veStart .vs-drop .big{font-size:30px;line-height:1}
@@ -299,6 +299,7 @@ function build(){
   <li class="vs-or" aria-hidden="true"><span>or</span></li>
   <li><button type="button" data-path="blank"><span class="vs-pi" aria-hidden="true">✎</span><span class="vs-pt"><b>Skip all this and tap Video Editor</b><small>At the top right, to create from scratch</small></span><span class="vs-pa" aria-hidden="true">›</span></button></li>
   </ol><button type="button" class="vs-recentlink" id="vsRecentLink" hidden>or continue with a recent video <span aria-hidden="true">›</span></button></div>
+  <section class="vs-steps" id="vsSteps" aria-label="1-2-3 Steps"><div class="vs-qh"><h2>1-2-3 Steps</h2><p class="vs-help">Choose a shape, add your clips, and add a template if you like.</p></div>
   <h2><span class="vs-step">1</span>Where will you post it?</h2><p class="vs-help">This sets the shape of your video.</p>
   <div class="vs-plats" id="vsPlats"></div>
   <h2><span class="vs-step">2</span>Add your videos and photos</h2><p class="vs-help">They go on the timeline in this order: videos first, then photos (${PHOTO_SECONDS} seconds each).</p>
@@ -309,6 +310,7 @@ function build(){
   <h2><span class="vs-step">3</span>Pick a template <span style="font-weight:500;color:var(--ts-muted,#737373);font-size:13px">(optional)</span></h2><p class="vs-help">Ready-made text and timing for short videos. Tap again to unselect.</p>
   <div class="vs-cats" id="vsCats" role="group" aria-label="Template type"></div>
   <div class="vs-tpls" id="vsTpls"></div>
+  </section>
     <div class="vs-more"><button type="button" id="vsDemo">▶ Try a sample video</button></div>
   <h2>Quick tips</h2>
   <div class="vs-tips">${TIPS.map(([i,t,p])=>`<div class="vs-tip"><span aria-hidden="true">${i}</span><b>${esc(t)}</b><p>${esc(p)}</p></div>`).join('')}</div>
@@ -342,7 +344,7 @@ function build(){
    link.onclick=()=>{let to=document.getElementById('vsRecentSec');to?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});if(to){to.classList.remove('vs-flash');void to.offsetWidth;to.classList.add('vs-flash')}}}
   el.querySelector('.vs-paths').onclick=e=>{let b=e.target.closest('[data-path]');if(!b)return;let p=b.dataset.path;
     if(p==='blank'){$$('vsBlank').click();return}
-    let to=p==='quick'?document.getElementById('vsQuick'):$$('vsPlats')?.previousElementSibling?.previousElementSibling;
+    let to=p==='quick'?document.getElementById('vsQuick'):$$('vsSteps');
     to?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
     if(to){to.classList.remove('vs-flash');void to.offsetWidth;to.classList.add('vs-flash')}};
   $$('vsDemo').onclick=async()=>{if(hasWork()&&window.veNewProject)await veNewProject();applyAspect();close();loadDemo()};
