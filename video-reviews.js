@@ -124,7 +124,7 @@ const baseDefaults=veGfxDefaults;window.veGfxDefaults=id=>{let t=baseDefaults(id
 let g=[...document.querySelectorAll('.timebar button')].find(b=>/Graphics/.test(b.textContent));let btn=document.createElement('button');btn.type='button';btn.textContent='⭐ Reviews';btn.title='Turn screenshots of reviews into an animated video';btn.onclick=()=>open(null);if(g)g.after(btn);else document.querySelector('.timebar')?.appendChild(btn);
 window.openReviews=()=>open(null);
 // Also offer it on the start screen, above the templates: it applies the chosen platform first.
-function startButton(){let cats=document.getElementById('vsCats');if(!cats||document.getElementById('vsReviews'))return;let b=document.createElement('button');b.type='button';b.id='vsReviews';b.className='vs-reviews';b.innerHTML='<b>⭐ Make a review video from screenshots</b><span>Paste screenshots of other people’s reviews and they’re animated for you — great for affiliate videos.</span>';
+function startButton(){let cats=document.getElementById('vsCats');if(!cats||document.getElementById('vsReviews'))return;let b=document.createElement('button');b.type='button';b.id='vsReviews';b.className='vs-reviews';b.innerHTML='<b>⭐ Make a review video from screenshots</b><span>Paste screenshots of other people’s reviews and they’re animated for you. Use it as a whole video, or add it over one of your clips as extra proof. Great for affiliate videos.</span>';
   b.onclick=()=>{let go=document.getElementById('vsGo');if(go)go.click();let el=document.getElementById('veStart');if(el)el.hidden=true;setTimeout(()=>open(null),60)};cats.before(b)}
 new MutationObserver(startButton).observe(document.body,{childList:true,subtree:true});startButton();
 })();
