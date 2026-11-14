@@ -129,6 +129,7 @@ window.veFastExport=async function(){
     done();
     download(new Blob([target.buffer],{type:kind}),($('projectName').value||'TapShopLite video')+(mp4?'.mp4':'.webm'));
     say('Saved! Your MP4 is ready to post anywhere.');
+    window.veSavedClose?.();
     return true;
   }catch(e){
     let stopped=cancelled;
