@@ -84,12 +84,39 @@ const TEMPLATES=[
 ];
 
 // ---------- free beats, made in the browser ----------
+// ▶ Listen plays 10 seconds of the chosen beat; it stops when the mood changes, it's tapped again or the dialog closes.
+let preview=null;
+function stopListen(){if(preview){preview.pause();URL.revokeObjectURL(preview.src);preview=null}let b=document.getElementById('brListen');if(b){b.textContent='▶ Listen';b.disabled=false}}
+async function listen(){let b=document.getElementById('brListen');if(preview){stopListen();return}if(!mood){toast('Pick some music first.');return}
+  b.disabled=true;b.textContent='…';try{let f=await makeBeat(10,mood);preview=new Audio(URL.createObjectURL(f));preview.onended=stopListen;await preview.play();b.textContent='■ Stop';b.disabled=false}catch(e){stopListen();toast('Couldn’t play the music here.')}}
 const MOODS={
   bright:{name:'Bright pop',bpm:104,chords:[[60,'maj'],[67,'maj'],[69,'min'],[65,'maj']],kick:[0,8,10],snare:[4,12],hats:2,arp:2,pad:1300},
   upbeat:{name:'Upbeat dance',bpm:122,chords:[[62,'min'],[58,'maj'],[65,'maj'],[60,'maj']],kick:[0,4,8,12],snare:[4,12],hats:2,open:[2,6,10,14],arp:1,pad:1600},
   chill:{name:'Chill lo-fi',bpm:86,chords:[[57,'min7'],[53,'maj7'],[60,'maj7'],[55,'maj']],kick:[0,7,10],snare:[8],hats:2,swing:.12,arp:4,pad:850},
+  // Optional fields (missing = the original sound): bass saw|sub|pluck|none, bassPat (steps), lead triangle|square|sine|bell,
+  // arpDown, clap/rim (steps), roll (hat steps split in three), hats 0 = none, drums false = no drums, padType, padVol, chordBars, boom (long kick).
+  trap:{name:'Trap bounce',bpm:140,chords:[[57,'min'],[53,'maj'],[60,'maj'],[55,'maj']],kick:[0,7,10],snare:[8],clap:[8],hats:1,roll:[6,14],bass:'sub',bassPat:[0,7,10],boom:1,arp:4,lead:'bell',pad:900,padVol:.6},
+  rnb:{name:'Smooth R&B',bpm:72,chords:[[62,'m9'],[67,'dom7'],[60,'maj7'],[57,'m9']],kick:[0,7,10],snare:[8],rim:[4,14],hats:2,swing:.1,bass:'sub',bassPat:[0,7,10],arp:4,lead:'sine',pad:1000,padType:'sine',padVol:1.2},
+  acoustic:{name:'Happy acoustic',bpm:110,chords:[[60,'add9'],[67,'maj'],[69,'min'],[65,'add9']],kick:[0,8],clap:[4,12],snare:[],hats:4,bass:'pluck',arp:1,lead:'triangle',pad:900,padType:'sine'},
+  tropical:{name:'Tropical house',bpm:108,chords:[[64,'min7'],[60,'maj7'],[67,'maj'],[62,'maj']],kick:[0,4,8,12],snare:[],clap:[4,12],open:[2,6,10,14],hats:4,bass:'pluck',bassPat:[2,6,10,14],arp:2,lead:'bell',pad:1400},
+  inspire:{name:'Inspiring corporate',bpm:116,chords:[[60,'add9'],[64,'min'],[65,'add9'],[67,'sus4']],kick:[0,8],snare:[4,12],hats:2,arp:1,lead:'sine',pad:1500},
+  epic:{name:'Epic cinematic',bpm:90,chords:[[57,'min'],[53,'maj'],[48,'maj'],[55,'maj']],kick:[0,3,10],snare:[8],hats:0,boom:1,bass:'saw',bassPat:[0,8],arp:2,lead:'square',pad:1800,padVol:1.8,chordBars:2},
+  dreamy:{name:'Dreamy ambient',bpm:70,chords:[[60,'maj7'],[57,'m9'],[65,'maj7'],[67,'sus2']],drums:false,bass:'sub',bassPat:[0],arp:4,lead:'bell',pad:1100,padType:'sine',padVol:1.5,chordBars:2},
+  funk:{name:'Funky groove',bpm:112,chords:[[62,'m9'],[67,'dom7']],kick:[0,3,8,11],snare:[4,12],hats:2,open:[6,14],bass:'pluck',bassPat:[0,3,6,8,10,11,14],arp:4,lead:'square',pad:1300},
+  synthwave:{name:'Retro synthwave',bpm:100,chords:[[57,'min'],[53,'maj'],[60,'maj'],[55,'maj']],kick:[0,8],snare:[4,12],hats:2,bass:'saw',bassPat:[0,2,4,6,8,10,12,14],arp:1,lead:'square',pad:2000},
+  boombap:{name:'Boom bap hip-hop',bpm:90,chords:[[57,'min7'],[62,'min7']],kick:[0,7,10],snare:[4,12],hats:2,swing:.14,bass:'sub',bassPat:[0,7,10],arp:8,lead:'triangle',pad:800},
+  afro:{name:'Afrobeats',bpm:104,chords:[[61,'min7'],[66,'maj7'],[68,'maj'],[64,'maj']],kick:[0,6,10],snare:[],rim:[3,7,11,14],clap:[4,12],hats:2,open:[14],bass:'pluck',bassPat:[0,6,10,13],arp:2,lead:'bell',pad:1200},
+  reggaeton:{name:'Reggaeton',bpm:96,chords:[[57,'min'],[53,'maj'],[60,'maj'],[55,'maj']],kick:[0,4,8,12],snare:[3,6,11,14],hats:4,bass:'sub',bassPat:[0,3,8,11],arp:4,lead:'square',pad:1200},
+  dnb:{name:'Drum & bass rush',bpm:172,chords:[[57,'min'],[53,'maj'],[55,'maj'],[52,'min']],kick:[0,10],snare:[4,12],hats:2,bass:'sub',bassPat:[0,10],arp:4,lead:'sine',pad:1500,chordBars:2},
+  futurebass:{name:'Future bass',bpm:150,chords:[[65,'add9'],[69,'min7'],[67,'sus4'],[64,'min7']],kick:[0,10],snare:[8],clap:[8],hats:2,roll:[14],bass:'sub',bassPat:[0,10],arp:2,lead:'bell',pad:2600,padVol:1.5},
+  jazz:{name:'Jazzy café',bpm:92,chords:[[62,'min7'],[67,'dom7'],[60,'maj7'],[57,'dom7']],kick:[0,10],snare:[],rim:[4,12],hats:2,swing:.16,bass:'pluck',bassPat:[0,4,8,12],arp:4,lead:'sine',pad:900,padType:'sine',padVol:1.6},
+  hype:{name:'Hype sports',bpm:128,chords:[[57,'pow'],[53,'pow'],[55,'pow'],[52,'pow']],kick:[0,4,8,12],snare:[4,12],clap:[4,12],hats:2,open:[2,6,10,14],bass:'saw',bassPat:[0,2,4,6,8,10,12,14],arp:2,lead:'square',pad:2200},
+  playful:{name:'Cute & playful',bpm:120,chords:[[60,'maj'],[65,'maj'],[67,'maj'],[60,'maj']],kick:[0,8],snare:[],clap:[4,12],hats:4,bass:'pluck',bassPat:[0,4,8,12],arp:2,lead:'square',pad:1000,padType:'sine'},
+  dark:{name:'Dark & moody',bpm:80,chords:[[57,'min'],[56,'maj'],[53,'maj'],[52,'pow']],kick:[0,10],snare:[8],hats:4,boom:1,bass:'sub',bassPat:[0,10],arp:8,lead:'sine',pad:600,padVol:1.4,chordBars:2},
+  holiday:{name:'Holiday sparkle',bpm:110,chords:[[60,'maj'],[64,'min'],[65,'maj'],[67,'dom7']],kick:[0,8],snare:[4,12],hats:2,open:[6,14],bass:'pluck',arp:1,lead:'bell',pad:1400},
+  workout:{name:'Workout pump',bpm:132,chords:[[62,'min'],[58,'maj'],[60,'maj'],[57,'min']],kick:[0,4,8,12],clap:[4,12],snare:[],hats:2,open:[2,6,10,14],bass:'saw',bassPat:[2,6,10,14],arp:2,lead:'square',pad:1700},
 };
-const TONES={maj:[0,4,7],min:[0,3,7],min7:[0,3,7,10],maj7:[0,4,7,11]};
+const TONES={maj:[0,4,7],min:[0,3,7],min7:[0,3,7,10],maj7:[0,4,7,11],m9:[0,3,7,10,14],dom7:[0,4,7,10],add9:[0,4,7,14],sus2:[0,2,7],sus4:[0,5,7],pow:[0,7,12]};
 const hz=m=>440*Math.pow(2,(m-69)/12);
 async function makeBeat(seconds,moodKey){
   const M=MOODS[moodKey]||MOODS.bright,SR=44100,len=Math.max(1,seconds),oc=new OfflineAudioContext(2,Math.ceil((len+.05)*SR),SR);
@@ -98,21 +125,27 @@ async function makeBeat(seconds,moodKey){
   const noise=oc.createBuffer(1,SR,SR),nd=noise.getChannelData(0);for(let i=0;i<SR;i++)nd[i]=Math.random()*2-1;
   const out=(node,pan=0)=>{if(pan&&oc.createStereoPanner){let p=oc.createStereoPanner();p.pan.value=pan;node.connect(p);p.connect(master)}else node.connect(master)};
   const env=(g,t,peak,att,dec)=>{g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(peak,t+att);g.gain.exponentialRampToValueAtTime(0.0001,t+att+dec)};
-  const kick=t=>{let o=oc.createOscillator(),g=oc.createGain();o.frequency.setValueAtTime(150,t);o.frequency.exponentialRampToValueAtTime(45,t+.12);env(g,t,.9,.003,.35);o.connect(g);out(g);o.start(t);o.stop(t+.4)};
+  const kick=t=>{let o=oc.createOscillator(),g=oc.createGain(),d=M.boom?.7:.35;o.frequency.setValueAtTime(150,t);o.frequency.exponentialRampToValueAtTime(M.boom?40:45,t+.12);env(g,t,.9,.003,d);o.connect(g);out(g);o.start(t);o.stop(t+d+.05)};
+  const clap=t=>{for(let k=0;k<3;k++){let u=t+k*.011,s=oc.createBufferSource(),f=oc.createBiquadFilter(),g=oc.createGain();s.buffer=noise;f.type='bandpass';f.frequency.value=1500;f.Q.value=.9;env(g,u,k===2?.4:.22,.001,k===2?.16:.02);s.connect(f);f.connect(g);out(g);s.start(u,Math.random()*.5);s.stop(u+.2)}};
+  const rim=t=>{let o=oc.createOscillator(),f=oc.createBiquadFilter(),g=oc.createGain();o.type='square';o.frequency.value=1700;f.type='highpass';f.frequency.value=900;env(g,t,.09,.001,.03);o.connect(f);f.connect(g);out(g,-.2);o.start(t);o.stop(t+.05)};
   const snare=t=>{let s=oc.createBufferSource(),f=oc.createBiquadFilter(),g=oc.createGain();s.buffer=noise;f.type='highpass';f.frequency.value=1300;env(g,t,.32,.002,.18);s.connect(f);f.connect(g);out(g);s.start(t,Math.random()*.5);s.stop(t+.22);
     let o=oc.createOscillator(),g2=oc.createGain();o.type='triangle';o.frequency.value=190;env(g2,t,.18,.002,.09);o.connect(g2);out(g2);o.start(t);o.stop(t+.12)};
   const hat=(t,open)=>{let s=oc.createBufferSource(),f=oc.createBiquadFilter(),g=oc.createGain();s.buffer=noise;f.type='highpass';f.frequency.value=7500;env(g,t,open?.09:.07,.001,open?.22:.045);s.connect(f);f.connect(g);out(g,.25);s.start(t,Math.random()*.5);s.stop(t+(open?.26:.06))};
-  const bass=(t,m,d)=>{let o=oc.createOscillator(),f=oc.createBiquadFilter(),g=oc.createGain();o.type='sawtooth';o.frequency.value=hz(m);f.type='lowpass';f.frequency.value=380;g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(.28,t+.01);g.gain.setValueAtTime(.28,t+d*.7);g.gain.exponentialRampToValueAtTime(0.0001,t+d);o.connect(f);f.connect(g);out(g);o.start(t);o.stop(t+d+.02)};
-  const pad=(t,notes,d)=>{let f=oc.createBiquadFilter(),g=oc.createGain();f.type='lowpass';f.frequency.value=M.pad;g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(.045,t+.35);g.gain.setValueAtTime(.045,t+d-.3);g.gain.exponentialRampToValueAtTime(0.0001,t+d);f.connect(g);out(g);
-    for(let m of notes)for(let det of [-7,7]){let o=oc.createOscillator();o.type='sawtooth';o.frequency.value=hz(m);o.detune.value=det;o.connect(f);o.start(t);o.stop(t+d+.05)}};
-  const pluck=(t,m,pan)=>{let o=oc.createOscillator(),g=oc.createGain();o.type='triangle';o.frequency.value=hz(m);env(g,t,.075,.004,.26);o.connect(g);out(g,pan);o.start(t);o.stop(t+.32)};
-  for(let bar=0;bar*16*step<len;bar++){let t0=bar*16*step,[root,q]=M.chords[bar%M.chords.length],tones=TONES[q].map(x=>root+x);
-    pad(t0,tones,16*step);
+  const bass=(t,m,d)=>{if(M.bass==='sub'){let o=oc.createOscillator(),g=oc.createGain();o.type='sine';o.frequency.setValueAtTime(hz(m+12),t);o.frequency.exponentialRampToValueAtTime(hz(m),t+.06);g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(.3,t+.01);g.gain.setValueAtTime(.3,t+d*.6);g.gain.exponentialRampToValueAtTime(0.0001,t+d);o.connect(g);out(g);o.start(t);o.stop(t+d+.02);return}
+    let o=oc.createOscillator(),f=oc.createBiquadFilter(),g=oc.createGain();o.type=M.bass==='pluck'?'square':'sawtooth';o.frequency.value=hz(m);f.type='lowpass';f.frequency.value=M.bass==='pluck'?600:380;if(M.bass==='pluck')d=Math.min(d,.22);g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(.28,t+.01);g.gain.setValueAtTime(.28,t+d*.7);g.gain.exponentialRampToValueAtTime(0.0001,t+d);o.connect(f);f.connect(g);out(g);o.start(t);o.stop(t+d+.02)};
+  const pad=(t,notes,d)=>{let f=oc.createBiquadFilter(),g=oc.createGain();f.type='lowpass';f.frequency.value=M.pad;g.gain.setValueAtTime(0.0001,t);const pv=.045*(M.padVol||1);g.gain.exponentialRampToValueAtTime(pv,t+.35);g.gain.setValueAtTime(pv,t+d-.3);g.gain.exponentialRampToValueAtTime(0.0001,t+d);f.connect(g);out(g);
+    for(let m of notes)for(let det of [-7,7]){let o=oc.createOscillator();o.type=M.padType||'sawtooth';o.frequency.value=hz(m);o.detune.value=det;o.connect(f);o.start(t);o.stop(t+d+.05)}};
+  const pluck=(t,m,pan)=>{if(M.lead==='bell'){for(const [r,v,dc] of [[1,.06,.5],[3.5,.018,.18]]){let o=oc.createOscillator(),g=oc.createGain();o.type='sine';o.frequency.value=hz(m)*r;env(g,t,v,.002,dc);o.connect(g);out(g,pan);o.start(t);o.stop(t+dc+.05)}return}
+    let o=oc.createOscillator(),g=oc.createGain();o.type=M.lead==='square'?'square':M.lead==='sine'?'sine':'triangle';if(M.lead==='square'){env(g,t,.035,.004,.18);o.frequency.value=hz(m);o.connect(g);out(g,pan);o.start(t);o.stop(t+.24);return}o.frequency.value=hz(m);env(g,t,.075,.004,.26);o.connect(g);out(g,pan);o.start(t);o.stop(t+.32)};
+  const cb=M.chordBars||1,drums=M.drums!==false;
+  for(let bar=0;bar*16*step<len;bar++){let t0=bar*16*step,[root,q]=M.chords[Math.floor(bar/cb)%M.chords.length],tones=TONES[q].map(x=>root+x);
+    if(bar%cb===0)pad(t0,tones,16*step*cb);
     for(let s=0;s<16;s++){let t=t0+s*step+(M.swing&&s%2?M.swing*step*2:0);if(t>=len)break;
-      if(M.kick.includes(s))kick(t);if(M.snare.includes(s))snare(t);
-      if(s%M.hats===0)hat(t,false);if(M.open?.includes(s))hat(t,true);
-      if(s%4===0||(s%4===3&&M.bpm>100))bass(t,root-24+(s===14?7:0),step*(s%4===0?2.6:.9));
-      if(s%M.arp===0&&bar>0){let k=(s/M.arp)%(tones.length+1);pluck(t,tones[k%tones.length]+12+(k>=tones.length?12:0),k%2?-.3:.3)}}}
+      if(drums){if(M.kick.includes(s))kick(t);if(M.snare.includes(s))snare(t);if(M.clap?.includes(s))clap(t);if(M.rim?.includes(s))rim(t);
+        if(M.hats>0&&s%M.hats===0){if(M.roll?.includes(s))for(let k=0;k<3;k++)hat(t+k*step/3,false);else hat(t,false)}if(M.open?.includes(s))hat(t,true)}
+      if(M.bass!=='none'){if(M.bassPat){if(M.bassPat.includes(s)){let nx=M.bassPat.find(x=>x>s)??16;bass(t,root-24+(s===14&&M.bass!=='sub'?7:0),step*(nx-s)*.95)}}
+        else if(s%4===0||(s%4===3&&M.bpm>100))bass(t,root-24+(s===14?7:0),step*(s%4===0?2.6:.9))}
+      if(s%M.arp===0&&(bar>0||!drums)){let k=(s/M.arp)%(tones.length+1);pluck(t,tones[k%tones.length]+12+(k>=tones.length?12:0),k%2?-.3:.3)}}}
   const buf=await oc.startRendering();return new File([wav(buf)],`TapShopLite beat · ${M.name} ${M.bpm} BPM.wav`,{type:'audio/wav'})}
 function wav(buf){const ch=buf.numberOfChannels,n=buf.length,out=new DataView(new ArrayBuffer(44+n*ch*2)),w=(o,s)=>{for(let i=0;i<s.length;i++)out.setUint8(o+i,s.charCodeAt(i))};
   w(0,'RIFF');out.setUint32(4,36+n*ch*2,true);w(8,'WAVE');w(12,'fmt ');out.setUint32(16,16,true);out.setUint16(20,1,true);out.setUint16(22,ch,true);out.setUint32(24,buf.sampleRate,true);out.setUint32(28,buf.sampleRate*ch*2,true);out.setUint16(32,ch*2,true);out.setUint16(34,16,true);w(36,'data');out.setUint32(40,n*ch*2,true);
@@ -179,7 +212,7 @@ const st=document.createElement('style');st.textContent=`
 .br-clip .nm{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px;font-weight:600}
 .br-clip .tag{display:block;opacity:.75;margin-top:2px}.br-clip .said{display:block;font-style:italic;opacity:.65;margin-top:2px;max-height:2.6em;overflow:hidden}
 .br-clip select{width:100%;margin-top:4px;font-size:11px;padding:3px 4px}
-.br-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.br-row label{display:flex;flex-direction:column;gap:4px;font-size:12px}
+.br-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}#brListen{grid-column:1/-1;justify-self:end}.br-row label{display:flex;flex-direction:column;gap:4px;font-size:12px}
 .br-sec{border:1px solid var(--ts-border,#8883);border-radius:12px;padding:10px;margin:8px 0}
 .br-sec-h{display:flex;align-items:center;gap:8px}.br-sec-h b{font-size:13px;white-space:nowrap}.br-sec-h input{flex:1;min-width:0;font-size:13px;padding:6px 8px}
 .br-sec .br-empty{font-size:11px;opacity:.6;padding:6px 0}
@@ -200,7 +233,7 @@ function step1(){const flow=t=>t.parts.map(p=>p.label).join(' → ');
   <div class="br-add"><button type="button" class="primary" id="brChoose">📹 Choose clips</button>${typeof VaultPicker!=='undefined'&&VaultPicker.inTapShop?'<button type="button" id="brVault">⛁ From Media Vault</button>':''}${clips.length?`<button type="button" id="brTimeline">🎬 Use my timeline clips (${clips.length})</button>`:''}<input type="file" id="brFiles" accept="video/*" multiple hidden></div>
   <div class="br-clips">${items.length?items.map((c,i)=>`<div class="br-clip"><img alt="" src="${c.asset.thumb}"><button type="button" class="x" data-x="${i}" aria-label="Remove ${enc(c.asset.name)}">×</button><span class="nm">${enc(c.asset.name)}</span><span class="tag">${(c.out-c.in).toFixed(1)}s</span></div>`).join(''):'<p class="sub" style="margin:0">No clips yet. Add 3 or more for the best result.</p>'}</div>
   <h3>3. Look and sound</h3><div class="br-row"><label>Video shape<select id="brShape">${shapes().map(([v,l])=>`<option value="${enc(v)}"${v===shape?' selected':''}>${enc(l)}</option>`).join('')}</select></label>
-  <label>Music<select id="brMood">${Object.entries(MOODS).map(([k,m])=>`<option value="${k}"${k===mood?' selected':''}>🎵 ${enc(m.name)} · ${m.bpm} BPM</option>`).join('')}<option value=""${mood?'':' selected'}>No music</option></select></label></div>
+  <label>Music<select id="brMood">${Object.entries(MOODS).map(([k,m])=>`<option value="${k}"${k===mood?' selected':''}>🎵 ${enc(m.name)} · ${m.bpm} BPM</option>`).join('')}<option value=""${mood?'':' selected'}>No music</option></select></label><button type="button" id="brListen" title="Hear a few seconds of this music">▶ Listen</button></div>
   <p class="sub">The first time, your browser downloads the clip reader (a one-time download, about 130 MB). After that it’s saved. Phones are slower than computers.</p>
   <div class="row"><button type="button" id="brCancel">Cancel</button><button type="button" id="brSkip"${items.length?'':' disabled'}>Keep my order</button><button type="button" class="primary" id="brGo"${items.length?'':' disabled'}>✨ Sort my clips</button></div>`;
   dlg.querySelector('.dialog-x').onclick=dlg.querySelector('#brCancel').onclick=close;
@@ -209,7 +242,7 @@ function step1(){const flow=t=>t.parts.map(p=>p.label).join(' → ');
   const fi=dlg.querySelector('#brFiles');dlg.querySelector('#brChoose').onclick=()=>fi.click();fi.onchange=()=>{addFiles([...fi.files]);fi.value=''};
   dlg.querySelector('#brVault')?.addEventListener('click',()=>VaultPicker.open({title:'Pick a clip',kinds:['video'],onPick:async it=>{try{toast('Loading '+it.name+'…');await addFiles([await VaultPicker.file(it)])}catch(e){toast(e.message)}if(!dlg.open)dlg.showModal()}}));
   dlg.querySelector('#brTimeline')?.addEventListener('click',()=>{useTimeline();step1()});
-  dlg.querySelector('#brShape').onchange=e=>shape=e.target.value;dlg.querySelector('#brMood').onchange=e=>mood=e.target.value;
+  dlg.querySelector('#brShape').onchange=e=>shape=e.target.value;dlg.querySelector('#brMood').onchange=e=>{mood=e.target.value;stopListen()};dlg.querySelector('#brListen').onclick=listen;if(!dlg._stopsMusic){dlg._stopsMusic=1;dlg.addEventListener('close',stopListen)}
   dlg.querySelector('#brGo').onclick=analyse;dlg.querySelector('#brSkip').onclick=()=>{number();parts=arrange(items,tp);step3('Kept your order. Move any clip with the menu under it.')}}
 async function addFiles(files){let got=0;for(const f of files){if(!/^video\//.test(f.type)&&!/\.(mp4|mov|webm|m4v)$/i.test(f.name))continue;try{toast('Loading '+f.name+'…');let a=await loadAsset(f);items.push({asset:a,in:0,out:a.duration});got++}catch(e){toast(e.message)}}if(got&&dlg.open)step1()}
 function useTimeline(quiet){let seen=new Set(items.map(c=>c.key));for(const c of clips){let a=asset(c);if(!a)continue;let key=c.id;if(seen.has(key))continue;items.push({asset:a,in:c.in,out:c.out,key})}if(!quiet)toast('Your timeline clips are in.')}
