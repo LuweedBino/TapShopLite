@@ -89,11 +89,17 @@ details p{color:var(--muted);margin:8px 0 0}
 .faq{max-width:720px}
 footer{padding:30px 0 50px;color:var(--muted);font-size:14px;text-align:center}
 [hidden]{display:none!important}
+.mode{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:600 13px system-ui,sans-serif;cursor:pointer}
+.mode .mi{font-size:15px;line-height:1}.mode .mt{width:34px;height:20px;border-radius:999px;background:var(--line);padding:2px;transition:background .2s}
+.mode .mt span{display:block;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px #0005;transition:transform .2s}
+.mode[aria-checked=true] .mt{background:var(--pink)}.mode[aria-checked=true] .mt span{transform:translateX(14px)}
+@media(max-width:520px){.mode .ml{display:none}.mode{padding:0 9px}.btn.small{padding:0 13px}.nav .wrap{gap:8px}}.btn{white-space:nowrap}
 </style>
 </head>
 <body>
 <header class="nav"><div class="wrap">
   <a class="logo" href="./"><i>▶</i><span>TapShop<em>Lite</em></span></a><span class="sp"></span>
+  <button class="mode" type="button" id="mode" role="switch" aria-checked="false" aria-label="Dark mode"><span class="mi" aria-hidden="true">☾</span><span class="ml">Dark mode</span><span class="mt" aria-hidden="true"><span></span></span></button>
   <a class="btn small" id="navGo" href="#join">Sign up free</a>
 </div></header>
 
@@ -190,6 +196,9 @@ footer{padding:30px 0 50px;color:var(--muted);font-size:14px;text-align:center}
 <script>
 (()=>{
 const $=id=>document.getElementById(id);$('yr').textContent=new Date().getFullYear();
+// Light/dark switch; saved as forma-theme, the same setting the video maker uses.
+{const r=document.documentElement,b=$('mode'),sync=()=>{const d=r.dataset.theme==='dark';b.setAttribute('aria-checked',String(d));b.querySelector('.mi').textContent=d?'☀':'☾';b.querySelector('.ml').textContent=d?'Dark mode':'Light mode';b.title=d?'Switch to light mode':'Switch to dark mode'};
+  b.onclick=()=>{r.dataset.theme=r.dataset.theme==='dark'?'light':'dark';try{localStorage.setItem('forma-theme',r.dataset.theme)}catch{}sync()};sync()}
 const NAMES={google:'Google',apple:'Apple',facebook:'Facebook',azure:'Microsoft',github:'GitHub',discord:'Discord'};
 const ICONS={google:'<svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.9 6.1C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.3 5.7c4.3-4 7-9.8 7-17.1z"/><path fill="#FBBC05" d="M10.5 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.7l7.8-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.3-5.7c-2 1.4-4.7 2.3-8.6 2.3-6.2 0-11.5-4.1-13.4-9.9l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>',apple:'',facebook:'',azure:'',github:'',discord:''};
 const A=window.TapAuth,signin=/[?&]signin=1/.test(location.search);
