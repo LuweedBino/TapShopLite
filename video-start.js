@@ -212,6 +212,7 @@ const TIPS=[
   ['↕️','Drag up or down','Drag a strip up or down to put it on another row, or between rows for a new layer of its own. Empty rows disappear.'],
   ['✌️','Double-tap to edit','Double-tap a strip to open its editing menu. Double-tap again to close it.'],
   ['🎬','Clips become layers','Drag a main video clip up off its row and it becomes a picture-in-picture layer. Drag it back down to undo.'],
+  ['✏️','Edit right on the preview','Double-tap text, a sticker or a video on the preview: its editing menu pops up. Tap ✓ Apply, or anywhere else, to close it.'],
   ['✋','Move anything','Tap text, a sticker or a video on the preview, then drag it wherever you want it on the screen.'],
   ['📐','Resize anything','On the preview, pull a corner to make it bigger or smaller. Text and shapes also have side handles to stretch them wider or taller.'],
   ['🧲','Delete closes the gap','Delete a clip and its text, captions and music slide over to fill the space.'],
