@@ -3,7 +3,7 @@
 // window.TapAuth: on (sign-in is set up), session() → the current session or null, email(address),
 // provider(name), signOut(), onChange(fn).
 (()=>{
-const cfg=window.TAPSHOP_AUTH||{},on=!!(cfg.url&&cfg.key);
+const cfg=window.TAPSHOP_AUTH||{},on=!!(cfg.url&&cfg.key&&cfg.enabled!==false);
 const LIB='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
 let client=null;
 function load(){if(client)return client;client=new Promise((res,rej)=>{if(window.supabase?.createClient)return res();
