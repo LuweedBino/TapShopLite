@@ -208,6 +208,7 @@ const TIPS=[
   ['🎶','Music on any track','Tap 🎵 Audio, then 🎵 Free music, or ＋ Add media for a song of your own.'],
   ['💡','Light from the front','Face a window. Soft daylight on your face beats any filter.'],
   ['🎬','Gentle zooms','Slow zooms keep still shots alive. Change any clip in its Movement menu.'],
+  ['👆','Tap, drag, double-tap','Tap a strip to pick it and drag it around. Drag up or down for another row or a new layer. Double-tap to edit it.'],
   ['🧲','Delete closes the gap','Delete a clip and its text, captions and music slide over to fill the space.'],
   ['🎤','Get close to the mic','Film within arm’s length of your phone, or use earbuds, for clear sound.'],
   ['↶','Undo anything','Made a mistake? ↶ Undo brings back clips, text, captions and music.'],
