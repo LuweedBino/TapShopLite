@@ -200,7 +200,7 @@ const css=`#veStart[hidden],#veStart [hidden]{display:none!important}
 #veStart{position:fixed;inset:0;z-index:40;overflow:auto;background:var(--ts-bg,#fafafa);color:var(--ts-text,#171717);-webkit-overflow-scrolling:touch}
 #veStart .vs-wrap{max-width:1040px;margin:0 auto;padding:16px 16px 120px}
 #veStart .vs-top{display:flex;align-items:center;gap:10px;margin-bottom:18px}
-#veStart .vs-top .sp{flex:1}
+#veStart .vs-top .sp{flex:1}#veStart .vs-top .theme-toggle{min-height:36px;padding:0 12px}@media(max-width:420px){#veStart .vs-top{gap:6px}#veStart .vs-top .theme-label{display:none}}
 #veStart .vs-brand{font-weight:800;font-size:19px;letter-spacing:-.02em}#veStart .vs-brand em{font-style:normal;color:#ff4f8b;margin-left:1px}
 #veStart h1{font-size:clamp(26px,5vw,38px);line-height:1.1;margin:6px 0 6px;letter-spacing:-.03em}
 #veStart .vs-lead{margin:0 0 22px;max-width:620px}
@@ -289,7 +289,7 @@ function build(){
   let style=document.createElement('style');style.textContent=css;document.head.appendChild(style);
   let el=document.createElement('div');el.id='veStart';el.setAttribute('role','region');el.setAttribute('aria-label','Start a new video');
   el.innerHTML=`<div class="vs-wrap">
-  <div class="vs-top"><span class="vs-brand">TapShop<em>Lite</em></span><span class="sp"></span><button type="button" id="vsBlank" title="Skip this and start from scratch">Video Editor</button></div>
+  <div class="vs-top"><span class="vs-brand">TapShop<em>Lite</em></span><span class="sp"></span><button type="button" class="theme-toggle" id="vsTheme" role="switch" aria-checked="true" aria-label="Dark mode"><span class="theme-symbol" aria-hidden="true">☀</span><span class="theme-label">Dark mode</span><span class="theme-track" aria-hidden="true"><span></span></span></button><button type="button" id="vsBlank" title="Skip this and start from scratch">Video Editor</button></div>
   <h1>Make a short video</h1>
   <div class="vs-lead"><p class="vs-intro">To get started, pick one of the three paths:</p>
   <ol class="vs-paths">
@@ -317,6 +317,8 @@ function build(){
   <div class="vs-go"><div class="in"><div class="sum" id="vsSum" aria-live="polite"></div><button type="button" class="primary" id="vsGo">Start editing →</button></div></div>`;
   document.body.appendChild(el);
   const $$=id=>document.getElementById(id);
+  // Light/dark switch at the top right, kept in step with the editor's own switch.
+  {let t=$$('vsTheme'),sync=()=>{let dark=!document.body.classList.contains('light');t.setAttribute('aria-checked',String(dark));t.querySelector('.theme-label').textContent=dark?'Dark mode':'Light mode';t.querySelector('.theme-symbol').textContent=dark?'☀':'☾';t.title=dark?'Switch to light mode':'Switch to dark mode'};t.onclick=()=>theme();sync();new MutationObserver(sync).observe(document.body,{attributes:true,attributeFilter:['class']})}
   $$('vsPlats').innerHTML=PLATFORMS.map(p=>`<button type="button" class="vs-plat" data-id="${p.id}" aria-pressed="false">${shapeBox(p.aspect)}<span><b>${esc(p.name)}</b><small>${esc(p.sub)}</small></span></button>`).join('');
   $$('vsPlats').onclick=e=>{let b=e.target.closest('.vs-plat');if(!b)return;platform=b.dataset.id;try{localStorage.setItem('tapshop-video-platform',platform)}catch{}sync()};
   $$('vsCats').innerHTML=CATS.map(([id,label])=>`<button type="button" data-cat="${id}">${label} <span>${id==='all'?TEMPLATES.length:TEMPLATES.filter(t=>t.cat===id).length}</span></button>`).join('');
