@@ -252,7 +252,7 @@ html body #veStart .vs-plat[aria-pressed="true"]{position:relative;background:va
 #veStart .vs-file .x{position:absolute;top:4px;right:4px;width:26px;height:26px;padding:0;border-radius:50%;font-size:15px;line-height:1;display:grid;place-items:center}
 #veStart .vs-file small{display:block;font-size:11px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* Two rows that scroll sideways together, as one strip. */
-#veStart .vs-tpls{display:grid;grid-template-rows:repeat(2,auto);grid-auto-flow:column;grid-auto-columns:160px;gap:12px;margin:0 -16px;padding:2px 16px 10px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;scroll-padding-left:16px;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scrollbar-width:thin}#veStart .vs-tpl{scroll-snap-align:start}
+#veStart .vs-tpls{display:grid;grid-template-rows:auto;grid-auto-flow:column;grid-auto-columns:160px;gap:12px;margin:0 -16px;padding:2px 16px 10px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;scroll-padding-left:16px;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scrollbar-width:thin}#veStart .vs-tpl{scroll-snap-align:start}
 #veStart .vs-tpl{cursor:pointer;border:1px solid var(--ts-border,#e5e5e5);border-radius:16px;background:var(--ts-surface,#fff);padding:8px;outline:none;transition:border-color .15s}
 #veStart .vs-tpl:hover{border-color:var(--ts-border-strong,#d4d4d4)}
 #veStart .vs-tpl:focus-visible{box-shadow:0 0 0 3px color-mix(in srgb,var(--ts-primary,#171717) 25%,transparent)}
@@ -309,8 +309,7 @@ function build(){
   <h2><span class="vs-step">3</span>Pick a template <span style="font-weight:500;color:var(--ts-muted,#737373);font-size:13px">(optional)</span></h2><p class="vs-help">Ready-made text and timing for short videos. Tap again to unselect.</p>
   <div class="vs-cats" id="vsCats" role="group" aria-label="Template type"></div>
   <div class="vs-tpls" id="vsTpls"></div>
-  <h2>Pick up where you left off</h2><p class="vs-help">Saved projects need their original videos, so add those in step 2 first.</p>
-  <div class="vs-more"><button type="button" id="vsFileProject">Open project file</button><button type="button" id="vsDemo">▶ Try a sample video</button></div>
+    <div class="vs-more"><button type="button" id="vsDemo">▶ Try a sample video</button></div>
   <h2>Quick tips</h2>
   <div class="vs-tips">${TIPS.map(([i,t,p])=>`<div class="vs-tip"><span aria-hidden="true">${i}</span><b>${esc(t)}</b><p>${esc(p)}</p></div>`).join('')}</div>
   </div>
@@ -348,7 +347,7 @@ function build(){
     if(to){to.classList.remove('vs-flash');void to.offsetWidth;to.classList.add('vs-flash')}};
   $$('vsDemo').onclick=async()=>{if(hasWork()&&window.veNewProject)await veNewProject();applyAspect();close();loadDemo()};
   if($$('vsVaultProject'))$$('vsVaultProject').onclick=async()=>{await importPending();openVaultPicker(['project'])};
-  $$('vsFileProject').onclick=async()=>{await importPending();$('restore').click()};
+  if($$('vsFileProject'))$$('vsFileProject').onclick=async()=>{await importPending();$('restore').click()};
   $$('vsGo').onclick=start;
   sync();
 }
