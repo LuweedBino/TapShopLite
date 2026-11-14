@@ -9,3 +9,10 @@ window.TAPSHOP_AUTH = {
   key: 'sb_publishable_aHXFnsZbjrjnPXmj6Kln0w_nluXaPjX',
   providers: [],
 };
+
+// Cloud AI for the B-roll Video Maker (Groq, through api/words.js; setup in AI-SETUP.md). cloud: false switches
+// it off everywhere and the app uses the on-device AI, as before. The daily limit per person is set on Vercel
+// (AI_PER_DAY). Removing it completely: set cloud: false (or delete this block), then delete api/words.js.
+window.TAPSHOP_AI = {
+  cloud: true,
+};
