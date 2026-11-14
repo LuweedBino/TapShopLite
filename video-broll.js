@@ -246,7 +246,7 @@ function step1(){const flow=t=>t.parts.map(p=>p.label).join(' → ');
   <label class="br-caps"><input type="checkbox" id="brCaps"${autoCaps?' checked':''}> <span><b>✨ Add captions when someone talks</b><small>We write the words people say on screen, like the ✨ Captions tool.</small></span></label>
   <label class="br-caps"><input type="checkbox" id="brTidy"${autoTidy?' checked':''}> <span><b>✂️ Cut pauses and “um”s</b><small>We remove long pauses and “um” / “uh” from talking clips, so they flow.</small></span></label>
   ${window.veCloudOn?.()?`<label class="br-caps"><input type="checkbox" id="brCloud"${autoCloud?' checked':''}> <span><b>☁️ Use cloud AI (more accurate)</b><small>Better captions, and it also cuts fumbles and retakes. The sound of your talking clips is sent to Groq’s AI to be written down. Turn off to keep everything on this device.</small></span></label>`:''}
-  <label class="br-caps"><input type="checkbox" id="brMove"${autoMove?' checked':''}> <span><b>🎬 Add movement on the beat</b><small>Slow zooms and pans, punchy cuts and little bumps on the music, like a pro edit.</small></span></label>
+  <label class="br-caps"><input type="checkbox" id="brMove"${autoMove?' checked':''}> <span><b>🎬 Add slow, smooth zooms</b><small>A slow, gentle zoom on each clip so still shots feel alive. Cuts still land on the beat.</small></span></label>
   <p class="sub">The first time, your browser downloads the clip reader (a one-time download, about 130 MB). After that it’s saved. Phones are slower than computers.</p>
   <div class="row"><button type="button" id="brCancel">Cancel</button><button type="button" id="brSkip"${items.length?'':' disabled'}>Keep my order</button><button type="button" class="primary" id="brGo"${items.length?'':' disabled'}>✨ Sort my clips</button></div>`;
   dlg.querySelector('.dialog-x').onclick=dlg.querySelector('#brCancel').onclick=close;
@@ -368,7 +368,7 @@ async function build(){if(exporting)return;const btn=dlg.querySelector('#brBuild
     if(listen&&autoCloud&&todo.length&&window.veCloudOn?.()){btn.textContent='Cloud AI is listening…';
       try{const r=await veCloudWords(todo.map(c=>({assetId:c.asset.id,in:c.in,out:c.out})),m=>btn.textContent=m);cloud=new Map(todo.map((c,i)=>[c,r.words[i]]));if(r.left!=null)cloudNote=` Cloud AI videos left today: ${r.left}.`}
       catch(e){console.warn('Cloud AI skipped:',e);cloudNote=e.code==='limit'?' '+e.message+' We used the on-device AI instead.':e.code==='off'?'':' The cloud AI wasn’t available, so we used the on-device AI.'}}
-    let t=0,talky=false,failed=false,listened=false,n=0,moveN=0,skipped=0;const spans=[],capWords=[],MOVES=['zoomIn','panLeft','zoomOut','panRight','panUp','zoomIn','panDown'];
+    let t=0,talky=false,failed=false,listened=false,n=0,moveN=0,skipped=0;const spans=[],capWords=[];
     for(let j=0;j<tp.parts.length;j++){const p=tp.parts[j];if(!parts[j].length)continue;let s=t;
       for(const c of parts[j]){let [a,b]=cut(c,p,beat),segs=[[a,b]],words=null;
         if(listen&&!failed&&todo.includes(c)){btn.textContent=`Listening to clip ${++n} of ${todo.length}…`;
@@ -382,9 +382,8 @@ async function build(){if(exporting)return;const btn=dlg.querySelector('#brBuild
         if(c.talking)talky=true;
         segs.forEach(([x,y],si)=>{let cl=makeClip(c.asset);Object.assign(cl,{in:x,out:y,fit:shape==='16:9'?'contain':'cover'});
           if(autoMove){const speaking=(words&&words.length>=4)||c.talking;
-            // Talking: a gentle drift, and jump cuts alternate with a close-up so they look on purpose. Others: zooms and pans that change every clip, bumps on the beat.
-            if(speaking)cl.motion=segs.length>1&&si%2?'close':'drift';else{cl.motion=MOVES[moveN++%MOVES.length];if(beat)cl.pulse=2*beat}
-            cl.intro=clips.length===0?'':si===0&&c===parts[j][0]?(j%2?'flash':'whip'):speaking?'':'punch'}
+            // Calm: one very slow zoom per clip, in then out on the next. Talking jump cuts switch to a slight close-up so they look on purpose.
+            cl.motion=speaking?(segs.length>1&&si%2?'closeSoft':''):(moveN++%2?'slowOut':'slowIn')}
           clips.push(cl);
           if(words)for(const w of words)if(w.e>x&&w.s<y&&!(autoTidy&&!words.est&&(w.drop||FILLER.test(String(w.w).replace(/[^a-z]/gi,'')))))capWords.push({w:w.w,s:Math.round((t+Math.max(0,w.s-x))*100)/100,e:Math.round((t+Math.min(y,w.e)-x)*100)/100});
           t+=y-x})}

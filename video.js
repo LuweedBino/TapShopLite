@@ -46,11 +46,13 @@ function wakeVideo(v,t){if(v._waking||!v.src)return;v._waking=true;let m=v.muted
   let back=()=>{try{v.pause()}catch{}v.addEventListener('seeked',()=>{end();draw()},{once:true});v.currentTime=Number.isFinite(t)?t:v.currentTime;setTimeout(()=>{if(v._waking){end();draw()}},2500)};
   let p;try{p=v.play()}catch{}if(p&&p.then)p.then(back,()=>{try{v.load()}catch{}v.addEventListener('loadeddata',()=>{end();draw()},{once:true});setTimeout(end,4000)});else back()}
 // Clip movement (optional clip fields, missing = still): motion (zoomIn, zoomOut, panLeft, panRight, panUp,
-// panDown, drift, close), intro at the cut (punch, flash, whip) and pulse (seconds between small beat bumps).
+// panDown, drift, close, slowIn, slowOut, closeSoft), intro at the cut (punch, flash, whip) and pulse (seconds between small beat bumps).
 // Worked out from the playhead, so the preview and both export paths draw the same thing.
 const easeIO=k=>k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
 function clipMotion(p,t,w,h){let c=p.c,len=duration(c)||1,local=Math.max(0,t-p.start),k=Math.min(1,local/len),e=easeIO(k),s=1,dx=0,dy=0,flash=0,Z=.12;
   switch(c.motion){case 'zoomIn':s=1+Z*e;break;case 'zoomOut':s=1+Z*(1-e);break;case 'drift':s=1+.05*e;break;case 'close':s=1.14;break;
+    // Calm movement (the B-roll builder's default): steady speed, no easing, small enough not to be noticed as an effect.
+    case 'slowIn':s=1+.06*k;break;case 'slowOut':s=1.06-.06*k;break;case 'closeSoft':s=1.07;break;
     case 'panLeft':s=1+Z;dx=(1-2*e)*Z*w/2;break;case 'panRight':s=1+Z;dx=(2*e-1)*Z*w/2;break;case 'panUp':s=1+Z;dy=(1-2*e)*Z*h/2;break;case 'panDown':s=1+Z;dy=(2*e-1)*Z*h/2;break}
   if(c.intro==='punch'&&local<.3){let u=1-local/.3;s*=1+.14*u*u}
   else if(c.intro==='flash'&&local<.22)flash=.75*(1-local/.22);
