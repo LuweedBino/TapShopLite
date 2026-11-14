@@ -1,7 +1,7 @@
-// Sign-in for TapShopLite, through Supabase (settings in config.js). No passwords: email gets a one-tap
-// sign-in link, or people continue with Google and the other providers listed in config.js.
-// window.TapAuth: on (sign-in is set up), session() → the current session or null, email(address),
-// provider(name), signOut(), onChange(fn).
+// Sign-in for TapShopLite, through Supabase (settings in config.js): email + password, like TapShop, so no
+// emails need sending (Supabase's "Confirm email" is off). Providers in config.js add extra buttons.
+// window.TapAuth: on (sign-in is set up), session() → the current session or null, signUp(email, password),
+// signIn(email, password), email(address) (magic link, unused), provider(name), signOut(), onChange(fn).
 (()=>{
 const cfg=window.TAPSHOP_AUTH||{},on=!!(cfg.url&&cfg.key&&cfg.enabled!==false);
 const LIB='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
@@ -13,6 +13,8 @@ function load(){if(client)return client;client=new Promise((res,rej)=>{if(window
 const studio=()=>new URL('studio.html',location.href.replace(/[?#].*$/,'').replace(/[^/]*$/,'')).href;
 window.TapAuth={on,providers:Array.isArray(cfg.providers)?cfg.providers:[],
   async session(){if(!on)return null;const c=await load();const {data}=await c.auth.getSession();return data.session||null},
+  async signUp(email,password){const c=await load();const {data,error}=await c.auth.signUp({email,password});if(error)throw error;if(!data.session)throw Error('Your account was made, but it needs an email check that is switched on in Supabase. Please try again later.');return data.session},
+  async signIn(email,password){const c=await load();const {data,error}=await c.auth.signInWithPassword({email,password});if(error)throw error;return data.session},
   async email(address){const c=await load();const {error}=await c.auth.signInWithOtp({email:address,options:{emailRedirectTo:studio(),shouldCreateUser:true}});if(error)throw error},
   async provider(name){const c=await load();const {error}=await c.auth.signInWithOAuth({provider:name,options:{redirectTo:studio()}});if(error)throw error},
   async signOut(){if(!on)return;const c=await load();await c.auth.signOut()},

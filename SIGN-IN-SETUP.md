@@ -1,5 +1,18 @@
 # Turning on sign-in (Supabase)
 
+Sign-up is **email + password**, like TapShop: Supabase stores the accounts for free and no emails are sent, so no domain or email service is needed.
+
+1. Supabase project: done (URL and publishable key are in `config.js`).
+2. In Supabase: **Authentication → Sign In / Providers → Email**: keep **Email** on, turn **Confirm email** **off**, and **Save**.
+3. **Authentication → URL Configuration**: Site URL `https://tapshoplite.vercel.app`, Redirect URL `https://tapshoplite.vercel.app/**`.
+4. In `config.js` set `enabled: true`.
+
+Later, with a domain of your own and an email service (like Resend), you can turn on email checks and "forgot password" emails.
+
+---
+
+# Turning on sign-in (Supabase)
+
 Until `config.js` has a Supabase URL and key, the video maker is open to everyone and the home page says accounts are opening soon. After that, people sign up on the home page (email link or Google) before they can open `studio.html`.
 
 ## 1. Create the Supabase project (5 min)
