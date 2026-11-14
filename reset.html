@@ -1,0 +1,47 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Choose a new password · TapShopLite</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2216%22 fill=%22%23ff4f8b%22/%3E%3Cpath d=%22M25 19v26l21-13z%22 fill=%22white%22/%3E%3C/svg%3E">
+<script>/* Light or dark: the editor's saved choice, else the device's. */(()=>{let t;try{t=localStorage.getItem('forma-theme')}catch{}if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t})()</script>
+<script src="config.js"></script><script src="auth.js"></script>
+<style>
+:root{--bg:#fbf9fc;--card:#fff;--ink:#16141c;--muted:#6b6577;--line:#e7e2ec;--pink:#ff3ea5}
+[data-theme=dark]{--bg:#0f0e13;--card:#18161f;--ink:#f4f1f7;--muted:#a59fb0;--line:#2c2935}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:20px;font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+.card{width:min(420px,100%);background:var(--card);border:1px solid var(--line);border-radius:22px;padding:28px 22px;text-align:center}
+.brand{font-weight:800;letter-spacing:-.02em;font-size:20px;text-decoration:none;color:var(--ink)}.brand em{font-style:normal;color:var(--pink)}
+h1{font-size:24px;margin:18px 0 6px}.sub{color:var(--muted);margin:0 0 18px}.big{font-size:44px;line-height:1}
+.pw{position:relative;margin-bottom:10px}input{width:100%;min-height:50px;border-radius:14px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;font-size:16px;padding:0 52px 0 16px}
+.eye{position:absolute;right:6px;top:5px;width:40px;height:40px;border:0;background:none;font-size:18px;cursor:pointer;opacity:.6}
+.btn{display:flex;align-items:center;justify-content:center;width:100%;min-height:50px;border-radius:999px;border:0;background:var(--pink);color:#fff;font:inherit;font-weight:700;font-size:16px;cursor:pointer;text-decoration:none}
+.btn:disabled{opacity:.6}.btn.plain{background:none;color:var(--ink);border:1px solid var(--line);margin-top:10px}
+.msg{min-height:22px;font-size:14px;margin:10px 0 0}.msg.err{color:#e5484d}
+</style></head>
+<body><main class="card">
+<a class="brand" href="./">TapShop<em>Lite</em></a>
+<div id="wait"><p class="sub" style="margin-top:22px">Checking your link…</p></div>
+<form id="form" hidden>
+  <div class="big">🔑</div><h1>Choose a new password</h1><p class="sub">At least 6 characters.</p>
+  <div class="pw"><input type="password" id="p1" placeholder="New password" autocomplete="new-password" aria-label="New password" minlength="6" required><button type="button" class="eye" id="eye" aria-label="Show password">👁</button></div>
+  <button class="btn" type="submit" id="save">Save my new password</button>
+  <p class="msg" id="msg" role="status" aria-live="polite"></p>
+</form>
+<div id="done" hidden><div class="big">🎉</div><h1>Password changed!</h1><p class="sub">Taking you to the video maker…</p><a class="btn" href="studio.html">Open the video maker →</a></div>
+<div id="bad" hidden><div class="big">⏰</div><h1>This link has expired</h1><p class="sub" id="badText">Reset links work once, for a short time. Ask for a new one on the sign-in page.</p><a class="btn" href="./?login=1#join">Go to sign in</a></div>
+</main>
+<script>
+// Opened from the "reset your password" email: Supabase signs the person in from the link (implicit flow),
+// then they choose a new password here. An expired or used link comes back with an error in the address.
+(async()=>{const $=id=>document.getElementById(id),show=id=>{for(const x of ['wait','form','done','bad'])$(x).hidden=x!==id};
+  const A=window.TapAuth,q=new URLSearchParams(location.hash.slice(1)+'&'+location.search.slice(1));
+  if(!A||!A.on||q.get('error')||q.get('error_code')){if(q.get('error_description'))$('badText').textContent=q.get('error_description').replace(/\+/g,' ')+'. Ask for a new link on the sign-in page.';show('bad');return}
+  let s=null;try{s=await A.session()}catch{}
+  if(!s)await new Promise(r=>setTimeout(r,800)),s=await A.session().catch(()=>null);
+  if(!s){show('bad');return}
+  show('form');$('p1').focus();
+  $('eye').onclick=()=>{const p=$('p1'),v=p.type==='password';p.type=v?'text':'password';$('eye').setAttribute('aria-label',v?'Hide password':'Show password')};
+  $('form').onsubmit=async e=>{e.preventDefault();const pw=$('p1').value,m=$('msg');m.classList.remove('err');
+    if(pw.length<6){m.classList.add('err');m.textContent='Your password needs at least 6 characters.';return}
+    $('save').disabled=true;$('save').textContent='Saving…';
+    try{await A.updatePassword(pw);history.replaceState(null,'',location.pathname);show('done');setTimeout(()=>location.href='studio.html',1800)}
+    catch(x){m.classList.add('err');m.textContent=/different from the old|same/i.test(x.message||'')?'That’s your current password. Pick a new one.':/weak|short/i.test(x.message||'')?'Please pick a stronger password.':(x.message||'That didn’t work. Please try again.');$('save').disabled=false;$('save').textContent='Save my new password'}}})();
+</script></body></html>

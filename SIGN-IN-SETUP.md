@@ -7,7 +7,7 @@ Sign-up is **email + password**, like TapShop: Supabase stores the accounts for 
 3. **Authentication → URL Configuration**: Site URL `https://tapshoplite.app`, Redirect URLs `https://tapshoplite.app/**`, `https://www.tapshoplite.app/**` and `https://tapshoplite.vercel.app/**`.
 4. In `config.js` set `enabled: true`.
 
-Later, with a domain of your own and an email service (like Resend), you can turn on email checks and "forgot password" emails.
+Emails (confirmation, forgot password, change password) are sent from hello@tapshoplite.app through Resend: see **EMAIL-SETUP.md**.
 
 ---
 
