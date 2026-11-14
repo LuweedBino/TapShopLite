@@ -235,7 +235,7 @@ const css=`#veStart[hidden],#veStart [hidden]{display:none!important}
 #veStart .vs-plat small{display:block;font-weight:500;font-size:11px;opacity:.7;margin-top:2px;color:inherit!important}
 html body #veStart .vs-plat[aria-pressed="true"]{position:relative;background:var(--ts-primary,#171717)!important;color:var(--ts-on-primary,#fff)!important;border-color:var(--ts-primary,#171717)!important;box-shadow:0 0 0 3px #ff3ea5!important}
 #veStart .vs-plat[aria-pressed="true"]::after{content:'✓';position:absolute;top:-8px;right:-8px;width:20px;height:20px;box-shadow:0 0 0 2px var(--ts-bg,#fafafa);border-radius:50%;background:#ff3ea5;color:#fff;font-size:11px;font-weight:800;display:grid;place-items:center}
-#veStart .vs-quick{display:grid;gap:10px;margin:0 0 6px}.vs-quick .vs-qh h2{margin-top:14px}.vs-quick .vs-qh .vs-help{margin:0 0 2px}#veStart .vs-quick .vs-reviews{margin:0}
+#veStart .vs-quick{display:grid;gap:10px;margin:0 0 6px}.vs-quick .vs-qh h2{margin-top:8px}#veStart .vs-quick{border:3px solid #ff3ea566;border-radius:18px;padding:4px 14px 14px;margin:14px 0 6px}html.ts-dark #veStart .vs-quick{border-color:#ff3ea5b3}.vs-quick .vs-qh .vs-help{margin:0 0 2px}#veStart .vs-quick .vs-reviews{margin:0}
 #veStart .vs-drop{border:2px dashed var(--ts-border-strong,#d4d4d4);border-radius:16px;background:var(--ts-surface,#fff);padding:22px 16px;text-align:center}
 #veStart .vs-drop.over{border-color:var(--ts-primary,#171717);background:var(--ts-soft,#f5f5f5)}
 #veStart .vs-drop .big{font-size:30px;line-height:1}
