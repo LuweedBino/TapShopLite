@@ -214,6 +214,7 @@ const TIPS=[
   ['↶','Undo anything','Made a mistake? ↶ Undo brings back clips, text, captions and music.'],
   ['✂','Split a clip','Move the playhead where you want the cut, then tap ✂ Split.'],
   ['📏','Film upright','Hold your phone vertically for TikTok, Reels and Shorts. No black bars.'],
+  ['↔️','Resize your video','Tap a video on the preview, then drag it to move it or pull a corner to resize it. Double-tap puts it back.'],
   ['🔤','Text on screen','Add titles and labels with 🔤 Text. Drag them on the preview, pull the corners to resize.'],
   ['🔶','Shapes & stickers','Arrows, bubbles and badges point eyes right where you want them.'],
   ['✋','Keep it steady','Lean on something or use both hands. Shaky shots get scrolled past.'],
