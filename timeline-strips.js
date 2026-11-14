@@ -234,9 +234,9 @@ function laneDrop(d,y){const list=d.kind==='extra'?extraTracks:graphicTracks,me=
       return pick(f<=.28?{mode:'new',before:R,y:top-2}:{mode:'new',after:R,y:R.rect.bottom+2})}
     const nx=info[k+1];if(nx&&y>R.rect.bottom&&y<nx.rect.top)return pick(same(nx)?null:{mode:'new',after:R,y:(R.rect.bottom+nx.rect.top)/2})}
   return null}
-tracksHost.addEventListener('pointerdown',e=>{if(stripDrag){stripDrag.y0=e.clientY;stripDrag.vert=false}},false);
+tracksHost.addEventListener('pointerdown',e=>{if(stripDrag){stripDrag.y0=e.clientY;stripDrag.x0=e.clientX;stripDrag.vert=false;stripDrag.touch=e.pointerType!=='mouse'}},false);
 tracksHost.addEventListener('pointermove',e=>{const d=stripDrag;if(!d||d.edge||d.y0==null)return;const dy=e.clientY-d.y0;
-  if(!d.vert&&Math.abs(dy)<14){return}d.vert=true;d.moved=true;d.element.classList.add('lifting');d.element.style.transform=`translateY(${dy}px)`;
+  if(!d.vert){const need=d.touch?(d.kind==='main'?44:34):14,dx=Math.abs(e.clientX-(d.x0??e.clientX));if(Math.abs(dy)<need||Math.abs(dy)<dx*.8)return}d.vert=true;d.moved=true;d.element.classList.add('lifting');d.element.style.transform=`translateY(${dy}px)`;
   clearLaneDrop();const t=d.kind==='main'?mainDrop(e.clientY):laneDrop(d,e.clientY);laneTarget=t;if(!t)return;
   if(t.mode==='toMain'){mainRow()?.classList.add('drop-into');return}
   if(t.mode==='join'){t.row.r.classList.add('drop-into')}
@@ -281,7 +281,13 @@ render();
 // its 🗑 closes it. The layer starts full size (scale 100) so the picture looks the same until it's resized.
 async function clipToLayer(id,t){const i=clips.findIndex(c=>c.id===id);if(i<0||exporting)return;const c=clips[i],a=asset(c);if(!a?.file){toast('Can’t find this clip’s video file.');return}
   pause();snapshot();const st=baseStarts();clips.forEach((x,k)=>{if(!Number.isFinite(x.offset))x.offset=st[k]});const at=st[i];clips.splice(i,1);selected=Math.min(selected,clips.length-1);activeId=null;render();
-  addTrack('video');const L=extraTracks.at(-1);targetTrack=L.id;await loadTrackMedia(a.file);if(!L.media){toast('Couldn’t make the layer.');return}
+  addTrack('video');const L=extraTracks.at(-1);targetTrack=L.id;
+  // Its own <video> for the same file. Not loadTrackMedia: that rejects files whose length the phone only knows
+  // later (common for phone recordings); the clip's length is already known here.
+  try{const v=document.createElement('video');v.preload='auto';v.playsInline=true;v.muted=false;const url=URL.createObjectURL(a.file);v.src=url;
+    await new Promise((ok,no)=>{const to=setTimeout(()=>no(Error('timeout')),15000);v.onloadedmetadata=()=>{clearTimeout(to);ok()};v.onerror=()=>{clearTimeout(to);no(Error('read'))}});
+    Object.assign(L,{media:v,file:a.file,url,node:null,gain:null});await ensureAudio()}
+  catch(e){console.warn('Layer failed:',e);undo();toast('Couldn’t turn that clip into a layer on this device, so it stayed where it was.');return}
   Object.assign(L,{name:(a.name||'Video')+' (layer)',offset:at,start:c.in,end:c.out,speed:c.speed||1,volume:c.volume??1,scale:100,x:50,y:50,opacity:1});
   if(t.mode==='join'){L.lane=t.row.lane;const members=extraTracks.filter(x=>x!==L&&laneOf(extraTracks,x)===t.row.lane);extraTracks.splice(extraTracks.indexOf(L),1);extraTracks.splice(Math.max(...members.map(x=>extraTracks.indexOf(x)))+1,0,L)}
   else{L.lane=uid();extraTracks.splice(extraTracks.indexOf(L),1);extraTracks.splice(t.y!=null&&laneRows('extra').length&&t.y>(laneRows('extra')[0].getBoundingClientRect().top)?extraTracks.length:0,0,L)}
