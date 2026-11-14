@@ -61,7 +61,7 @@ async function addSound(off,opened,file,from,to,speed,gain,when){
 
 async function mixSound(opened,seconds){
   let off=new OfflineAudioContext(2,Math.ceil(seconds*RATE),RATE),any=false,start=0;
-  for(let c of clips){any=await addSound(off,opened,asset(c).file,c.in,c.out,c.speed,c.volume??1,start)||any;start+=duration(c)}
+  for(let c of clips){any=await addSound(off,opened,asset(c).cleanFile||asset(c).file,c.in,c.out,c.speed,c.volume??1,start)||any;start+=duration(c)}
   for(let t of extraTracks){if(t.file&&!t.muted)any=await addSound(off,opened,t.file,t.start,t.end,t.speed,t.volume,t.offset)||any}
   if(musicFile)any=await addSound(off,opened,musicFile,0,Math.min(seconds,music.duration||seconds),1,music.volume,0)||any;
   return any?off.startRendering():null;

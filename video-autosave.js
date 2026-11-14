@@ -49,7 +49,7 @@ async function fill(rec,files){let st=rec.state,id=rec.id;
   clips=st.clips.filter(c=>assets.some(a=>a.id===c.assetId));selected=Math.min(st.selected??0,clips.length-1);graphicTracks=st.graphic||[];
   for(let s of st.extra||[]){addTrack(s.type);let t=extraTracks.at(-1),f=s.hasFile&&Object.entries(files).find(([k])=>k.startsWith(id+':x:'+s.id+':'))?.[1];
     if(f){targetTrack=t.id;await loadTrackMedia(f)}let {hasFile,...keep}=s;Object.assign(t,keep)}
-  history.length=0;try{redoStack.length=0;syncUndoButtons()}catch{}render();renderTracks();renderGraphicTracks();await seekTimeline(0)}
+  history.length=0;try{redoStack.length=0;syncUndoButtons()}catch{}render();renderTracks();renderGraphicTracks();await seekTimeline(0);window.veRecleanSound?.()}
 
 // ---------- Projects in the Media Vault ----------
 // One file holding the project and every clip it uses, so it reopens anywhere: MAGIC, the header's
