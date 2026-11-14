@@ -138,7 +138,7 @@ render();
 // Ripple delete: deleting a clip on the main video row closes the gap, and everything on the other rows
 // (text, captions, stickers, effects, video layers, audio and music) moves with it. Things that only lived
 // on the deleted clip go too; things that cross it get shorter. One Undo brings it all back.
-function rippleGap(A,d){if(d<=0)return;const B=A+d,E=.02;
+function rippleGap(A,d,keep){if(d<=0)return;const B=A+d,E=.02;
   // Main clips after the gap that have their own place on the timeline.
   clips.forEach(c=>{if(Number.isFinite(c.offset)&&c.offset>=B-E)c.offset=Math.max(0,c.offset-d)});
   // Text, stickers, effects and captions: offset + length.
@@ -146,13 +146,14 @@ function rippleGap(A,d){if(d<=0)return;const B=A+d,E=.02;
     if(g.type==='captions'&&Array.isArray(g.words)){g.words=g.words.filter(w=>{const ws=s+w.s;return !(ws>=A-E&&ws<B-E)}).map(w=>{const ws=s+w.s;return ws>=B-E?{...w,s:w.s-d,e:w.e-d}:w});
       if(s>=B-E){g.offset=s-d;return true}if(e<=A+E)return true;if(s>=A-E){const cut=B-s;g.offset=A;g.words=g.words.map(w=>({...w,s:w.s-cut,e:w.e-cut}));g.length=Math.max(.1,e-B);return g.words.length>0}g.length=Math.max(.1,(g.length||0)-Math.min(d,e-A));return g.words.length>0}
     if(e<=A+E)return true;if(s>=B-E){g.offset=s-d;return true}
-    if(s>=A-E&&e<=B+E)return false;
+    if(s>=A-E&&e<=B+E){if(keep){g.offset=A;return true}return false}
     if(s<A&&e>B){g.length-=d;return true}
     if(s<A){g.length=A-s;return true}
     g.offset=A;g.length=e-B;return true});
   // Video layers and audio/music tracks: offset + (end - start) / speed of their own media.
   extraTracks=extraTracks.filter(t=>{const sp=t.speed||1,s=t.offset||0,len=Math.max(0,(t.end-t.start)/sp),e=s+len;if(!t.file||len<=0)return true;
     if(e<=A+E)return true;if(s>=B-E){t.offset=s-d;return true}
+    if(s>=A-E&&e<=B+E&&keep){t.offset=A;return true}
     if(s>=A-E&&e<=B+E){t.media?.pause();try{t.node?.disconnect();t.gain?.disconnect()}catch{}return false}
     if(s<A&&e>B){t.end-=d*sp;return true}
     if(s<A){t.end=t.start+(A-s)*sp;return true}
@@ -187,10 +188,10 @@ let suppressClick=false;splitButton.addEventListener('click',e=>{if(suppressClic
 .lane-drop-line{position:fixed;height:3px;background:#ff3ea5;border-radius:3px;z-index:9998;pointer-events:none;box-shadow:0 0 0 2px #ff3ea533}
 .lane-drop-line::after{content:attr(data-label);position:absolute;left:8px;top:-22px;font:700 11px system-ui,sans-serif;color:#fff;background:#ff3ea5;padding:2px 8px;border-radius:999px;white-space:nowrap}
 .duration-strip.lifting{opacity:.85;box-shadow:0 6px 18px #0006;z-index:5}
-.strip-tip{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 18px);z-index:9999;width:min(420px,calc(100vw - 20px));display:flex;gap:10px;align-items:flex-start;background:#ff3ea5;color:#fff;border-radius:16px;padding:12px 12px 12px 14px;font:14px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;box-shadow:0 12px 34px #0005;animation:stripTipIn .35s ease-out}
+.strip-tip{position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + 12px);z-index:9999;width:min(420px,calc(100vw - 20px));display:flex;gap:10px;align-items:flex-start;background:#ff3ea5;color:#fff;border-radius:16px;padding:12px 12px 12px 14px;font:14px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;box-shadow:0 12px 34px #0005;animation:stripTipIn .35s ease-out}
 .strip-tip b{display:block;margin-bottom:2px}.strip-tip ul{margin:0;padding-left:18px}
 html body .strip-tip button{flex:none;width:30px;height:30px;padding:0!important;border-radius:50%!important;border:0!important;background:#fff3!important;color:#fff!important;font-size:16px;cursor:pointer}
-@keyframes stripTipIn{from{opacity:0;transform:translate(-50%,12px)}}@media(prefers-reduced-motion:reduce){.strip-tip{animation:none}}`;document.head.appendChild(st)}
+@keyframes stripTipIn{from{opacity:0;transform:translate(-50%,-12px)}}@media(prefers-reduced-motion:reduce){.strip-tip{animation:none}}`;document.head.appendChild(st)}
 
 // The "how strips work" note: pops up for 9 s the first 3 times the editor is used on this device (and on the
 // first tap of a strip until it has been seen 3 times). The ✕ closes it for good.
@@ -218,7 +219,9 @@ function laneDrop(d,y){const list=d.kind==='extra'?extraTracks:graphicTracks,me=
   if(y>last.rect.bottom)return pick({mode:'new',after:last,y:last.rect.bottom+3});
   for(let k=0;k<info.length;k++){const R=info[k],top=R.rect.top,h=R.rect.height;
     if(y>=top&&y<=R.rect.bottom){const f=(y-top)/h,mine=R.items.some(t=>t.id===me.id);
-      if(f>.28&&f<.72){if(mine)return null;if(R.type===me.type)return {mode:'join',row:R};return null}
+      if(f>.28&&f<.72){if(mine)return null;if(R.type===me.type)return {mode:'join',row:R};
+        // A row of another kind (say text over a sticker row): a new track above or below it, by which half.
+        return pick(f<.5?{mode:'new',before:R,y:top-2}:{mode:'new',after:R,y:R.rect.bottom+2})}
       return pick(f<=.28?{mode:'new',before:R,y:top-2}:{mode:'new',after:R,y:R.rect.bottom+2})}
     const nx=info[k+1];if(nx&&y>R.rect.bottom&&y<nx.rect.top)return pick(same(nx)?null:{mode:'new',after:R,y:(R.rect.bottom+nx.rect.top)/2})}
   return null}
@@ -236,3 +239,26 @@ tracksHost.addEventListener('pointerup',()=>{const d=stripDrag;if(!d||!d.vert)re
   else{me.lane=uid();const ref=(t.before||t.after).items.filter(x=>x!==me);let at;if(!ref.length)at=list.length;else if(t.before)at=Math.min(...ref.map(idx));else at=Math.max(...ref.map(idx))+1;list.splice(Math.max(0,at),0,me);msg='Moved to a new layer'}
   pickedStrip={kind:d.kind,id:d.id};if(d.kind==='extra')renderTracks();else renderGraphicTracks();draw();setTimeout(()=>toast(msg+'. (Undo puts it back.)'),30)},true);
 tracksHost.addEventListener('pointercancel',()=>{if(stripDrag?.vert){stripDrag.element.style.transform='';stripDrag.element.classList.remove('lifting')}clearLaneDrop()},true);
+
+
+// ---------- 🗑 in the empty space between strips ----------
+// Every row shows a small bin in each gap between two strips (a gap of at least 0.15 s). Tapping it deletes that
+// empty time. On the main video row everything after the gap moves left with the video (text, captions, music…,
+// like deleting a clip, but nothing is removed: anything inside the gap moves to its start). On any other row
+// only the strips after the gap in that row move. Undo puts it back.
+{const st=document.createElement('style');st.textContent=`.gap-bin{position:absolute;top:50%;transform:translate(-50%,-50%);z-index:4;width:22px;height:22px;min-height:0!important;padding:0!important;border-radius:50%!important;border:1px dashed #ff3ea5aa!important;color:#ff3ea5!important;font-size:12px;line-height:1;display:grid;place-items:center;cursor:pointer;opacity:.85}
+.gap-bin:hover,.gap-bin:focus-visible{opacity:1;border-style:solid!important;background:#ff3ea522!important}@media (pointer:coarse){.gap-bin{width:28px;height:28px;font-size:14px}}`;document.head.appendChild(st)}
+function gapsOf(spans){spans=spans.filter(x=>x[1]>x[0]).sort((a,b)=>a[0]-b[0]);const out=[];let end=null;for(const [a,b] of spans){if(end!=null&&a-end>=.15)out.push([end,a-end]);end=end==null?b:Math.max(end,b)}return out}
+function addGapBins(){if(exporting)return;tracksHost.querySelectorAll('.gap-bin').forEach(b=>b.remove());
+  const put=(lane,kind,ids,A,d)=>{if(d*timelineScale<16)return;const b=document.createElement('button');b.type='button';b.className='gap-bin';b.style.background='none';b.textContent='🗑';
+    b.title=`Delete this empty space (${d.toFixed(1)} s)`;b.setAttribute('aria-label',b.title);b.style.left=((A+d/2)*timelineScale)+'px';
+    b.addEventListener('pointerdown',e=>e.stopPropagation());b.onclick=e=>{e.stopPropagation();closeGap(kind,ids,A,d)};lane.appendChild(b)};
+  {const lane=document.querySelector('#clips > .strip-row:not(.merged) .strip-lane');if(lane&&clips.length>1){const st=baseStarts();for(const [A,d] of gapsOf(clips.map((c,i)=>[st[i],st[i]+duration(c)])))put(lane,'main',null,A,d)}}
+  for(const kind of ['extra','graphic'])for(const row of laneRows(kind)){const lane=row.querySelector('.strip-line .strip-lane'),ids=[...lane.querySelectorAll('.duration-strip')].map(x=>x.dataset.id);if(ids.length<2)continue;
+    const spans=ids.map(id=>stripModel(kind,id)).filter(Boolean).map(m=>[m.offset,m.offset+m.length]);for(const [A,d] of gapsOf(spans))put(lane,kind,ids,A,d)}}
+function closeGap(kind,ids,A,d){if(exporting)return;pause();snapshot();const B=A+d;
+  if(kind==='main'){const st=baseStarts();clips.forEach((c,i)=>{if(!Number.isFinite(c.offset))c.offset=st[i]});rippleGap(A,d,true)}
+  else for(const id of ids){const m=stripModel(kind,id);if(m&&m.offset>=B-.02)m.item.offset=Math.max(0,m.item.offset-d)}
+  hideSplit();render();renderGraphicTracks();renderTracks();draw();seekTimeline(Math.min(A,total()));toast(`Deleted ${d.toFixed(1)} s of empty space. (Undo brings it back.)`)}
+{const decorateWithBins=decorateStrips;decorateStrips=function(){decorateWithBins();addGapBins()}}
+render();
