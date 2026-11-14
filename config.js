@@ -7,5 +7,5 @@ window.TAPSHOP_AUTH = {
   enabled: false,
   url: 'https://yxlaoosagblbojazxwix.supabase.co',
   key: 'sb_publishable_aHXFnsZbjrjnPXmj6Kln0w_nluXaPjX',
-  providers: ['google'],
+  providers: [],
 };

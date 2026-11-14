@@ -15,7 +15,7 @@ Supabase's built-in email only reaches your own team and only sends a couple of 
 2. In Supabase: **Authentication → Emails → SMTP Settings**, turn on custom SMTP and enter Resend's settings (host `smtp.resend.com`, port `465`, username `resend`, password = your Resend API key, a sender address on a domain verified in Resend).
 3. In **Authentication → Rate Limits**, raise "emails sent per hour" if you expect a lot of sign-ups.
 
-## 3. Google sign-in (10 min)
+## 3. Google sign-in (optional, not used for now)
 1. In Supabase: **Authentication → Sign In / Providers → Google**. Copy the **Callback URL** shown there.
 2. In Google Cloud Console (console.cloud.google.com): create a project, set up the **OAuth consent screen** (app name TapShopLite, your email), then **Credentials → Create credentials → OAuth client ID → Web application**. Paste the Supabase Callback URL under **Authorized redirect URIs**.
 3. Copy the Google **Client ID** and **Client secret** into the Supabase Google provider and switch it on.
@@ -25,7 +25,7 @@ Supabase's built-in email only reaches your own team and only sends a couple of 
 window.TAPSHOP_AUTH = {
   url: 'https://YOUR-PROJECT.supabase.co',
   key: 'sb_publishable_...',
-  providers: ['google'],
+  providers: [],
 };
 ```
 More buttons (Apple, Facebook, Microsoft `azure`, GitHub, Discord) appear when you add them to `providers`, after switching them on in Supabase.
