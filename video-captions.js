@@ -162,7 +162,7 @@ function toWords(r,dur){let words=[];
   let segs=r.mode==='segment'&&r.chunks.length?r.chunks:[{text:r.text||words.map(w=>w.w).join(' '),ts:[0,dur]}],out=[];
   for(let sg of segs){let ws=String(sg.text).trim().split(/\s+/).filter(Boolean);if(!ws.length)continue;let [s,e]=sg.ts||[0,dur];s=Number.isFinite(s)?s:0;e=Number.isFinite(e)&&e>s?e:Math.min(dur,s+ws.length*.35);
     let total=ws.reduce((n,w)=>n+w.length+1,0),at=s;for(let w of ws){let len=(e-s)*(w.length+1)/total;out.push({w,s:at,e:at+len});at+=len}}
-  return out}
+  out.est=true;return out}
 
 // ---------- dialog ----------
 let chosen='pop';
@@ -220,11 +220,25 @@ async function run(){let d=dialog(),status=d.querySelector('#capStatus'),prog=d.
 
 // Captions without the dialog, for makers like the B-roll builder: uses the last settings from the Captions
 // dialog (or Pop, English, Fast). say(text) reports progress. Resolves to the number of words added (0 = none heard).
+const lastSettings=()=>{let s={};try{s=JSON.parse(localStorage.getItem('tapshop-captions')||'{}')}catch{}
+  return {preset:hasPreset(s.style)?s.style:'pop',lang:s.lang!=null?s.lang:'english',q:MODELS[s.model]?s.model:'fast'}};
 window.veAutoCaptions=async function(say=()=>{}){if(busy||exporting||!clips.length)return 0;
-  let s={};try{s=JSON.parse(localStorage.getItem('tapshop-captions')||'{}')}catch{}
-  let preset=hasPreset(s.style)?s.style:'pop',lang=s.lang!=null?s.lang:'english',q=MODELS[s.model]?s.model:'fast';
+  let {preset,lang,q}=lastSettings();
   busy=true;cancelled=false;try{let all=await listenAll(lang,q,t=>say(t));if(!all||!all.length)return 0;placeCaptions(all,preset);return all.length}
   catch(x){worker?.terminate();worker=null;throw x}finally{busy=false}};
+
+// Words in one stretch of a video file ({assetId, in, out}, seconds), with times in the file's own seconds.
+// [] when it has no sound; the array's .est is true when only sentence timing was available. Throws if the engine can't run.
+window.veClipWords=async function(c,say=()=>{}){if(busy)throw Error('Captions are busy.');let {lang,q}=lastSettings(),files={};
+  busy=true;cancelled=false;try{let audio;try{audio=await clipAudio({speed:1,...c})}catch{return []}if(audio.length<1600)return [];
+    let out=[];out.est=false;
+    for(let part of pieces(audio)){let dur=part.audio.length/16000;if(dur<.1)continue;
+      let r=await ask({key:q,models:MODELS[q],gpu:'gpu' in navigator,language:lang,audio:part.audio},m=>{if(m.type==='dl'){files[m.file]=[m.loaded,m.total];let l=0,t=0;for(let [a,b] of Object.values(files)){l+=a;t+=b}say(`Downloading the speech engine (first time only)… ${Math.round(l/t*100)}%`)}});
+      let ws=toWords(r,dur);if(ws.est)out.est=true;for(let w of ws)out.push({w:w.w,s:c.in+part.at+Math.min(w.s,dur),e:c.in+part.at+Math.min(w.e,dur)})}
+    return out}
+  catch(x){worker?.terminate();worker=null;throw x}finally{busy=false}};
+// Adds ready-made timeline words as the Captions track, in the last style used. Returns the number of words.
+window.vePlaceCaptions=function(words){if(!words?.length)return 0;placeCaptions([...words].sort((a,b)=>a.s-b.s),lastSettings().preset);return words.length};
 
 // ---------- styles and toolbar ----------
 let css=document.createElement('style');css.textContent=`.duration-strip[data-kind="captions"]{background:linear-gradient(#c2557a,#8a3354);border-color:#f19bbb}

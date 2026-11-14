@@ -221,6 +221,8 @@ const st=document.createElement('style');st.textContent=`
 let tp=TEMPLATES[0],mood=tp.mood,shape='9:16',items=[],parts=null,texts={},busy=false,stopped=false;
 // Auto captions (✨ Captions without its dialog) after building, remembered on this device; on unless turned off.
 let autoCaps=(()=>{try{return localStorage.getItem('tapshop-broll-captions')!=='off'}catch{return true}})();
+// Tidy talking clips: cut pauses over half a second and um/uh, using the captions engine's word times. On unless turned off.
+let autoTidy=(()=>{try{return localStorage.getItem('tapshop-broll-tidy')!=='off'}catch{return true}})();
 const shapes=()=>[...($$('aspect')?.options||[])].map(o=>[o.value,o.textContent]);
 // From the start screen the chosen platform has already set the shape; otherwise UGC defaults to vertical.
 function open(fromStart){if(exporting)return;stopped=false;parts=null;let a=$$('aspect')?.value;shape=(fromStart===true||clips.length)&&['9:16','1:1','4:5','16:9'].includes(a)?a:'9:16';if(!items.length&&clips.length)useTimeline(true);step1();dlg.showModal()}
@@ -237,6 +239,7 @@ function step1(){const flow=t=>t.parts.map(p=>p.label).join(' → ');
   <h3>3. Look and sound</h3><div class="br-row"><label>Video shape<select id="brShape">${shapes().map(([v,l])=>`<option value="${enc(v)}"${v===shape?' selected':''}>${enc(l)}</option>`).join('')}</select></label>
   <label>Music<select id="brMood">${Object.entries(MOODS).map(([k,m])=>`<option value="${k}"${k===mood?' selected':''}>🎵 ${enc(m.name)} · ${m.bpm} BPM</option>`).join('')}<option value=""${mood?'':' selected'}>No music</option></select></label><button type="button" id="brListen" title="Hear a few seconds of this music">▶ Listen</button></div>
   <label class="br-caps"><input type="checkbox" id="brCaps"${autoCaps?' checked':''}> <span><b>✨ Add captions when someone talks</b><small>We write the words people say on screen, like the ✨ Captions tool.</small></span></label>
+  <label class="br-caps"><input type="checkbox" id="brTidy"${autoTidy?' checked':''}> <span><b>✂️ Cut pauses and “um”s</b><small>We remove long pauses and “um” / “uh” from talking clips, so they flow.</small></span></label>
   <p class="sub">The first time, your browser downloads the clip reader (a one-time download, about 130 MB). After that it’s saved. Phones are slower than computers.</p>
   <div class="row"><button type="button" id="brCancel">Cancel</button><button type="button" id="brSkip"${items.length?'':' disabled'}>Keep my order</button><button type="button" class="primary" id="brGo"${items.length?'':' disabled'}>✨ Sort my clips</button></div>`;
   dlg.querySelector('.dialog-x').onclick=dlg.querySelector('#brCancel').onclick=close;
@@ -245,7 +248,7 @@ function step1(){const flow=t=>t.parts.map(p=>p.label).join(' → ');
   const fi=dlg.querySelector('#brFiles');dlg.querySelector('#brChoose').onclick=()=>fi.click();fi.onchange=()=>{addFiles([...fi.files]);fi.value=''};
   dlg.querySelector('#brVault')?.addEventListener('click',()=>VaultPicker.open({title:'Pick a clip',kinds:['video'],onPick:async it=>{try{toast('Loading '+it.name+'…');await addFiles([await VaultPicker.file(it)])}catch(e){toast(e.message)}if(!dlg.open)dlg.showModal()}}));
   dlg.querySelector('#brTimeline')?.addEventListener('click',()=>{useTimeline();step1()});
-  dlg.querySelector('#brShape').onchange=e=>shape=e.target.value;dlg.querySelector('#brMood').onchange=e=>{mood=e.target.value;stopListen()};dlg.querySelector('#brListen').onclick=listen;dlg.querySelector('#brCaps').onchange=e=>{autoCaps=e.target.checked;try{localStorage.setItem('tapshop-broll-captions',autoCaps?'on':'off')}catch{}};if(!dlg._stopsMusic){dlg._stopsMusic=1;dlg.addEventListener('close',stopListen)}
+  dlg.querySelector('#brShape').onchange=e=>shape=e.target.value;dlg.querySelector('#brMood').onchange=e=>{mood=e.target.value;stopListen()};dlg.querySelector('#brListen').onclick=listen;dlg.querySelector('#brCaps').onchange=e=>{autoCaps=e.target.checked;try{localStorage.setItem('tapshop-broll-captions',autoCaps?'on':'off')}catch{}};dlg.querySelector('#brTidy').onchange=e=>{autoTidy=e.target.checked;try{localStorage.setItem('tapshop-broll-tidy',autoTidy?'on':'off')}catch{}};if(!dlg._stopsMusic){dlg._stopsMusic=1;dlg.addEventListener('close',stopListen)}
   dlg.querySelector('#brGo').onclick=analyse;dlg.querySelector('#brSkip').onclick=()=>{number();parts=arrange(items,tp);step3('Kept your order. Move any clip with the menu under it.')}}
 async function addFiles(files){let got=0;for(const f of files){if(!/^video\//.test(f.type)&&!/\.(mp4|mov|webm|m4v)$/i.test(f.name))continue;try{toast('Loading '+f.name+'…');let a=await loadAsset(f);items.push({asset:a,in:0,out:a.duration});got++}catch(e){toast(e.message)}}if(got&&dlg.open)step1()}
 function useTimeline(quiet){let seen=new Set(items.map(c=>c.key));for(const c of clips){let a=asset(c);if(!a)continue;let key=c.id;if(seen.has(key))continue;items.push({asset:a,in:c.in,out:c.out,key})}if(!quiet)toast('Your timeline clips are in.')}
@@ -296,21 +299,39 @@ async function build(){if(exporting)return;const btn=dlg.querySelector('#brBuild
     if(clips.length||graphicTracks.length||extraTracks.length){if(window.veNewProject)await veNewProject();else{clips=[];graphicTracks=[]}}
     for(const a of used)if(!assets.includes(a))assets.push(a);
     $$('aspect').value=shape;setAspect();const W=canvas.width,H=canvas.height;
-    let t=0,talky=false;const spans=[];
-    tp.parts.forEach((p,j)=>{if(!parts[j].length)return;let s=t;for(const c of parts[j]){let [a,b]=cut(c,p,beat),cl=makeClip(c.asset);Object.assign(cl,{in:a,out:b,fit:shape==='16:9'?'contain':'cover'});clips.push(cl);t+=b-a;if(c.talking)talky=true}spans.push([p,s,t-s])});
+    // Listen to clips that talk (or all of them after Keep my order) for captions and tidying.
+    const listen=(autoCaps||autoTidy)&&typeof window.veClipWords==='function',todo=parts.flat().filter(c=>c.talking||!heard);
+    let t=0,talky=false,failed=false,listened=false,n=0;const spans=[],capWords=[];
+    for(let j=0;j<tp.parts.length;j++){const p=tp.parts[j];if(!parts[j].length)continue;let s=t;
+      for(const c of parts[j]){let [a,b]=cut(c,p,beat),segs=[[a,b]],words=null;
+        if(listen&&!failed&&todo.includes(c)){btn.textContent=`Listening to clip ${++n} of ${todo.length}…`;
+          try{words=await veClipWords({assetId:c.asset.id,in:c.in,out:c.out},m=>btn.textContent=m);listened=true;
+            if(words.length>=4){talky=true;a=Math.max(c.in,words[0].s-.15);b=Math.min(c.out,words.at(-1).e+.35);segs=[[a,b]]}
+            if(autoTidy&&words.length&&!words.est)segs=tidy(words,a,b)}
+          catch(e){failed=true;console.warn('Speech engine unavailable:',e)}}
+        if(c.talking)talky=true;
+        for(const [x,y] of segs){let cl=makeClip(c.asset);Object.assign(cl,{in:x,out:y,fit:shape==='16:9'?'contain':'cover'});clips.push(cl);
+          if(words)for(const w of words)if(w.e>x&&w.s<y&&!(autoTidy&&!words.est&&FILLER.test(String(w.w).replace(/[^a-z]/gi,''))))capWords.push({w:w.w,s:Math.round((t+Math.max(0,w.s-x))*100)/100,e:Math.round((t+Math.min(y,w.e)-x)*100)/100});
+          t+=y-x}}
+      spans.push([p,s,t-s])}
+    btn.textContent='Building…';
     for(const [p,s,len] of spans){let text=String(texts[tp.id+p.id]??p.text).trim();if(!text)continue;createGraphicTrack('text');let g=graphicTracks.at(-1);
       Object.assign(g,{name:p.label+': '+text.slice(0,18),text,color:p.color||'#ffffff',size:textFrac(text,W,H)*H*1280/W,x:50,y:p.y,bold:true,background:false,animation:p.anim,offset:Math.round(s*10)/10,length:Math.max(.8,Math.round(Math.min(len,p.textMax||len)*10)/10),boxColor:p.box,boxOpacity:1,boxPad:26,boxRadius:18})}
     if(M&&t>0){btn.textContent='Making your music…';let file=await makeBeat(t,mood);addTrack('audio');let tr=extraTracks.at(-1);tr.name='🎵 '+M.name+' beat';targetTrack=tr.id;await loadTrackMedia(file);tr.volume=talky?.22:.7;renderTracks()}
     $$('projectName').value='B-roll · '+tp.name;selected=-1;render();renderTracks();renderGraphicTracks();await seekTimeline(0);
     items=[];parts=null;dlg.close();
-    // Captions: when the clip reader heard talking, or when it didn't run (Keep my order) so we can't tell.
-    if(autoCaps&&window.veAutoCaptions&&(talky||!heard))captionsAfter();else toast('Your video is ready! Press ▶ to watch it.')}
+    let capped=autoCaps&&!failed?vePlaceCaptions(capWords):0;
+    toast(failed?'Your video is ready! Captions and pause-cutting didn’t work here, but you can try ✨ Captions in the toolbar.':capped?`Your video is ready, with captions (${capped} words)! Press ▶ to watch it.`:autoCaps&&listened?'Your video is ready! We didn’t hear any talking, so there are no captions. Press ▶ to watch it.':'Your video is ready! Press ▶ to watch it.')}
   catch(e){toast('Couldn’t build the video: '+(e.message||e));btn.disabled=false;btn.textContent='🎬 Build my video'}}
 
-async function captionsAfter(){let last='';toast('Your video is ready! Now adding captions…');
-  try{let n=await veAutoCaptions(t=>{if(t!==last){last=t;toast('Captions: '+t)}});
-    toast(n?`Your video is ready, with captions (${n} words)! Press ▶ to watch it.`:'Your video is ready! We didn’t hear any talking, so there are no captions. Press ▶ to watch it.')}
-  catch(e){toast('Your video is ready, but captions didn’t work here. You can try ✨ Captions in the toolbar.')}}
+// Split a talking stretch [a, b] into the parts worth keeping: drop um/uh and pauses over half a second,
+// leaving a little air around each word so cuts don't clip them.
+const FILLER=/^(u+m+|u+h+|uhm+|e+r+m*|a+h+|h+m+|m+h*m+)$/i;
+function tidy(words,a,b){const ws=words.filter(w=>w.e>a&&w.s<b),isF=w=>FILLER.test(String(w.w).replace(/[^a-z]/gi,'')),kept=ws.filter(w=>!isF(w));
+  if(!kept.length)return [[a,b]];const out=[];let start=Math.max(a,kept[0].s-.12);
+  for(let i=0;i<kept.length-1;i++){const cur=kept[i],nx=kept[i+1],gap=nx.s-cur.e,ums=ws.filter(w=>isF(w)&&w.s>=cur.e-.05&&w.e<=nx.s+.05);
+    if(gap>.5||(ums.length&&gap>.2)){const end=Math.min(nx.s,cur.e+.12,ums.length?ums[0].s:Infinity);out.push([start,end]);start=Math.max(end,nx.s-.1,ums.length?ums.at(-1).e:-Infinity)}}
+  out.push([start,Math.min(b,kept.at(-1).e+.3)]);const good=out.filter(([x,y])=>y-x>.15);return good.length?good:[[a,b]]}
 
 // ---------- ways in ----------
 window.openBroll=open;
