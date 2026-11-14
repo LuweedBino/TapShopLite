@@ -134,3 +134,32 @@ const renderTimelineNoLook=renderTimeline;renderTimeline=function(){renderTimeli
     wrap.innerHTML=`<label>Framing<select onchange="editMainLook('${c.id}','fit',this.value)">${opts(fit,c.fit||'contain')}</select></label><label>Color look<select onchange="editMainLook('${c.id}','filter',this.value)">${opts(look,c.filter||'none')}</select></label>`+(c.text?`<div class="clip-caption"><label>Caption on this clip<input type="text" value="${String(c.text).replace(/&/g,'&amp;').replace(/"/g,'&quot;')}" onchange="editMainLook('${c.id}','text',this.value)"></label><button type="button" onclick="editMainLook('${c.id}','text','')">Remove caption</button></div>`:'');
     box.insertBefore(wrap,dup)})};
 render();
+
+// Ripple delete: deleting a clip on the main video row closes the gap, and everything on the other rows
+// (text, captions, stickers, effects, video layers, audio and music) moves with it. Things that only lived
+// on the deleted clip go too; things that cross it get shorter. One Undo brings it all back.
+function rippleGap(A,d){if(d<=0)return;const B=A+d,E=.02;
+  // Main clips after the gap that have their own place on the timeline.
+  clips.forEach(c=>{if(Number.isFinite(c.offset)&&c.offset>=B-E)c.offset=Math.max(0,c.offset-d)});
+  // Text, stickers, effects and captions: offset + length.
+  graphicTracks=graphicTracks.filter(g=>{const s=g.offset||0,e=s+(g.length||0);
+    if(g.type==='captions'&&Array.isArray(g.words)){g.words=g.words.filter(w=>{const ws=s+w.s;return !(ws>=A-E&&ws<B-E)}).map(w=>{const ws=s+w.s;return ws>=B-E?{...w,s:w.s-d,e:w.e-d}:w});
+      if(s>=B-E){g.offset=s-d;return true}if(e<=A+E)return true;if(s>=A-E){const cut=B-s;g.offset=A;g.words=g.words.map(w=>({...w,s:w.s-cut,e:w.e-cut}));g.length=Math.max(.1,e-B);return g.words.length>0}g.length=Math.max(.1,(g.length||0)-Math.min(d,e-A));return g.words.length>0}
+    if(e<=A+E)return true;if(s>=B-E){g.offset=s-d;return true}
+    if(s>=A-E&&e<=B+E)return false;
+    if(s<A&&e>B){g.length-=d;return true}
+    if(s<A){g.length=A-s;return true}
+    g.offset=A;g.length=e-B;return true});
+  // Video layers and audio/music tracks: offset + (end - start) / speed of their own media.
+  extraTracks=extraTracks.filter(t=>{const sp=t.speed||1,s=t.offset||0,len=Math.max(0,(t.end-t.start)/sp),e=s+len;if(!t.file||len<=0)return true;
+    if(e<=A+E)return true;if(s>=B-E){t.offset=s-d;return true}
+    if(s>=A-E&&e<=B+E){t.media?.pause();try{t.node?.disconnect();t.gain?.disconnect()}catch{}return false}
+    if(s<A&&e>B){t.end-=d*sp;return true}
+    if(s<A){t.end=t.start+(A-s)*sp;return true}
+    t.start+=(B-s)*sp;t.offset=A;return true})}
+{const removeWithoutRipple=removeClip;removeClip=function(){const p=pickedStrip;if(exporting||(p&&p.kind!=='main'))return removeWithoutRipple();
+  const i=p?stripModel('main',p.id)?.i??selected:selected,c=clips[i];if(!c)return removeWithoutRipple();
+  const A=startOf(i),d=duration(c),n=clips.length,others=graphicTracks.length+extraTracks.length;
+  selected=i;removeWithoutRipple();if(clips.length>=n)return;
+  rippleGap(A,d);render();renderGraphicTracks();renderTracks();draw();seekTimeline(Math.min(A,total()));
+  if(others)toast('Clip deleted. Text, captions and music moved to close the gap. (Undo brings it back.)')}}
