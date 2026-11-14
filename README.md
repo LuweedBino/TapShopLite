@@ -8,6 +8,10 @@ Turn your clips and product reviews into short videos for TikTok, Reels and Shor
 
 Nothing is uploaded: files stay on the device, and the finished video downloads to it.
 
+## Accounts
+
+The home page (`index.html`) has sign-up by email link or Google through Supabase, required before opening the video maker (`studio.html`). It's off until `config.js` is filled in; see `SIGN-IN-SETUP.md`.
+
 ## Hosting
 
 A plain static site with no build step and no server. On Vercel: **Add New → Project**, pick this repository, then **Deploy**.
