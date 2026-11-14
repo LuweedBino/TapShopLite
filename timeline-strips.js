@@ -196,10 +196,10 @@ html body .strip-tip button{flex:none;width:30px;height:30px;padding:0!important
 // The "how strips work" note: pops up for 9 s the first 3 times the editor is used on this device (and on the
 // first tap of a strip until it has been seen 3 times). The ✕ closes it for good.
 let tipShown=false;
-function stripTip(force){if(!editorWithStrips())return;let n=0;try{n=+localStorage.getItem('tapshop-strip-tip')||0}catch{}if(tipShown||n>=3&&!force)return;tipShown=true;try{localStorage.setItem('tapshop-strip-tip',String(n+1))}catch{}
+function stripTip(force){if(!editorWithStrips())return;let n=0;try{n=+localStorage.getItem('tapshop-strip-tip2')||0}catch{}if(tipShown||n>=3&&!force)return;tipShown=true;try{localStorage.setItem('tapshop-strip-tip2',String(n+1))}catch{}
   const el=document.createElement('div');el.className='strip-tip';el.setAttribute('role','status');
-  el.innerHTML='<div><b>✨ New: moving strips is easier</b><ul><li><b style="display:inline">Tap</b> a strip to pick it, then drag it along the timeline.</li><li>Drag it <b style="display:inline">up or down</b> to put it on another row, or on a new layer of its own.</li><li><b style="display:inline">Double-tap</b> a strip to open its editing menu.</li></ul></div><button type="button" aria-label="Close" style="background:none">✕</button>';
-  document.body.appendChild(el);const go=()=>{el.remove();clearInterval(watch)},watch=setInterval(()=>{if(!editorWithStrips())go()},500);el.querySelector('button').onclick=()=>{try{localStorage.setItem('tapshop-strip-tip','3')}catch{}go()};setTimeout(go,9000)}
+  el.innerHTML='<div><b>✨ New: moving strips is easier</b><ul><li><b style="display:inline">Tap</b> a strip to pick it, then drag it along the timeline.</li><li>Drag it <b style="display:inline">up or down</b> to put it on another row, or on a new layer of its own. Main video clips become a picture-in-picture layer.</li><li><b style="display:inline">Double-tap</b> a strip to open its editing menu.</li></ul></div><button type="button" aria-label="Close" style="background:none">✕</button>';
+  document.body.appendChild(el);const go=()=>{el.remove();clearInterval(watch)},watch=setInterval(()=>{if(!editorWithStrips())go()},500);el.querySelector('button').onclick=()=>{try{localStorage.setItem('tapshop-strip-tip2','3')}catch{}go()};setTimeout(go,9000)}
 // Only in the editor itself: the page has finished loading, the start screen is closed, and strips are showing
 // on the timeline. Checked every second until then; if the start screen opens again, the note goes away.
 const editorWithStrips=()=>{const st=document.getElementById('veStart');return document.readyState==='complete'&&!document.documentElement.classList.contains('ve-boot')&&!!st&&!st.getClientRects().length&&[...document.querySelectorAll('.tracks .duration-strip')].some(x=>x.getClientRects().length)};
@@ -210,7 +210,16 @@ let laneLine=null,laneTarget=null;
 const laneOf=(list,t)=>t.lane||t.id;
 function laneRows(kind){const box=$(kind==='extra'?'extraTracks':'graphicTracks');return box?[...box.querySelectorAll(':scope > .strip-row:not(.merged)')].filter(r=>r.querySelector('.strip-line .duration-strip')):[]}
 function clearLaneDrop(){laneLine?.remove();laneLine=null;document.querySelectorAll('.strip-row.drop-into').forEach(r=>r.classList.remove('drop-into'));laneTarget=null}
-function laneDrop(d,y){const list=d.kind==='extra'?extraTracks:graphicTracks,me=list.find(t=>t.id===d.id);if(!me)return null;const rows=laneRows(d.kind);if(!rows.length)return null;
+const mainRow=()=>document.querySelector('#clips > .strip-row:not(.merged)');
+// A main video clip dragged off the main row becomes a video layer (picture in picture) at the same time:
+// over the middle of a video-layer row it joins that row, anywhere else it gets a new layer.
+function mainDrop(y){const mr=mainRow()?.querySelector('.strip-line')?.getBoundingClientRect();if(!mr||(y>=mr.top-4&&y<=mr.bottom+4))return null;
+  for(const r of laneRows('extra')){const line=r.querySelector('.strip-line'),rect=line.getBoundingClientRect(),items=[...line.querySelectorAll('.duration-strip')].map(x=>extraTracks.find(t=>t.id===x.dataset.id)).filter(Boolean);
+    if(items[0]?.type==='video'&&y>=rect.top+rect.height*.28&&y<=rect.bottom-rect.height*.28)return {mode:'join',row:{r,items,lane:laneOf(extraTracks,items[0]),type:'video'}}}
+  return {mode:'layer',y:y<mr.top?mr.top-3:y}}
+function laneDrop(d,y){const list=d.kind==='extra'?extraTracks:graphicTracks,me=list.find(t=>t.id===d.id);if(!me)return null;
+  if(d.kind==='extra'&&me.type==='video'&&me.file){const mr=mainRow()?.querySelector('.strip-line')?.getBoundingClientRect();if(mr&&y>=mr.top&&y<=mr.bottom)return {mode:'toMain'}}
+  const rows=laneRows(d.kind);if(!rows.length)return null;
   const info=rows.map(r=>{const line=r.querySelector('.strip-line'),rect=line.getBoundingClientRect(),ids=[...line.querySelectorAll('.duration-strip')].map(s=>s.dataset.id),items=ids.map(id=>list.find(t=>t.id===id)).filter(Boolean);return {r,rect,items,lane:items[0]&&laneOf(list,items[0]),type:items[0]?.type}});
   const first=info[0],last=info.at(-1);
   const alone=R=>R.items.length===1&&R.items[0]===me,same=R=>alone(R)&&list.filter(x=>laneOf(list,x)===laneOf(list,me)).length===1;
@@ -226,13 +235,16 @@ function laneDrop(d,y){const list=d.kind==='extra'?extraTracks:graphicTracks,me=
     const nx=info[k+1];if(nx&&y>R.rect.bottom&&y<nx.rect.top)return pick(same(nx)?null:{mode:'new',after:R,y:(R.rect.bottom+nx.rect.top)/2})}
   return null}
 tracksHost.addEventListener('pointerdown',e=>{if(stripDrag){stripDrag.y0=e.clientY;stripDrag.vert=false}},false);
-tracksHost.addEventListener('pointermove',e=>{const d=stripDrag;if(!d||d.edge||d.kind==='main'||d.y0==null)return;const dy=e.clientY-d.y0;
+tracksHost.addEventListener('pointermove',e=>{const d=stripDrag;if(!d||d.edge||d.y0==null)return;const dy=e.clientY-d.y0;
   if(!d.vert&&Math.abs(dy)<14){return}d.vert=true;d.moved=true;d.element.classList.add('lifting');d.element.style.transform=`translateY(${dy}px)`;
-  clearLaneDrop();const t=laneDrop(d,e.clientY);laneTarget=t;if(!t)return;
+  clearLaneDrop();const t=d.kind==='main'?mainDrop(e.clientY):laneDrop(d,e.clientY);laneTarget=t;if(!t)return;
+  if(t.mode==='toMain'){mainRow()?.classList.add('drop-into');return}
   if(t.mode==='join'){t.row.r.classList.add('drop-into')}
-  else{const host=tracksHost.getBoundingClientRect();laneLine=document.createElement('div');laneLine.className='lane-drop-line';laneLine.dataset.label='New layer';laneLine.style.left=(host.left+8)+'px';laneLine.style.width=Math.max(60,host.width-16)+'px';laneLine.style.top=(t.y-1)+'px';document.body.appendChild(laneLine)}});
+  else{const host=tracksHost.getBoundingClientRect();laneLine=document.createElement('div');laneLine.className='lane-drop-line';laneLine.dataset.label=t.mode==='layer'?'New video layer (picture in picture)':'New layer';laneLine.style.left=(host.left+8)+'px';laneLine.style.width=Math.max(60,host.width-16)+'px';laneLine.style.top=(t.y-1)+'px';document.body.appendChild(laneLine)}});
 // Before the left/right drag finishes (capture phase), apply the move between rows.
 tracksHost.addEventListener('pointerup',()=>{const d=stripDrag;if(!d||!d.vert)return;d.element.style.transform='';d.element.classList.remove('lifting');const t=laneTarget;clearLaneDrop();if(!t)return;
+  if(d.kind==='main'){clipToLayer(d.id,t);return}
+  if(t.mode==='toMain'){layerToClip(d.id);return}
   const list=d.kind==='extra'?extraTracks:graphicTracks,i=list.findIndex(x=>x.id===d.id);if(i<0)return;snapshot();const me=list[i];list.splice(i,1);
   const idx=it=>list.indexOf(it);let msg;
   if(t.mode==='join'){me.lane=t.row.lane;const members=list.filter(x=>laneOf(list,x)===t.row.lane),at=Math.max(...members.map(idx))+1;list.splice(at,0,me);msg='Moved to that row'}
@@ -262,3 +274,24 @@ function closeGap(kind,ids,A,d){if(exporting)return;pause();snapshot();const B=A
   hideSplit();render();renderGraphicTracks();renderTracks();draw();seekTimeline(Math.min(A,total()));toast(`Deleted ${d.toFixed(1)} s of empty space. (Undo brings it back.)`)}
 {const decorateWithBins=decorateStrips;decorateStrips=function(){decorateWithBins();addGapBins()}}
 render();
+
+
+// ---------- Main video clips <-> video layers ----------
+// The other main clips keep their places (their offsets are fixed first), so a gap is left where the clip was;
+// its 🗑 closes it. The layer starts full size (scale 100) so the picture looks the same until it's resized.
+async function clipToLayer(id,t){const i=clips.findIndex(c=>c.id===id);if(i<0||exporting)return;const c=clips[i],a=asset(c);if(!a?.file){toast('Can’t find this clip’s video file.');return}
+  pause();snapshot();const st=baseStarts();clips.forEach((x,k)=>{if(!Number.isFinite(x.offset))x.offset=st[k]});const at=st[i];clips.splice(i,1);selected=Math.min(selected,clips.length-1);activeId=null;render();
+  addTrack('video');const L=extraTracks.at(-1);targetTrack=L.id;await loadTrackMedia(a.file);if(!L.media){toast('Couldn’t make the layer.');return}
+  Object.assign(L,{name:(a.name||'Video')+' (layer)',offset:at,start:c.in,end:c.out,speed:c.speed||1,volume:c.volume??1,scale:100,x:50,y:50,opacity:1});
+  if(t.mode==='join'){L.lane=t.row.lane;const members=extraTracks.filter(x=>x!==L&&laneOf(extraTracks,x)===t.row.lane);extraTracks.splice(extraTracks.indexOf(L),1);extraTracks.splice(Math.max(...members.map(x=>extraTracks.indexOf(x)))+1,0,L)}
+  else{L.lane=uid();extraTracks.splice(extraTracks.indexOf(L),1);extraTracks.splice(t.y!=null&&laneRows('extra').length&&t.y>(laneRows('extra')[0].getBoundingClientRect().top)?extraTracks.length:0,0,L)}
+  pickedStrip={kind:'extra',id:L.id};expandedStrip=null;render();renderTracks();draw();await seekTimeline(at);toast('Now a video layer on top of the main video. Resize it on the preview, or drag it back down to the main row.')}
+async function layerToClip(id){const L=extraTracks.find(t=>t.id===id);if(!L?.file||exporting)return;pause();snapshot();
+  let a=assets.find(x=>x.file===L.file);if(!a){try{a=await loadAsset(L.file)}catch(e){toast(e.message);return}}
+  const st=baseStarts();clips.forEach((x,k)=>{if(!Number.isFinite(x.offset))x.offset=st[k]});
+  const c=makeClip(a);Object.assign(c,{in:L.start,out:L.end,speed:L.speed||1,volume:L.volume??1});const len=duration(c);
+  // At the layer's time, or the first free spot after it on the main row.
+  let at=Math.max(0,L.offset);const spans=clips.map(x=>[x.offset,x.offset+duration(x)]).sort((p,q)=>p[0]-q[0]);for(const [s0,e0] of spans)if(at<e0-.01&&at+len>s0+.01)at=e0;c.offset=at;
+  clips.push(c);clips.sort((p,q)=>p.offset-q.offset);
+  L.media?.pause();try{L.node?.disconnect();L.gain?.disconnect()}catch{}extraTracks=extraTracks.filter(t=>t!==L);
+  selected=clips.indexOf(c);pickedStrip={kind:'main',id:c.id};expandedStrip=null;render();renderTracks();draw();await seekTimeline(at);toast('Moved into the main video.')}

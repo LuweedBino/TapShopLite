@@ -218,7 +218,7 @@ const TIPS=[
   ['🔶','Shapes & stickers','Arrows, bubbles and badges point eyes right where you want them.'],
   ['✋','Keep it steady','Lean on something or use both hands. Shaky shots get scrolled past.'],
   ['🌈','Effects','Vignette, film grain, glow, cinema bars and more, in 🌈 Effects.'],
-  ['📹','Picture in picture','Put a second video on top of your main one, like a reaction bubble.'],
+  ['📹','Picture in picture','Drag a clip up off the main video row and it becomes a layer on top. Drag it back down to undo it.'],
   ['🎯','One video, one idea','Pick one message per video. Save the rest for the next one.'],
   ['📐','Pick the right shape','Choose where you’ll post first (TikTok, Reels, YouTube…) so it’s the right size.'],
   ['📷','Use your camera','Record straight into the editor with 📷 Use camera, on a phone or a laptop.'],
