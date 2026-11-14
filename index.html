@@ -279,6 +279,7 @@ footer{padding:30px 0 50px;color:var(--muted);font-size:14px;text-align:center}
         <div class="done">🎉</div><h2>You're in!</h2>
         <p class="sub" id="who"></p>
         <a class="btn main" href="studio.html">Open the video maker →</a>
+        <a class="btn" href="account.html">👤 My account</a>
         <button class="btn" type="button" id="chpw">Change my password</button>
         <button class="btn" type="button" id="out">Sign out</button>
         <p class="msg" id="inMsg" role="status" aria-live="polite"></p>
@@ -365,6 +366,7 @@ function render(s){if(s){show('signedIn');$('who').textContent='Signed in as '+(
   else{show('signedOut');$('navGo').textContent='Sign up free';$('navGo').href='#join';$('heroGo').textContent='Start free in 10 seconds →';$('heroGo').href='#join'}}
 setMode(/[?&]login=1/.test(location.search)?'in':'up');if(/[?&]login=1/.test(location.search))setTimeout(()=>$('join').scrollIntoView(),50);if(signin){$('joinSub').textContent='Create a free account (or sign in) to open the video maker.';setTimeout(()=>$('join').scrollIntoView(),50)}
 A.session().then(render,()=>render(null));A.onChange(render);
+if(/[?&]deleted=1/.test(location.search)){msg('Your account has been deleted. Sorry to see you go!');history.replaceState(null,'',location.pathname+'#join')}
 })();
 </script>
 </body>

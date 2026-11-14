@@ -25,6 +25,14 @@ window.TapAuth={on,providers:Array.isArray(cfg.providers)?cfg.providers:[],
   async signIn(email,password){const c=await load();const {data,error}=await c.auth.signInWithPassword({email,password});if(error)throw error;return data.session},
   async email(address){const c=await load();const {error}=await c.auth.signInWithOtp({email:address,options:{emailRedirectTo:studio(),shouldCreateUser:true}});if(error)throw error},
   async provider(name){const c=await load();const {error}=await c.auth.signInWithOAuth({provider:name,options:{redirectTo:studio()}});if(error)throw error},
-  async signOut(){if(!on)return;const c=await load();await c.auth.signOut()},
+  async signOut(scope){if(!on)return;const c=await load();await c.auth.signOut(scope?{scope}:undefined)},
+  // The account page: fresh user details from the server, name (user_metadata.name), new email (confirmed by email).
+  async user(){const c=await load();const {data,error}=await c.auth.getUser();if(error)throw error;return data.user},
+  async updateProfile(data){const c=await load();const {data:d,error}=await c.auth.updateUser({data});if(error)throw error;return d.user},
+  async changeEmail(email){const c=await load();const {error}=await c.auth.updateUser({email},{emailRedirectTo:page('account.html')});if(error)throw error},
+  // Deletes the signed-in account for good (api/delete-account.js), then signs out on this device.
+  async deleteAccount(){const c=await load(),{data}=await c.auth.getSession(),t=data.session?.access_token;if(!t)throw Error('Please sign in again.');
+    const r=await fetch('/api/delete-account',{method:'POST',headers:{authorization:'Bearer '+t}});const j=await r.json().catch(()=>({}));if(!r.ok)throw Error(j.error||'We couldn’t delete the account.');
+    await c.auth.signOut({scope:'local'}).catch(()=>{})},
   async onChange(fn){if(!on)return;const c=await load();c.auth.onAuthStateChange((_e,s)=>fn(s))}};
 })();
