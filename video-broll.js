@@ -276,6 +276,7 @@ window.openBroll=open;
 // its intro and above Recent videos. Other scripts add things after the intro later, so keep them in place.
 function startButton(){let start=$$('veStart'),lead=start?.querySelector('.vs-lead');if(!lead)return;
   let box=$$('vsQuick');if(!box){box=document.createElement('div');box.id='vsQuick';box.className='vs-quick'}
+  if(!box.querySelector('.vs-qh')){let h=document.createElement('div');h.className='vs-qh';h.innerHTML='<h2>Quick Video Makers</h2><p class="vs-help">Pick one and it builds the video for you.</p>';box.prepend(h)}
   if(!$$('vsBroll')){let b=document.createElement('button');b.type='button';b.id='vsBroll';b.className='vs-reviews';
     b.innerHTML='<b>🎞️ Build a video from your b-roll</b><span>Drop in your b-roll clips, pick a story like Hook → Problem → Solution, and we turn your b-roll into a finished video with words on screen and free music.</span>';
     b.onclick=()=>{let go=$$('vsGo');if(go)go.click();let el=$$('veStart');if(el)el.hidden=true;setTimeout(()=>open(true),60)};box.appendChild(b)}
