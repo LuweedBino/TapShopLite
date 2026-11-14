@@ -4,7 +4,7 @@
 // providers: the extra sign-in buttons to show; each must also be switched on in Supabase
 // (Authentication → Sign In / Providers). Possible: 'google', 'apple', 'facebook', 'azure' (Microsoft), 'github', 'discord'.
 window.TAPSHOP_AUTH = {
-  enabled: false,
+  enabled: true,
   url: 'https://yxlaoosagblbojazxwix.supabase.co',
   key: 'sb_publishable_aHXFnsZbjrjnPXmj6Kln0w_nluXaPjX',
   providers: [],
