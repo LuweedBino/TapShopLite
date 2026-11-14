@@ -112,6 +112,11 @@ h1 span{background:linear-gradient(90deg,var(--pink),#ff8a5b);-webkit-background
 .conf i:nth-child(1){left:8%}.conf i:nth-child(2){left:18%;animation-delay:.15s}.conf i:nth-child(3){left:28%;animation-delay:.3s}.conf i:nth-child(4){left:38%;animation-delay:.05s}.conf i:nth-child(5){left:48%;animation-delay:.25s}
 .conf i:nth-child(6){left:58%;animation-delay:.1s}.conf i:nth-child(7){left:68%;animation-delay:.35s}.conf i:nth-child(8){left:78%;animation-delay:.2s}.conf i:nth-child(9){left:88%;animation-delay:.4s}.conf i:nth-child(10){left:23%;animation-delay:.45s}
 @keyframes conf{0%,67%{opacity:0;transform:translateY(0) rotate(0)}69%{opacity:1}96%{opacity:1;transform:translateY(560%) rotate(540deg)}100%{opacity:0;transform:translateY(600%) rotate(600deg)}}
+/* demo 4: a real screenshot of the editor with seven layers, slowly panning from the preview down to the timeline */
+.d4 .scr{background:#111}.d4 img{position:absolute;left:0;top:0;width:100%;height:auto;animation:pan4 12s ease-in-out infinite alternate}
+@keyframes pan4{0%,12%{transform:translateY(0)}88%,100%{transform:translateY(calc(-100% + 100cqh))}}
+.d4 .scr{container-type:size}
+.chip4{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);white-space:nowrap;background:#ff3ea5;color:#fff;font:800 11px system-ui,sans-serif;padding:6px 10px;border-radius:999px;box-shadow:0 5px 14px #0007}
 @media (prefers-reduced-motion:reduce){*{animation:none!important}.clip,.ok,.built,.d2 .wave,.rv,.score{opacity:1}.ct3,.conf i,.hk3{display:none}}
 /* sections */
 section{padding:44px 0}
@@ -209,6 +214,13 @@ footer{padding:30px 0 50px;color:var(--muted);font-size:14px;text-align:center}
           <div class="conf"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
         </div></div>
         <h3>⭐ Reviews Video Maker</h3><p><b>Review screenshots in, video out.</b> Paste screenshots of real customer reviews and get an animated video that sells, ready to post on its own, or dropped on top of one of your videos as extra proof. Perfect for affiliates.</p><ul class="ticks"><li>Paste or upload screenshots</li><li>Animated one by one</li><li>Star &amp; verified badges</li><li>5 layouts</li><li>Hook &amp; link in bio</li><li>Confetti finish</li><li>Add it over your own clip</li></ul>
+      </div>
+      <div class="demo">
+        <div class="mini d4" aria-hidden="true"><div class="scr">
+          <img src="media/editor-layers.jpg" alt="" loading="lazy">
+          <span class="chip4">🧩 7 layers · tap any to edit</span>
+        </div></div>
+        <h3>🎬 Full video editor</h3><p><b>Fine-tune everything, layer by layer.</b> Every video opens in a real editor: clips, music, text, stickers, effects, graphics and captions each sit on their own layer you can tap and change.</p><ul class="ticks"><li>Unlimited layers</li><li>Drag, resize &amp; rotate</li><li>Trim, split &amp; speed</li><li>Fonts, colours &amp; animations</li><li>Stickers, shapes &amp; effects</li><li>Bring forward / send back</li><li>Undo &amp; redo</li><li>1080p MP4 export</li></ul>
       </div>
     </div>
   </section>
