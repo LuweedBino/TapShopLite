@@ -237,6 +237,39 @@ window.veClipWords=async function(c,say=()=>{}){if(busy)throw Error('Captions ar
       let ws=toWords(r,dur);if(ws.est)out.est=true;for(let w of ws)out.push({w:w.w,s:c.in+part.at+Math.min(w.s,dur),e:c.in+part.at+Math.min(w.e,dur)})}
     return out}
   catch(x){worker?.terminate();worker=null;throw x}finally{busy=false}};
+// ---------- cloud AI (Groq, through api/words.js) ----------
+// For the B-roll builder: the talking clips' sound is joined into one 16 kHz WAV (with a second of silence
+// between clips, at most ~2 minutes per request), Groq writes down every word with its time, then Groq's text
+// AI marks fumbles and retakes (w.drop). One build counts as one use of the person's daily limit.
+// Resolves to {words: [[{w,s,e,drop?}] per clip, file seconds], left}. Throws (err.code: off, limit, auth, net…)
+// so the caller can fall back to veClipWords.
+const ISO={english:'en',spanish:'es',french:'fr',portuguese:'pt',german:'de',italian:'it',tagalog:'tl',hindi:'hi',japanese:'ja',korean:'ko',chinese:'zh',arabic:'ar'};
+function wav(f){const n=f.length,b=new ArrayBuffer(44+n*2),v=new DataView(b),s=(o,t)=>{for(let i=0;i<t.length;i++)v.setUint8(o+i,t.charCodeAt(i))};
+  s(0,'RIFF');v.setUint32(4,36+n*2,true);s(8,'WAVE');s(12,'fmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,16000,true);v.setUint32(28,32000,true);v.setUint16(32,2,true);v.setUint16(34,16,true);s(36,'data');v.setUint32(40,n*2,true);
+  for(let i=0;i<n;i++){let x=Math.max(-1,Math.min(1,f[i]));v.setInt16(44+i*2,x<0?x*32768:x*32767,true)}return new Blob([b],{type:'audio/wav'})}
+const cloudErr=(m,code)=>Object.assign(Error(m),{code});
+async function cloudPost(body,type,build,lang){let h={'content-type':type,'x-build':build,'x-lang':lang||''};
+  if(window.TapAuth?.on){let s=null;try{s=await TapAuth.session()}catch{}if(!s)throw cloudErr('Not signed in.','auth');h.authorization='Bearer '+s.access_token}
+  let r;try{r=await fetch((window.TAPSHOP_AI||{}).endpoint||'/api/words',{method:'POST',headers:h,body})}catch{throw cloudErr('Couldn’t reach the cloud AI.','net')}
+  let j={};try{j=await r.json()}catch{}if(!r.ok)throw cloudErr(j.error||'Cloud AI error '+r.status,j.code||'http');return j}
+window.veCloudOn=()=>!!(window.TAPSHOP_AI||{}).cloud&&/^https?:/.test(location.protocol);
+window.veCloudWords=async function(list,say=()=>{}){if(!veCloudOn())throw cloudErr('Cloud AI is off.','off');
+  const SR=16000,GAP=SR,MAX=120*SR,build=(crypto.randomUUID?.()||String(Date.now())+Math.random().toString(36).slice(2)),lang=ISO[lastSettings().lang]||'';
+  const batches=[];let cur=null;
+  for(let k=0;k<list.length;k++){say(`Getting the sound from clip ${k+1} of ${list.length}…`);let a=null;try{a=await clipAudio({speed:1,...list[k]})}catch{}if(!a||a.length<1600)continue;
+    for(let from=0;from<a.length;from+=MAX){let piece=a.subarray(from,Math.min(a.length,from+MAX));if(piece.length<1600)continue;
+      if(!cur||cur.len+GAP+piece.length>MAX){cur={len:0,items:[]};batches.push(cur)}if(cur.items.length)cur.len+=GAP;cur.items.push({k,from:from/SR,at:cur.len,a:piece});cur.len+=piece.length}}
+  const words=list.map(()=>[]);let left=null;
+  for(let i=0;i<batches.length;i++){const B=batches[i],f=new Float32Array(B.len);for(const it of B.items)f.set(it.a,it.at);
+    say(batches.length>1?`Cloud AI is listening (part ${i+1} of ${batches.length})…`:'Cloud AI is listening…');
+    const j=await cloudPost(wav(f),'audio/wav',build,lang);if(j.left!=null)left=j.left;
+    for(const w of j.words||[]){const mid=(w.s+w.e)/2*SR,it=B.items.find(x=>mid>=x.at-SR/4&&mid<=x.at+x.a.length+SR/4);if(!it)continue;
+      const c=list[it.k],off=c.in+it.from-it.at/SR;words[it.k].push({w:w.w,s:Math.max(c.in,w.s+off),e:Math.min(c.out,w.e+off)})}}
+  words.forEach(ws=>{ws.est=false;ws.sort((a,b)=>a.s-b.s)});
+  // Mistakes: one list of every word (a clip break is marked with "|" so takes in different clips aren't mixed up).
+  const flat=[];words.forEach(ws=>{if(flat.length&&ws.length)flat.push(null);ws.forEach(w=>flat.push(w))});
+  if(flat.filter(Boolean).length>=6){say('Cloud AI is looking for mistakes…');try{const j=await cloudPost(JSON.stringify({words:flat.map(w=>w?w.w:'|')}),'application/json',build,lang);for(const i of j.drop||[])if(flat[i])flat[i].drop=true}catch(e){console.warn('Mistake finder skipped:',e)}}
+  return {words,left}};
 // Adds ready-made timeline words as the Captions track, in the last style used. Returns the number of words.
 window.vePlaceCaptions=function(words){if(!words?.length)return 0;placeCaptions([...words].sort((a,b)=>a.s-b.s),lastSettings().preset);return words.length};
 
