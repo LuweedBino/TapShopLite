@@ -72,4 +72,18 @@ const queueNames=()=>{if(!nameQ)nameQ=requestAnimationFrame(names)};
 if(tl){new MutationObserver(ms=>{if(ms.some(m=>[...m.addedNodes].some(x=>x.nodeType===1&&!x.matches('.strip-name>span'))))queueNames()}).observe(tl,{childList:true,subtree:true});
   queueNames();addEventListener('resize',queueNames);if(document.fonts)document.fonts.ready.then(queueNames)}
 
+
+// The first time the editor shows, the toolbar glides to its far end and back, so people see every tool.
+// Skipped when everything already fits, when the device asks for less motion, and as soon as the person touches it.
+{let done=false,stop=false;
+  const glide=(to,ms)=>new Promise(res=>{let from=bar.scrollLeft,t0=performance.now();const f=now=>{if(stop)return res();let k=Math.min(1,(now-t0)/ms),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;bar.scrollLeft=from+(to-from)*e;k<1?requestAnimationFrame(f):res()};requestAnimationFrame(f)});
+  const peek=async()=>{if(done)return;let start=document.getElementById('veStart');if(start&&!start.hidden)return;if(!bar.offsetParent)return;done=true;
+    if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    await new Promise(r=>setTimeout(r,700));let far=bar.scrollWidth-bar.clientWidth;if(far<8||stop)return;
+    for(const ev of ['pointerdown','wheel','touchstart'])bar.addEventListener(ev,()=>stop=true,{once:true,passive:true});
+    bar.style.scrollSnapType='none'; // snapping would make the glide jump between sections
+    await glide(far,Math.min(2600,900+far*1.6));if(!stop){await new Promise(r=>setTimeout(r,450));await glide(0,Math.min(2200,800+far*1.3))}
+    bar.style.scrollSnapType=''};
+  let start=document.getElementById('veStart');if(start)new MutationObserver(peek).observe(start,{attributes:true,attributeFilter:['hidden']});
+  if(document.readyState==='complete')setTimeout(peek,300);else addEventListener('load',()=>setTimeout(peek,300))}
 })();
