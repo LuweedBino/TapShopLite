@@ -95,6 +95,7 @@ const MOODS={
   chill:{name:'Chill lo-fi',bpm:86,chords:[[57,'min7'],[53,'maj7'],[60,'maj7'],[55,'maj']],kick:[0,7,10],snare:[8],hats:2,swing:.12,arp:4,pad:850},
   // Optional fields (missing = the original sound): bass saw|sub|pluck|none, bassPat (steps), lead triangle|square|sine|bell,
   // arpDown, clap/rim (steps), roll (hat steps split in three), hats 0 = none, drums false = no drums, padType, padVol, chordBars, boom (long kick).
+  // lead can also be piano or guitar (a plucked string). Every style's tune is in MEL below.
   trap:{name:'Trap bounce',bpm:140,chords:[[57,'min'],[53,'maj'],[60,'maj'],[55,'maj']],kick:[0,7,10],snare:[8],clap:[8],hats:1,roll:[6,14],bass:'sub',bassPat:[0,7,10],boom:1,arp:4,lead:'bell',pad:900,padVol:.6},
   rnb:{name:'Smooth R&B',bpm:72,chords:[[62,'m9'],[67,'dom7'],[60,'maj7'],[57,'m9']],kick:[0,7,10],snare:[8],rim:[4,14],hats:2,swing:.1,bass:'sub',bassPat:[0,7,10],arp:4,lead:'sine',pad:1000,padType:'sine',padVol:1.2},
   acoustic:{name:'Happy acoustic',bpm:110,chords:[[60,'add9'],[67,'maj'],[69,'min'],[65,'add9']],kick:[0,8],clap:[4,12],snare:[],hats:4,bass:'pluck',arp:1,lead:'triangle',pad:900,padType:'sine'},
@@ -114,8 +115,47 @@ const MOODS={
   playful:{name:'Cute & playful',bpm:120,chords:[[60,'maj'],[65,'maj'],[67,'maj'],[60,'maj']],kick:[0,8],snare:[],clap:[4,12],hats:4,bass:'pluck',bassPat:[0,4,8,12],arp:2,lead:'square',pad:1000,padType:'sine'},
   dark:{name:'Dark & moody',bpm:80,chords:[[57,'min'],[56,'maj'],[53,'maj'],[52,'pow']],kick:[0,10],snare:[8],hats:4,boom:1,bass:'sub',bassPat:[0,10],arp:8,lead:'sine',pad:600,padVol:1.4,chordBars:2},
   holiday:{name:'Holiday sparkle',bpm:110,chords:[[60,'maj'],[64,'min'],[65,'maj'],[67,'dom7']],kick:[0,8],snare:[4,12],hats:2,open:[6,14],bass:'pluck',arp:1,lead:'bell',pad:1400},
+  piano:{name:'Gentle piano',bpm:76,chords:[[60,'maj7'],[57,'min7'],[65,'maj7'],[67,'sus4']],kick:[0,10],snare:[],rim:[8],hats:4,bass:'sub',bassPat:[0,8],arp:4,lead:'piano',pad:700,padType:'sine',padVol:.8},
+  guitar:{name:'Campfire guitar',bpm:96,chords:[[67,'maj'],[64,'min'],[60,'maj'],[62,'maj']],kick:[0,8],snare:[4,12],hats:4,bass:'pluck',bassPat:[0,6,8,14],arp:2,lead:'guitar',pad:800,padType:'sine',padVol:.6},
+  bossa:{name:'Bossa nova',bpm:126,chords:[[62,'min7'],[67,'dom7'],[60,'maj7'],[60,'maj7']],kick:[0,3,8,11],snare:[],rim:[0,3,6,10,13],hats:2,bass:'pluck',bassPat:[0,3,8,11],arp:4,lead:'guitar',pad:900,padType:'sine',padVol:1.1},
+  gospel:{name:'Soulful gospel',bpm:72,chords:[[53,'maj7'],[57,'min7'],[58,'maj7'],[60,'dom7']],kick:[0,10],snare:[8],clap:[8],hats:2,swing:.12,bass:'sub',bassPat:[0,7,10],arp:4,lead:'piano',pad:1000,padType:'sine',padVol:1.3},
+  kids:{name:'Kids cartoon',bpm:132,chords:[[60,'maj'],[67,'maj'],[65,'maj'],[67,'maj']],kick:[0,8],snare:[],clap:[4,12],hats:4,bass:'pluck',bassPat:[0,4,8,12],arp:4,lead:'bell',pad:1200,padType:'sine'},
   workout:{name:'Workout pump',bpm:132,chords:[[62,'min'],[58,'maj'],[60,'maj'],[57,'min']],kick:[0,4,8,12],clap:[4,12],snare:[],hats:2,open:[2,6,10,14],bass:'saw',bassPat:[2,6,10,14],arp:2,lead:'square',pad:1700},
 };
+// Each style's own tune: two one-bar phrases, played A A B A. 16 steps a bar: a number is a note of the chord
+// playing at the time (0 = root, 1 = next chord note up…, past the top goes up an octave, negative goes down),
+// "-" holds the note, "." is a rest. Using chord notes keeps every tune in tune with any chords.
+const MEL={
+  bright:['2 . 2 . 1 - 0 . 1 . 2 - - - . .','3 . 2 . 1 . 2 - 1 - 0 - - - . .'],
+  upbeat:['0 . 0 2 . 0 1 . 2 . 3 - 2 . 1 .','3 - 2 . 3 - 4 . 3 . 2 . 1 - . .'],
+  chill:['2 - - 1 . . 0 - - . . . 1 - 0 .','3 - - 2 . 1 - . 0 - - - . . . .'],
+  trap:['0 . 0 . 2 . . 1 . . 0 . -1 - . .','3 . 2 . 3 . . 2 . . 1 . 0 - . .'],
+  rnb:['. . 2 - 3 - 2 1 - - 0 - . . . .','. 4 - 3 2 - 1 - 2 - - - . . . .'],
+  acoustic:['0 1 2 - 2 - 1 0 1 - 2 - 0 - . .','3 - 2 1 2 - 1 0 1 - 0 - - - . .'],
+  tropical:['. . 2 . 2 . 3 . . 2 . 1 . . 0 .','. . 3 . 3 . 4 . . 3 . 2 . 1 . .'],
+  inspire:['0 - 1 - 2 - - - 3 - 2 - 1 - - -','2 - 3 - 4 - - - 3 - - - 2 - - -'],
+  epic:['0 - - - 1 - - - 2 - - - 1 - 0 -','3 - - - 2 - - - 4 - - - 3 - - -'],
+  dreamy:['3 - - - - - 2 - - - - - 1 - - -','4 - - - - - 3 - - - 2 - - - - -'],
+  funk:['0 . 0 2 . 0 . 3 . 0 2 . 1 . 0 .','. 3 . 2 . 3 4 . 3 . 2 . 0 . . .'],
+  synthwave:['2 - - 3 - - 4 - 3 - 2 - 1 - - -','4 - - 3 - - 2 - 3 - - - 1 - - -'],
+  boombap:['. . 2 . . 1 . . 0 - . . -1 . . .','. . 3 . . 2 . 1 . . 0 - . . . .'],
+  afro:['0 . 1 . . 2 . 1 . 0 . . 2 . 1 .','3 . 2 . . 3 . 2 . 1 . . 0 . . .'],
+  reggaeton:['2 . . 2 . . 1 . 2 . . 2 . . 3 .','3 . . 2 . . 1 . 0 . . 1 . . 2 .'],
+  dnb:['3 - - - 2 - - - 4 - - - 3 - 2 -','4 - 3 - 2 - - - 1 - - - 2 - - -'],
+  futurebass:['2 . 3 . 4 - . 3 . 2 . 3 - - . .','4 . 3 . 4 . 5 - - . 4 . 3 - . .'],
+  jazz:['. 2 3 4 - 3 2 . 1 - 0 - . . . .','4 - 3 . 2 1 . 2 - - 3 - . . . .'],
+  hype:['0 . 0 . 3 . 0 . 2 . 0 . 1 . 0 .','3 . 3 . 2 . 2 . 1 . 1 . 0 - - -'],
+  playful:['0 2 4 . 2 . 0 . 1 3 5 . 3 . 1 .','4 . 3 . 2 . 1 . 0 . 2 . 0 - . .'],
+  dark:['0 - - - . . 1 - - . . . 0 - -1 -','2 - - - . . 1 - - - 0 - - - . .'],
+  holiday:['0 - 2 - 4 - 3 2 1 - - - 2 - . .','4 - 3 - 2 - 1 0 1 - 2 - 0 - - -'],
+  workout:['0 . 0 . 0 . 2 . 0 . 0 . 3 . 2 .','3 . 3 . 2 . 2 . 4 . 3 . 2 . 1 .'],
+  piano:['2 - - 1 0 - - - 1 - 2 - 3 - - -','4 - 3 - 2 - - 1 - - 0 - - - . .'],
+  guitar:['0 . 1 . 2 - 2 . 1 . 0 - . . 1 .','2 . 3 . 2 - 1 . 0 . 1 - - - . .'],
+  bossa:['2 . . 3 . . 2 . 1 - . 0 . . . .','. 3 . . 4 . 3 . . 2 - - . . . .'],
+  gospel:['0 - 1 2 - - 3 - 2 - - - 1 - 0 -','3 - 4 - 3 2 - - 1 - 2 - - - . .'],
+  kids:['0 . 2 . 4 . 2 . 3 . 1 . 2 - . .','4 . 4 . 3 . 3 . 2 . 1 . 0 - . .'],
+};
+for(const k in MEL)if(MOODS[k])MOODS[k].mel=MEL[k].map(p=>p.split(' '));
 const TONES={maj:[0,4,7],min:[0,3,7],min7:[0,3,7,10],maj7:[0,4,7,11],m9:[0,3,7,10,14],dom7:[0,4,7,10],add9:[0,4,7,14],sus2:[0,2,7],sus4:[0,5,7],pow:[0,7,12]};
 const hz=m=>440*Math.pow(2,(m-69)/12);
 async function makeBeat(seconds,moodKey){
@@ -135,8 +175,13 @@ async function makeBeat(seconds,moodKey){
     let o=oc.createOscillator(),f=oc.createBiquadFilter(),g=oc.createGain();o.type=M.bass==='pluck'?'square':'sawtooth';o.frequency.value=hz(m);f.type='lowpass';f.frequency.value=M.bass==='pluck'?600:380;if(M.bass==='pluck')d=Math.min(d,.22);g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(.28,t+.01);g.gain.setValueAtTime(.28,t+d*.7);g.gain.exponentialRampToValueAtTime(0.0001,t+d);o.connect(f);f.connect(g);out(g);o.start(t);o.stop(t+d+.02)};
   const pad=(t,notes,d)=>{let f=oc.createBiquadFilter(),g=oc.createGain();f.type='lowpass';f.frequency.value=M.pad;g.gain.setValueAtTime(0.0001,t);const pv=.045*(M.padVol||1);g.gain.exponentialRampToValueAtTime(pv,t+.35);g.gain.setValueAtTime(pv,t+d-.3);g.gain.exponentialRampToValueAtTime(0.0001,t+d);f.connect(g);out(g);
     for(let m of notes)for(let det of [-7,7]){let o=oc.createOscillator();o.type=M.padType||'sawtooth';o.frequency.value=hz(m);o.detune.value=det;o.connect(f);o.start(t);o.stop(t+d+.05)}};
-  const pluck=(t,m,pan)=>{if(M.lead==='bell'){for(const [r,v,dc] of [[1,.06,.5],[3.5,.018,.18]]){let o=oc.createOscillator(),g=oc.createGain();o.type='sine';o.frequency.value=hz(m)*r;env(g,t,v,.002,dc);o.connect(g);out(g,pan);o.start(t);o.stop(t+dc+.05)}return}
-    let o=oc.createOscillator(),g=oc.createGain();o.type=M.lead==='square'?'square':M.lead==='sine'?'sine':'triangle';if(M.lead==='square'){env(g,t,.035,.004,.18);o.frequency.value=hz(m);o.connect(g);out(g,pan);o.start(t);o.stop(t+.24);return}o.frequency.value=hz(m);env(g,t,.075,.004,.26);o.connect(g);out(g,pan);o.start(t);o.stop(t+.32)};
+  // One note in the style's lead sound. amp scales it (the arpeggio plays softer under a tune); d = how long it's held.
+  const strings=new Map(),string=(m,dur)=>{const k=m+':'+dur;if(strings.has(k))return strings.get(k);const n=Math.round(SR/hz(m)),len=Math.ceil(dur*SR),b=oc.createBuffer(1,len,SR),x=b.getChannelData(0),ring=new Float32Array(n);
+    for(let i=0;i<n;i++)ring[i]=Math.random()*2-1;for(let i=0;i<len;i++){const j=i%n,v=ring[j];x[i]=v;ring[j]=.996*.5*(v+ring[(j+1)%n])}strings.set(k,b);return b};
+  const pluck=(t,m,pan,amp=1,d=0)=>{if(M.lead==='bell'){for(const [r,v,dc] of [[1,.06,.5],[3.5,.018,.18]]){let o=oc.createOscillator(),g=oc.createGain(),dd=Math.max(dc,d*(r===1?1:.4));o.type='sine';o.frequency.value=hz(m)*r;env(g,t,v*amp,.002,dd);o.connect(g);out(g,pan);o.start(t);o.stop(t+dd+.05)}return}
+    if(M.lead==='piano'){const dd=Math.min(2.2,.5+d*1.2);for(const [r,v] of [[1,.07],[2,.03],[3,.014],[4,.007]]){let o=oc.createOscillator(),g=oc.createGain();o.type='sine';o.frequency.value=hz(m)*r;o.detune.value=r*1.5;env(g,t,v*amp,.004,dd/r**.5);o.connect(g);out(g,pan);o.start(t);o.stop(t+dd+.05)}return}
+    if(M.lead==='guitar'){const dd=Math.round(Math.min(2,.7+d)*10)/10,s=oc.createBufferSource(),f=oc.createBiquadFilter(),g=oc.createGain();s.buffer=string(m,dd);f.type='lowpass';f.frequency.value=3200;g.gain.value=.22*amp;s.connect(f);f.connect(g);out(g,pan);s.start(t);return}
+    let o=oc.createOscillator(),g=oc.createGain();o.type=M.lead==='square'?'square':M.lead==='sine'?'sine':'triangle';if(M.lead==='square'){const dd=Math.max(.18,d);env(g,t,.035*amp,.004,dd);o.frequency.value=hz(m);o.connect(g);out(g,pan);o.start(t);o.stop(t+dd+.06);return}const dd=Math.max(.26,d);o.frequency.value=hz(m);env(g,t,.075*amp,.004,dd);o.connect(g);out(g,pan);o.start(t);o.stop(t+dd+.06)};
   const cb=M.chordBars||1,drums=M.drums!==false;
   for(let bar=0;bar*16*step<len;bar++){let t0=bar*16*step,[root,q]=M.chords[Math.floor(bar/cb)%M.chords.length],tones=TONES[q].map(x=>root+x);
     if(bar%cb===0)pad(t0,tones,16*step*cb);
@@ -145,7 +190,9 @@ async function makeBeat(seconds,moodKey){
         if(M.hats>0&&s%M.hats===0){if(M.roll?.includes(s))for(let k=0;k<3;k++)hat(t+k*step/3,false);else hat(t,false)}if(M.open?.includes(s))hat(t,true)}
       if(M.bass!=='none'){if(M.bassPat){if(M.bassPat.includes(s)){let nx=M.bassPat.find(x=>x>s)??16;bass(t,root-24+(s===14&&M.bass!=='sub'?7:0),step*(nx-s)*.95)}}
         else if(s%4===0||(s%4===3&&M.bpm>100))bass(t,root-24+(s===14?7:0),step*(s%4===0?2.6:.9))}
-      if(s%M.arp===0&&(bar>0||!drums)){let k=(s/M.arp)%(tones.length+1);pluck(t,tones[k%tones.length]+12+(k>=tones.length?12:0),k%2?-.3:.3)}}}
+      if(s%M.arp===0&&(bar>0||!drums)){let k=(s/M.arp)%(tones.length+1);pluck(t,tones[k%tones.length]+12+(k>=tones.length?12:0),k%2?-.3:.3,M.mel?.45:1)}
+      // The tune: from the second bar (the first is an intro), phrases A A B A.
+      if(M.mel&&bar>0){const ph=M.mel[[0,0,1,0][bar%4]],tok=ph[s];if(tok!=null&&tok!=='.'&&tok!=='-'){let v=+tok,hold=1;while(ph[s+hold]==='-')hold++;const L=tones.length,note=tones[((v%L)+L)%L]+12*Math.floor(v/L)+12;pluck(t,note,0,1.15,hold*step)}}}}
   const buf=await oc.startRendering();return new File([wav(buf)],`TapShopLite beat · ${M.name} ${M.bpm} BPM.wav`,{type:'audio/wav'})}
 function wav(buf){const ch=buf.numberOfChannels,n=buf.length,out=new DataView(new ArrayBuffer(44+n*ch*2)),w=(o,s)=>{for(let i=0;i<s.length;i++)out.setUint8(o+i,s.charCodeAt(i))};
   w(0,'RIFF');out.setUint32(4,36+n*ch*2,true);w(8,'WAVE');w(12,'fmt ');out.setUint32(16,16,true);out.setUint16(20,1,true);out.setUint16(22,ch,true);out.setUint32(24,buf.sampleRate,true);out.setUint32(28,buf.sampleRate*ch*2,true);out.setUint16(32,ch*2,true);out.setUint16(34,16,true);w(36,'data');out.setUint32(40,n*ch*2,true);
@@ -416,7 +463,27 @@ function tidy(words,a,b){const ws=words.filter(w=>w.e>a&&w.s<b),isF=w=>w.drop||F
   out.push([start,Math.min(b,kept.at(-1).e+.3)]);const good=out.filter(([x,y])=>y-x>.15);return good.length?good:[[a,b]]}
 
 // ---------- ways in ----------
-window.openBroll=open;
+window.openBroll=open;window.veMakeBeat=makeBeat;
+// Free music for any audio track: pick a style, hear 10 seconds, then it's made as long as the video
+// (at least 15 s, at most 5 minutes) and put on that track.
+window.openFreeMusic=function(trackId){if(exporting)return;pause();let d=$$('fmDialog');
+  if(!d){d=document.createElement('dialog');d.id='fmDialog';d.className='closable';document.body.appendChild(d);d.addEventListener('close',()=>{fmAudio?.pause();fmAudio=null})}
+  const len=Math.min(300,Math.max(15,Math.ceil(total()||0)));
+  d.innerHTML=`<button type="button" class="dialog-x" aria-label="Close" title="Close">×</button><h2>🎵 Free music</h2><p class="sub">Made on your device, free to use anywhere. Press ▶ to hear a style, then <b>Use</b> to put it on this track (${len} seconds${total()>=15&&total()<=300?', the length of your video':''}).</p>
+  <div class="fm-list">${Object.entries(MOODS).map(([k,m])=>`<div class="fm-row"><button type="button" class="fm-play" data-p="${k}" aria-label="Listen to ${enc(m.name)}">▶</button><span><b>${enc(m.name)}</b><small>${m.bpm} BPM</small></span><button type="button" class="primary" data-u="${k}">Use</button></div>`).join('')}</div>
+  <p class="sub" id="fmStatus" aria-live="polite"></p>`;
+  const say=s=>d.querySelector('#fmStatus').textContent=s;
+  d.querySelector('.dialog-x').onclick=()=>d.close();
+  d.querySelectorAll('[data-p]').forEach(b=>b.onclick=async()=>{const was=b.textContent==='■';fmAudio?.pause();fmAudio=null;d.querySelectorAll('[data-p]').forEach(x=>x.textContent='▶');if(was)return;
+    b.textContent='…';try{const a=new Audio(URL.createObjectURL(await makeBeat(10,b.dataset.p)));fmAudio=a;a.onended=()=>b.textContent='▶';await a.play();b.textContent='■'}catch{b.textContent='▶';say('Couldn’t play it here.')}});
+  d.querySelectorAll('[data-u]').forEach(b=>b.onclick=async()=>{const k=b.dataset.u;fmAudio?.pause();d.querySelectorAll('button').forEach(x=>x.disabled=true);say(`Making your ${MOODS[k].name} music…`);
+    try{const f=await makeBeat(len,k);targetTrack=trackId;await loadTrackMedia(f);const t=extraTracks.find(x=>x.id===trackId);if(t)t.name='🎵 '+MOODS[k].name+' beat';renderTracks();d.close();toast(`${MOODS[k].name} music added.`)}
+    catch(e){say('Couldn’t make the music: '+(e.message||e))}finally{d.querySelectorAll('button').forEach(x=>x.disabled=false)}});
+  d.showModal()};
+let fmAudio=null;
+{const st=document.createElement('style');st.textContent=`#fmDialog{width:min(520px,94vw)}.fm-list{display:flex;flex-direction:column;gap:6px;max-height:min(60vh,520px);overflow:auto;margin:10px 0}
+.fm-row{display:flex;align-items:center;gap:10px;padding:6px 8px;border:1px solid var(--ts-border,#8884);border-radius:12px}.fm-row span{flex:1;min-width:0}.fm-row b,.fm-row small{display:block}.fm-row small{opacity:.65;font-size:12px}
+.fm-play{width:40px;height:40px;padding:0!important;border-radius:50%!important;flex:none}`;document.head.appendChild(st)}
 {let g=[...document.querySelectorAll('.timebar button')].find(b=>/Review|Graphics/.test(b.textContent)),b=document.createElement('button');b.type='button';b.textContent='🎞️ B-roll Video';b.title='Build a video from your clips with a story template and free music';b.onclick=()=>open();if(g)g.after(b);else document.querySelector('.timebar')?.appendChild(b)}
 // The two quick makers (this one and ⭐ Reviews) sit together at the top of the start screen, right under
 // its intro and above Recent videos. Other scripts add things after the intro later, so keep them in place.
