@@ -40,6 +40,7 @@ function sort(){
     if(el.id==='clipCount'||el.classList.contains('timeline-zoom')){secs.view.appendChild(el);continue}
     if(el.tagName!=='BUTTON'){secs.view.appendChild(el);continue}
     let s=SECTIONS.find(([,,test])=>test(el));secs[s?s[0]:'create'].appendChild(el)}
+  {let c=[...secs.create.children],rv=c.find(b=>/Reviews/.test(label(b))),cap=c.find(b=>/Captions/.test(label(b)));if(rv&&cap&&rv.nextElementSibling!==cap)rv.after(cap)}
   for(const k of ['add','create','edit','view'])if(secs[k].parentElement.parentElement!==bar)bar.appendChild(secs[k].parentElement);
   let z=secs.view.querySelector('.timeline-zoom');if(z&&!z.previousElementSibling?.classList.contains('tb-zoomlab')){let l=document.createElement('span');l.className='tb-zoomlab';l.textContent='🔍 Zoom';l.setAttribute('aria-hidden','true');z.before(l);z.setAttribute('aria-label','Zoom the timeline')}
 }
