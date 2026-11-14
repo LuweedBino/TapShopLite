@@ -113,7 +113,7 @@ function panel(t){let st=style(t),id=t.id;
   ${select(id,'shadow',st.shadow,'Shadow',[['none','None'],['soft','Soft'],['glow','Glow (highlight colour)']])}
   ${toggle(id,'caps',st.caps,'ALL CAPS')}${toggle(id,'bold',st.bold,'Bold')}${toggle(id,'italic',st.italic,'Italic')}${toggle(id,'emph',st.emph,'Grow spoken word')}
   </div>
-  <div class="cap-sync"><span class="sub">Timing</span><button type="button" onclick="capShift('${id}',-.1)">◀ 0.1s earlier</button><button type="button" onclick="capShift('${id}',.1)">0.1s later ▶</button></div>
+  <div class="cap-sync"><span class="sub">Timing</span><button type="button" onclick="capShift('${id}',-.1)">◀ 0.1s earlier</button><button type="button" onclick="capShift('${id}',.1)">0.1s later ▶</button><button type="button" class="cap-redo" onclick="capRedo('${id}')">🔄 Redo captions</button></div>
   <p class="sub cap-wordhelp">Fix words below. Tap a word to jump to it; clear a word to remove it.</p>
   <div class="cap-words">${t.words.map((w,i)=>`<input type="text" value="${esc(w.w)}" size="${Math.max(2,String(w.w).length)}" title="${(t.offset+w.s).toFixed(1)}s" aria-label="Word ${i+1}" onfocus="capSeek('${id}',${i})" onchange="capWord('${id}',${i},this.value)">`).join('')}</div></div>`}
 const renderNoCaptions=renderGraphicTracks;renderGraphicTracks=function(){renderNoCaptions();for(let t of graphicTracks){if(!isCap(t))continue;let box=document.querySelector(`#graphicTracks .strip-row[data-trackid="${t.id}"] .strip-options`);if(box)box.innerHTML=panel(t)}};
@@ -270,6 +270,23 @@ window.veCloudWords=async function(list,say=()=>{}){if(!veCloudOn())throw cloudE
   const flat=[];words.forEach(ws=>{if(flat.length&&ws.length)flat.push(null);ws.forEach(w=>flat.push(w))});
   if(flat.filter(Boolean).length>=6){say('Cloud AI is looking for mistakes…');try{const j=await cloudPost(JSON.stringify({words:flat.map(w=>w?w.w:'|')}),'application/json',build,lang);for(const i of j.drop||[])if(flat[i])flat[i].drop=true}catch(e){console.warn('Mistake finder skipped:',e)}}
   return {words,left}};
+// 🔄 Redo captions: listens to the timeline as it is now (after deleting, moving or trimming clips) and makes
+// fresh captions in the same style. Cloud AI first when it's on (one use of the daily limit), else on this device.
+const FILL=/^(u+m+|u+h+|uhm+|e+r+m*|a+h+|h+m+|m+h*m+)$/i;
+window.capRedo=async function(id){if(busy||exporting||!clips.length)return;pause();const old=graphicTracks.find(t=>t.id===id)||graphicTracks.find(isCap),keep=old?.style;
+  const btn=document.querySelector('.cap-redo'),say=s=>{if(btn)btn.textContent=s};busy=true;cancelled=false;let all=null,how='';
+  try{let cloudOk=veCloudOn();try{cloudOk=cloudOk&&localStorage.getItem('tapshop-broll-cloud')!=='off'}catch{}
+    if(cloudOk){try{busy=false;const r=await veCloudWords(clips.map(c=>({assetId:c.assetId,in:c.in,out:c.out})),say);busy=true;all=[];
+        clips.forEach((c,i)=>{const st=startOf(i),sp=c.speed||1;for(const w of r.words[i]||[]){if(FILL.test(String(w.w).replace(/[^a-z]/gi,''))||w.e<=c.in||w.s>=c.out)continue;
+          all.push({w:w.w,s:Math.round((st+(Math.max(c.in,w.s)-c.in)/sp)*100)/100,e:Math.round((st+(Math.min(c.out,w.e)-c.in)/sp)*100)/100})}});
+        all.sort((a,b)=>a.s-b.s);how=r.left!=null?` Cloud AI videos left today: ${r.left}.`:''}
+      catch(e){busy=true;console.warn('Cloud AI skipped:',e);all=null;if(e.code==='limit')how=' '+e.message}}
+    if(!all){const {lang,q}=lastSettings();all=await listenAll(lang,q,say);if(all)all=all.filter(w=>!FILL.test(String(w.w).replace(/[^a-z]/gi,'')))}
+    if(!all)return;if(!all.length){toast('We couldn’t hear any words in this video.');return}
+    const t=placeCaptions(all,keep?.preset||lastSettings().preset);if(keep)t.style={...keep};expandedStrip=t.id;renderGraphicTracks();draw();
+    toast(`Fresh captions: ${all.length} words.${how}`)}
+  catch(e){worker?.terminate();worker=null;toast('Couldn’t redo the captions: '+(e.message||e))}
+  finally{busy=false;if(btn)btn.textContent='🔄 Redo captions'}};
 // Adds ready-made timeline words as the Captions track, in the last style used. Returns the number of words.
 window.vePlaceCaptions=function(words){if(!words?.length)return 0;placeCaptions([...words].sort((a,b)=>a.s-b.s),lastSettings().preset);return words.length};
 

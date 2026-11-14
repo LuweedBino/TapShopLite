@@ -491,7 +491,7 @@ function startButton(){let start=$$('veStart'),lead=start?.querySelector('.vs-le
   let box=$$('vsQuick');if(!box){box=document.createElement('div');box.id='vsQuick';box.className='vs-quick'}
   if(!box.querySelector('.vs-qh')){let h=document.createElement('div');h.className='vs-qh';h.innerHTML='<h2>Quick Video Makers</h2><p class="vs-help">Pick one and it builds the video for you.</p>';box.prepend(h)}
   if(!$$('vsBroll')){let b=document.createElement('button');b.type='button';b.id='vsBroll';b.className='vs-reviews';
-    b.innerHTML='<b>🎞️ B-roll Video Maker</b><span>Drop in your raw b-roll clips and get a finished, ready-to-post video: auto captions, a hook and call to action, free music, best moments picked, and cuts and zooms on the beat. Little or no editing needed.</span>';
+    b.innerHTML='<b>🎞️ B-roll Video Maker</b><span>Drop in your raw b-roll clips and get a finished, ready-to-post video: auto captions, a hook and call to action, free music, best moments picked, cuts on the beat and gentle zooms. Little or no editing needed.</span>';
     b.onclick=()=>{let go=$$('vsGo');if(go)go.click();let el=$$('veStart');if(el)el.hidden=true;setTimeout(()=>open(true),60)};box.appendChild(b)}
   let rv=$$('vsReviews');if(rv&&rv.parentElement!==box)box.appendChild(rv);
   if(lead.nextElementSibling!==box)lead.after(box)}

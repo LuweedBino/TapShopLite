@@ -162,4 +162,5 @@ function rippleGap(A,d){if(d<=0)return;const B=A+d,E=.02;
   const A=startOf(i),d=duration(c),n=clips.length,others=graphicTracks.length+extraTracks.length;
   selected=i;removeWithoutRipple();if(clips.length>=n)return;
   rippleGap(A,d);render();renderGraphicTracks();renderTracks();draw();seekTimeline(Math.min(A,total()));
-  if(others)toast('Clip deleted. Text, captions and music moved to close the gap. (Undo brings it back.)')}}
+  if(graphicTracks.some(g=>g.type==='captions'))toast('Clip deleted and everything moved to close the gap. Captions look off? Tap the Captions strip → 🔄 Redo captions.');
+  else if(others)toast('Clip deleted. Text and music moved to close the gap. (Undo brings it back.)')}}
