@@ -28,7 +28,7 @@ html .timebar button.tb-btn:disabled{opacity:.4;cursor:default}html .timebar but
 
 const SECTIONS=[
  ['add','Add',b=>/^(📹|🎵|🔤|🔶|🌈)/.test(label(b))||/openVideoDialog|addTrack\(|addGraphicTrack\(/.test(act(b))],
- ['create','Create',b=>/Graphics|Reviews|Captions|Brand|Smart tools/.test(label(b))],
+ ['create','Create',b=>/Graphics|Review|Captions|Brand|Smart tools/.test(label(b))],
  ['edit','Edit',b=>/Undo|Redo|Split|Duplicate|Delete/.test(label(b))||/moveClip|undo\(|redo\(|splitClip|duplicateClip|removeClip/.test(act(b))],
 ];
 const secs={};
@@ -40,7 +40,7 @@ function sort(){
     if(el.id==='clipCount'||el.classList.contains('timeline-zoom')){secs.view.appendChild(el);continue}
     if(el.tagName!=='BUTTON'){secs.view.appendChild(el);continue}
     let s=SECTIONS.find(([,,test])=>test(el));secs[s?s[0]:'create'].appendChild(el)}
-  {let c=[...secs.create.children],rv=c.find(b=>/Reviews/.test(label(b))),cap=c.find(b=>/Captions/.test(label(b)));if(rv&&cap&&rv.nextElementSibling!==cap)rv.after(cap)}
+  {let c=[...secs.create.children],rv=c.find(b=>/Review/.test(label(b))),cap=c.find(b=>/Captions/.test(label(b)));if(rv&&cap&&rv.nextElementSibling!==cap)rv.after(cap)}
   for(const k of ['add','create','edit','view'])if(secs[k].parentElement.parentElement!==bar)bar.appendChild(secs[k].parentElement);
   let z=secs.view.querySelector('.timeline-zoom');if(z&&!z.previousElementSibling?.classList.contains('tb-zoomlab')){let l=document.createElement('span');l.className='tb-zoomlab';l.textContent='🔍 Zoom';l.setAttribute('aria-hidden','true');z.before(l);z.setAttribute('aria-label','Zoom the timeline')}
 }
