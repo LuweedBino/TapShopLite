@@ -86,11 +86,10 @@ window.veFastExport=async function(){
   try{
     say('Getting your video ready…');
     await loadLibrary();
-    let h=+$('resolution').value,[aw,ah]=$('aspect').value.split(':').map(Number),w=Math.round(h*aw/ah);
-    w-=w%2;h-=h%2; // video formats need even sizes
-    let bitrate=h>=1080?8000000:5000000,seconds=total(),frames=Math.ceil(seconds*FPS);
-    let codec=await Mediabunny.getFirstEncodableVideoCodec(['avc','vp9','vp8'],{width:w,height:h,bitrate});
-    if(!codec)throw Error('This device can’t encode video here.');
+    let [w,h]=exportSize(),bitrate=Math.min(w,h)>=1080?10000000:6000000,seconds=total(),frames=Math.ceil(seconds*FPS);
+    let codec=await Mediabunny.getFirstEncodableVideoCodec(['avc'],{width:w,height:h,bitrate});
+    // Only H.264 + AAC MP4s work on every social app; without them the real-time recorder tries next.
+    if(!codec)throw Error('This device can’t make H.264 video here.');
     let mp4=codec==='avc',kind=mp4?'video/mp4':'video/webm';
     opened=opener();
     runs=planRuns(frames);
@@ -98,7 +97,7 @@ window.veFastExport=async function(){
 
     say('Mixing the sound…');
     let mix=await mixSound(opened,seconds),audioCodec=null;
-    if(mix){audioCodec=await Mediabunny.getFirstEncodableAudioCodec(mp4?['aac','opus']:['opus'],{numberOfChannels:2,sampleRate:RATE,bitrate:192000});if(!audioCodec)throw Error('This device can’t encode the sound here.')}
+    if(mix){audioCodec=await Mediabunny.getFirstEncodableAudioCodec(['aac'],{numberOfChannels:2,sampleRate:RATE,bitrate:192000});if(!audioCodec)throw Error('This device can’t encode the sound here.')}
 
     let target=new Mediabunny.BufferTarget();
     // fastStart puts the file's index first, so it can start playing before it has fully downloaded.
@@ -129,7 +128,7 @@ window.veFastExport=async function(){
     await output.finalize();output=null;
     done();
     download(new Blob([target.buffer],{type:kind}),($('projectName').value||'TapShopLite video')+(mp4?'.mp4':'.webm'));
-    say('Export complete. Your download is ready.');
+    say('Saved! Your MP4 is ready to post anywhere.');
     return true;
   }catch(e){
     let stopped=cancelled;
