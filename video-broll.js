@@ -1,4 +1,4 @@
-// B-roll builder: drop in clips, pick a story template (Hook → Problem → Solution → Call to action, …),
+// B-roll Video Maker (called the B-roll builder in older notes): drop in clips, pick a story template (Hook → Problem → Solution → Call to action, …),
 // and the builder looks at and listens to each clip in the browser (CLIP for pictures and Whisper for
 // speech, both via transformers.js from jsDelivr in a Web Worker; models download once from Hugging Face
 // and the browser caches them), puts every clip in the part of the story it fits best, lets the creator
@@ -232,7 +232,7 @@ function close(){stopped=true;if(busy)stopWorker();busy=false;dlg.close()}
 dlg.addEventListener('cancel',e=>{e.preventDefault();close()});
 
 function step1(){const flow=t=>t.parts.map(p=>p.label).join(' → ');
-  dlg.innerHTML=`<button type="button" class="dialog-x" aria-label="Close" title="Close">×</button><h2>🎞️ B-roll builder</h2>
+  dlg.innerHTML=`<button type="button" class="dialog-x" aria-label="Close" title="Close">×</button><h2>🎞️ B-roll Video Maker</h2>
   <p class="sub">Add your clips and we do the rest: we watch and listen to each clip, pick the story and music, use the best moment of each clip, write words on screen from what you say, and cut it all to the beat with movement.</p>
   <h3>1. Pick a story</h3><div class="br-tpls"><button type="button" class="br-tpl br-auto${autoStory?' on':''}" data-t="auto"><b>✨ Pick for me</b><small>We look at your clips and choose the best story</small><span class="br-flow">Works best with ✨ Sort my clips</span></button>${TEMPLATES.map(t=>`<button type="button" class="br-tpl${!autoStory&&t===tp?' on':''}" data-t="${t.id}"><b>${enc(t.name)}</b><small>${enc(t.tag)}</small><span class="br-flow">${enc(flow(t))}</span></button>`).join('')}</div>
   <h3>2. Add your clips <small class="sub">(${items.length})</small></h3>
@@ -398,14 +398,14 @@ function tidy(words,a,b){const ws=words.filter(w=>w.e>a&&w.s<b),isF=w=>FILLER.te
 
 // ---------- ways in ----------
 window.openBroll=open;
-{let g=[...document.querySelectorAll('.timebar button')].find(b=>/Reviews|Graphics/.test(b.textContent)),b=document.createElement('button');b.type='button';b.textContent='🎞️ B-roll';b.title='Build a video from your clips with a story template and free music';b.onclick=()=>open();if(g)g.after(b);else document.querySelector('.timebar')?.appendChild(b)}
+{let g=[...document.querySelectorAll('.timebar button')].find(b=>/Review|Graphics/.test(b.textContent)),b=document.createElement('button');b.type='button';b.textContent='🎞️ B-roll Video';b.title='Build a video from your clips with a story template and free music';b.onclick=()=>open();if(g)g.after(b);else document.querySelector('.timebar')?.appendChild(b)}
 // The two quick makers (this one and ⭐ Reviews) sit together at the top of the start screen, right under
 // its intro and above Recent videos. Other scripts add things after the intro later, so keep them in place.
 function startButton(){let start=$$('veStart'),lead=start?.querySelector('.vs-lead');if(!lead)return;
   let box=$$('vsQuick');if(!box){box=document.createElement('div');box.id='vsQuick';box.className='vs-quick'}
   if(!box.querySelector('.vs-qh')){let h=document.createElement('div');h.className='vs-qh';h.innerHTML='<h2>Quick Video Makers</h2><p class="vs-help">Pick one and it builds the video for you.</p>';box.prepend(h)}
   if(!$$('vsBroll')){let b=document.createElement('button');b.type='button';b.id='vsBroll';b.className='vs-reviews';
-    b.innerHTML='<b>🎞️ Build a video from your b-roll</b><span>Drop in your raw b-roll clips and get a finished, ready-to-post video: auto captions, a hook and call to action, free music, best moments picked, and cuts and zooms on the beat. Little or no editing needed.</span>';
+    b.innerHTML='<b>🎞️ B-roll Video Maker</b><span>Drop in your raw b-roll clips and get a finished, ready-to-post video: auto captions, a hook and call to action, free music, best moments picked, and cuts and zooms on the beat. Little or no editing needed.</span>';
     b.onclick=()=>{let go=$$('vsGo');if(go)go.click();let el=$$('veStart');if(el)el.hidden=true;setTimeout(()=>open(true),60)};box.appendChild(b)}
   let rv=$$('vsReviews');if(rv&&rv.parentElement!==box)box.appendChild(rv);
   if(lead.nextElementSibling!==box)lead.after(box)}
