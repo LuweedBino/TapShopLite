@@ -87,7 +87,7 @@ const TEMPLATES=[
 // ▶ Listen plays 10 seconds of the chosen beat; it stops when the mood changes, it's tapped again or the dialog closes.
 let preview=null;
 function stopListen(){if(preview){preview.pause();URL.revokeObjectURL(preview.src);preview=null}let b=document.getElementById('brListen');if(b){b.textContent='▶ Listen';b.disabled=false}}
-async function listen(){let b=document.getElementById('brListen');if(preview){stopListen();return}if(!mood){toast('Pick some music first.');return}
+async function listen(){let b=document.getElementById('brListen');if(preview){stopListen();return}if(!mood){toast('Pick some music first.');return}if(mood==='auto'){toast('We’ll choose the music after looking at your clips. Pick a style here to hear it.');return}
   b.disabled=true;b.textContent='…';try{let f=await makeBeat(10,mood);preview=new Audio(URL.createObjectURL(f));preview.onended=stopListen;await preview.play();b.textContent='■ Stop';b.disabled=false}catch(e){stopListen();toast('Couldn’t play the music here.')}}
 const MOODS={
   bright:{name:'Bright pop',bpm:104,chords:[[60,'maj'],[67,'maj'],[69,'min'],[65,'maj']],kick:[0,8,10],snare:[4,12],hats:2,arp:2,pad:1300},
@@ -218,11 +218,13 @@ const st=document.createElement('style');st.textContent=`
 .br-sec .br-empty{font-size:11px;opacity:.6;padding:6px 0}
 #brWork progress{width:100%}`;document.head.appendChild(st);
 
-let tp=TEMPLATES[0],mood=tp.mood,shape='9:16',items=[],parts=null,texts={},busy=false,stopped=false;
+let tp=TEMPLATES[0],mood='auto',shape='9:16',items=[],parts=null,texts={},busy=false,stopped=false,autoStory=true,picked='';
 // Auto captions (✨ Captions without its dialog) after building, remembered on this device; on unless turned off.
 let autoCaps=(()=>{try{return localStorage.getItem('tapshop-broll-captions')!=='off'}catch{return true}})();
 // Tidy talking clips: cut pauses over half a second and um/uh, using the captions engine's word times. On unless turned off.
 let autoTidy=(()=>{try{return localStorage.getItem('tapshop-broll-tidy')!=='off'}catch{return true}})();
+// Movement: zooms, pans, cut effects and small bumps on the beat (clip motion/intro/pulse in video.js). On unless turned off.
+let autoMove=(()=>{try{return localStorage.getItem('tapshop-broll-motion')!=='off'}catch{return true}})();
 const shapes=()=>[...($$('aspect')?.options||[])].map(o=>[o.value,o.textContent]);
 // From the start screen the chosen platform has already set the shape; otherwise UGC defaults to vertical.
 function open(fromStart){if(exporting)return;stopped=false;parts=null;let a=$$('aspect')?.value;shape=(fromStart===true||clips.length)&&['9:16','1:1','4:5','16:9'].includes(a)?a:'9:16';if(!items.length&&clips.length)useTimeline(true);step1();dlg.showModal()}
@@ -231,25 +233,26 @@ dlg.addEventListener('cancel',e=>{e.preventDefault();close()});
 
 function step1(){const flow=t=>t.parts.map(p=>p.label).join(' → ');
   dlg.innerHTML=`<button type="button" class="dialog-x" aria-label="Close" title="Close">×</button><h2>🎞️ B-roll builder</h2>
-  <p class="sub">Add your clips and pick a story. We watch and listen to each clip, put it in the right part of the story, add words on screen and a free beat, and cut it all to the music.</p>
-  <h3>1. Pick a story</h3><div class="br-tpls">${TEMPLATES.map(t=>`<button type="button" class="br-tpl${t===tp?' on':''}" data-t="${t.id}"><b>${enc(t.name)}</b><small>${enc(t.tag)}</small><span class="br-flow">${enc(flow(t))}</span></button>`).join('')}</div>
+  <p class="sub">Add your clips and we do the rest: we watch and listen to each clip, pick the story and music, use the best moment of each clip, write words on screen from what you say, and cut it all to the beat with movement.</p>
+  <h3>1. Pick a story</h3><div class="br-tpls"><button type="button" class="br-tpl br-auto${autoStory?' on':''}" data-t="auto"><b>✨ Pick for me</b><small>We look at your clips and choose the best story</small><span class="br-flow">Works best with ✨ Sort my clips</span></button>${TEMPLATES.map(t=>`<button type="button" class="br-tpl${!autoStory&&t===tp?' on':''}" data-t="${t.id}"><b>${enc(t.name)}</b><small>${enc(t.tag)}</small><span class="br-flow">${enc(flow(t))}</span></button>`).join('')}</div>
   <h3>2. Add your clips <small class="sub">(${items.length})</small></h3>
   <div class="br-add"><button type="button" class="primary" id="brChoose">📹 Choose clips</button>${typeof VaultPicker!=='undefined'&&VaultPicker.inTapShop?'<button type="button" id="brVault">⛁ From Media Vault</button>':''}${clips.length?`<button type="button" id="brTimeline">🎬 Use my timeline clips (${clips.length})</button>`:''}<input type="file" id="brFiles" accept="video/*" multiple hidden></div>
   <div class="br-clips">${items.length?items.map((c,i)=>`<div class="br-clip"><img alt="" src="${c.asset.thumb}"><button type="button" class="x" data-x="${i}" aria-label="Remove ${enc(c.asset.name)}">×</button><span class="nm">${enc(c.asset.name)}</span><span class="tag">${(c.out-c.in).toFixed(1)}s</span></div>`).join(''):'<p class="sub" style="margin:0">No clips yet. Add 3 or more for the best result.</p>'}</div>
   <h3>3. Look and sound</h3><div class="br-row"><label>Video shape<select id="brShape">${shapes().map(([v,l])=>`<option value="${enc(v)}"${v===shape?' selected':''}>${enc(l)}</option>`).join('')}</select></label>
-  <label>Music<select id="brMood">${Object.entries(MOODS).map(([k,m])=>`<option value="${k}"${k===mood?' selected':''}>🎵 ${enc(m.name)} · ${m.bpm} BPM</option>`).join('')}<option value=""${mood?'':' selected'}>No music</option></select></label><button type="button" id="brListen" title="Hear a few seconds of this music">▶ Listen</button></div>
+  <label>Music<select id="brMood"><option value="auto"${mood==='auto'?' selected':''}>✨ Pick for me</option>${Object.entries(MOODS).map(([k,m])=>`<option value="${k}"${k===mood?' selected':''}>🎵 ${enc(m.name)} · ${m.bpm} BPM</option>`).join('')}<option value=""${mood?'':' selected'}>No music</option></select></label><button type="button" id="brListen" title="Hear a few seconds of this music">▶ Listen</button></div>
   <label class="br-caps"><input type="checkbox" id="brCaps"${autoCaps?' checked':''}> <span><b>✨ Add captions when someone talks</b><small>We write the words people say on screen, like the ✨ Captions tool.</small></span></label>
   <label class="br-caps"><input type="checkbox" id="brTidy"${autoTidy?' checked':''}> <span><b>✂️ Cut pauses and “um”s</b><small>We remove long pauses and “um” / “uh” from talking clips, so they flow.</small></span></label>
+  <label class="br-caps"><input type="checkbox" id="brMove"${autoMove?' checked':''}> <span><b>🎬 Add movement on the beat</b><small>Slow zooms and pans, punchy cuts and little bumps on the music, like a pro edit.</small></span></label>
   <p class="sub">The first time, your browser downloads the clip reader (a one-time download, about 130 MB). After that it’s saved. Phones are slower than computers.</p>
   <div class="row"><button type="button" id="brCancel">Cancel</button><button type="button" id="brSkip"${items.length?'':' disabled'}>Keep my order</button><button type="button" class="primary" id="brGo"${items.length?'':' disabled'}>✨ Sort my clips</button></div>`;
   dlg.querySelector('.dialog-x').onclick=dlg.querySelector('#brCancel').onclick=close;
-  dlg.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{tp=TEMPLATES.find(t=>t.id===b.dataset.t);mood=tp.mood;step1()});
+  dlg.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{if(b.dataset.t==='auto')autoStory=true;else{autoStory=false;tp=TEMPLATES.find(t=>t.id===b.dataset.t);if(mood!=='auto')mood=tp.mood}step1()});
   dlg.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{items.splice(+b.dataset.x,1);step1()});
   const fi=dlg.querySelector('#brFiles');dlg.querySelector('#brChoose').onclick=()=>fi.click();fi.onchange=()=>{addFiles([...fi.files]);fi.value=''};
   dlg.querySelector('#brVault')?.addEventListener('click',()=>VaultPicker.open({title:'Pick a clip',kinds:['video'],onPick:async it=>{try{toast('Loading '+it.name+'…');await addFiles([await VaultPicker.file(it)])}catch(e){toast(e.message)}if(!dlg.open)dlg.showModal()}}));
   dlg.querySelector('#brTimeline')?.addEventListener('click',()=>{useTimeline();step1()});
-  dlg.querySelector('#brShape').onchange=e=>shape=e.target.value;dlg.querySelector('#brMood').onchange=e=>{mood=e.target.value;stopListen()};dlg.querySelector('#brListen').onclick=listen;dlg.querySelector('#brCaps').onchange=e=>{autoCaps=e.target.checked;try{localStorage.setItem('tapshop-broll-captions',autoCaps?'on':'off')}catch{}};dlg.querySelector('#brTidy').onchange=e=>{autoTidy=e.target.checked;try{localStorage.setItem('tapshop-broll-tidy',autoTidy?'on':'off')}catch{}};if(!dlg._stopsMusic){dlg._stopsMusic=1;dlg.addEventListener('close',stopListen)}
-  dlg.querySelector('#brGo').onclick=analyse;dlg.querySelector('#brSkip').onclick=()=>{number();parts=arrange(items,tp);step3('Kept your order. Move any clip with the menu under it.')}}
+  dlg.querySelector('#brShape').onchange=e=>shape=e.target.value;dlg.querySelector('#brMood').onchange=e=>{mood=e.target.value;stopListen()};dlg.querySelector('#brListen').onclick=listen;dlg.querySelector('#brCaps').onchange=e=>{autoCaps=e.target.checked;try{localStorage.setItem('tapshop-broll-captions',autoCaps?'on':'off')}catch{}};dlg.querySelector('#brTidy').onchange=e=>{autoTidy=e.target.checked;try{localStorage.setItem('tapshop-broll-tidy',autoTidy?'on':'off')}catch{}};dlg.querySelector('#brMove').onchange=e=>{autoMove=e.target.checked;try{localStorage.setItem('tapshop-broll-motion',autoMove?'on':'off')}catch{}};if(!dlg._stopsMusic){dlg._stopsMusic=1;dlg.addEventListener('close',stopListen)}
+  dlg.querySelector('#brGo').onclick=analyse;dlg.querySelector('#brSkip').onclick=()=>{number();choose(false);step3('Kept your order.'+pickedNote()+' Move any clip with the menu under it.')}}
 async function addFiles(files){let got=0;for(const f of files){if(!/^video\//.test(f.type)&&!/\.(mp4|mov|webm|m4v)$/i.test(f.name))continue;try{toast('Loading '+f.name+'…');let a=await loadAsset(f);items.push({asset:a,in:0,out:a.duration});got++}catch(e){toast(e.message)}}if(got&&dlg.open)step1()}
 function useTimeline(quiet){let seen=new Set(items.map(c=>c.key));for(const c of clips){let a=asset(c);if(!a)continue;let key=c.id;if(seen.has(key))continue;items.push({asset:a,in:c.in,out:c.out,key})}if(!quiet)toast('Your timeline clips are in.')}
 const number=()=>items.forEach((c,i)=>{c.n=i;c.of=items.length});
@@ -261,7 +264,7 @@ async function analyse(){number();busy=true;stopped=false;
   const status=s=>{let el=$$('brStatus');if(el)el.textContent=s},prog=v=>{let el=$$('brProg');if(el)el.value=v};
   const dl=m=>status(`Downloading the clip reader (one time only)… ${Math.round(m.loaded/1e6)} of ${Math.round(m.total/1e6)} MB`);
   dlg.querySelector('#brStop').onclick=()=>{stopped=true;stopWorker();busy=false;step1()};
-  dlg.querySelector('#brKeep').onclick=()=>{stopped=true;stopWorker();busy=false;parts=arrange(items,tp);step3('Kept your order. Move any clip with the menu under it.')};
+  dlg.querySelector('#brKeep').onclick=()=>{stopped=true;stopWorker();busy=false;choose(false);step3('Kept your order.'+pickedNote()+' Move any clip with the menu under it.')};
   let failed=null;const labels=LOOKS.map(x=>x[1]);
   try{for(let i=0;i<items.length;i++){if(stopped)return;let c=items[i];
       status(`Watching clip ${i+1} of ${items.length}: ${c.asset.name}`);prog(i/items.length);
@@ -274,34 +277,89 @@ async function analyse(){number();busy=true;stopped=false;
       prog((i+1)/items.length)}}
   catch(x){failed=x}
   busy=false;if(stopped)return;
-  parts=arrange(items,tp);
-  step3(failed?'We couldn’t run the clip reader ('+(failed.message||failed)+'). Check your internet connection for the first download. Your clips are in your order; move any clip with the menu under it.':'Here’s where we think each clip fits. Not right? Move a clip with the menu under it.')}
+  choose(!failed);
+  step3(failed?'We couldn’t run the clip reader ('+(failed.message||failed)+'). Check your internet connection for the first download. Your clips are in your order; move any clip with the menu under it.':'Here’s where we think each clip fits.'+pickedNote()+' Not right? Move a clip with the menu under it.')}
+
+// ---------- picking the story and the music ----------
+// The story whose parts best fit the clips (picture + words), with a pull towards using every part and not
+// having more parts than clips. Without the clip reader we go by how many clips there are.
+function bestStory(){let best=null,top=-1e9;for(const T of TEMPLATES){const P=arrange(items,T);let fit=0,said=0;
+    P.forEach((list,j)=>list.forEach(c=>{fit+=scores(c,T)[j];if(c.words&&T.parts[j].say.test(c.words))said++}));
+    const filled=P.filter(x=>x.length).length/T.parts.length,sc=fit/items.length+.6*filled+.08*said-.15*Math.max(0,T.parts.length-items.length);
+    if(sc>top){top=sc;best=T}}return best}
+const BY_COUNT={2:'beforeafter',3:'pas',4:'pas',5:'reasons'};
+// Music that suits what the clips mostly show; talky videos get calmer beats so the voice stays clear.
+const LOOK_MOOD={talk:'chill',product:'upbeat',unbox:'futurebass',messy:'funk',clean:'bright',using:'acoustic',happy:'playful',upset:'dark',screen:'synthwave',food:'jazz',beauty:'rnb',outside:'tropical'};
+function bestMood(){const seen=items.filter(c=>c.seen);if(!seen.length)return tp.mood;
+  const sum=LOOKS.map((_,i)=>seen.reduce((n,c)=>n+c.seen[i],0)),talky=items.filter(c=>c.talking).length/items.length;
+  const order=sum.map((v,i)=>[v,LOOKS[i][0]]).sort((a,b)=>b[0]-a[0]);let key=order[0][1];if(key==='talk')key=order[1][1];
+  let m=LOOK_MOOD[key]||tp.mood;if(talky>=.5&&MOODS[m]&&MOODS[m].bpm>=125)m='chill';return m}
+function choose(read){picked='';number();
+  if(autoStory){tp=read?bestStory():TEMPLATES.find(t=>t.id===BY_COUNT[items.length])||TEMPLATES[0];picked='story'}
+  parts=arrange(items,tp);if(mood==='auto'){mood=read?bestMood():tp.mood;picked+=' music'}}
+const pickedNote=()=>{let a=[];if(/story/.test(picked))a.push(`the “${tp.name}” story`);if(/music/.test(picked)&&MOODS[mood])a.push(`${MOODS[mood].name} music`);return a.length?` We picked ${a.join(' and ')} for you.`:''};
+
+// ---------- words on screen from what was said ----------
+// A part's words come from what its talking clips say: a sentence with the part's usual words (any sentence
+// for the hook, preferring a question or exclamation), with opening fillers removed, kept short, plus the
+// template's emoji. Typed words always win; parts with no talking keep the template's words.
+const sentences=t=>String(t||'').replace(/\s+/g,' ').split(/(?<=[.!?])\s+/).map(x=>x.trim()).filter(x=>x.split(' ').length>=2);
+const LEAD=/^((um+|uh+|so|okay|ok|well|like|and|but|yeah|hey|alright|you guys|guys)[,.!]?\s+)+/i;
+function shorten(x,max=42){x=x.replace(LEAD,'').replace(/\b(um+|uh+)[,.]?\s*/gi,'').replace(/[.]+$/,'').trim();if(!x)return '';x=x[0].toUpperCase()+x.slice(1);
+  if(x.length<=max)return x;let c=x.slice(0,max);c=c.slice(0,Math.max(c.lastIndexOf(' '),20)).replace(/[,;:\-–]+$/,'');return c+'…'}
+function suggest(j){const p=tp.parts[j],talk=(parts?.[j]||[]).filter(c=>c.talking&&c.words);if(!talk.length)return null;const ss=talk.flatMap(c=>sentences(c.words));if(!ss.length)return null;
+  const pick=ss.find(x=>p.say.test(x))||(p.id==='hook'?(ss.find(x=>/[?!]/.test(x))||ss[0]):null);if(!pick)return null;const t=shorten(pick);if(!t)return null;
+  const emo=(p.text.match(/(\p{Extended_Pictographic}\uFE0F?)\s*$/u)||[])[1];return t+(emo?' '+emo:'')}
+const partText=j=>{const p=tp.parts[j],k=tp.id+p.id;return texts[k]??suggest(j)??p.text};
 
 function step3(note){const opts=j=>tp.parts.map((p,k)=>`<option value="${k}"${k===j?' selected':''}>Move to: ${enc(p.label)}</option>`).join('');
   const tag=c=>{if(!c.seen)return '';let i=c.seen.indexOf(Math.max(...c.seen));return enc(LOOKS[i][2])+(c.talking&&LOOKS[i][0]!=='talk'?' · 🗣':'')};
   dlg.innerHTML=`<button type="button" class="dialog-x" aria-label="Close" title="Close">×</button><h2>🎞️ ${enc(tp.name)}</h2><p class="sub">${enc(note)}</p>
-  ${tp.parts.map((p,j)=>`<div class="br-sec"><div class="br-sec-h"><b>${j+1}. ${enc(p.label)}</b><input type="text" data-tx="${p.id}" value="${enc(texts[tp.id+p.id]??p.text)}" aria-label="Words on screen for ${enc(p.label)}" placeholder="Words on screen (leave empty for none)"></div>
+  ${tp.parts.some((p,j)=>texts[tp.id+p.id]==null&&suggest(j))?'<p class="sub">✍️ Some words on screen were written from what you said. Change them any time.</p>':''}
+  <div class="br-row" style="margin-bottom:6px"><label>Music<select id="brMood3">${Object.entries(MOODS).map(([k,m])=>`<option value="${k}"${k===mood?' selected':''}>🎵 ${enc(m.name)} · ${m.bpm} BPM</option>`).join('')}<option value=""${mood?'':' selected'}>No music</option></select></label></div>
+  ${tp.parts.map((p,j)=>`<div class="br-sec"><div class="br-sec-h"><b>${j+1}. ${enc(p.label)}</b><input type="text" data-tx="${p.id}" value="${enc(partText(j))}" aria-label="Words on screen for ${enc(p.label)}" placeholder="Words on screen (leave empty for none)"></div>
     <div class="br-clips">${parts[j].length?parts[j].map(c=>`<div class="br-clip"><img alt="" src="${c.asset.thumb}"><span class="nm">${enc(c.asset.name)}</span><span class="tag">${tag(c)}</span>${c.words?`<span class="said">“${enc(c.words.slice(0,70))}${c.words.length>70?'…':''}”</span>`:''}<select data-mv="${c.n}" aria-label="Move ${enc(c.asset.name)}">${opts(j)}</select></div>`).join(''):'<p class="br-empty">No clip here. This part will be skipped.</p>'}</div></div>`).join('')}
   <div class="row"><button type="button" id="brBack">← Back</button><button type="button" class="primary" id="brBuild">🎬 Build my video</button></div>`;
   dlg.querySelector('.dialog-x').onclick=close;dlg.querySelector('#brBack').onclick=step1;
   dlg.querySelectorAll('[data-tx]').forEach(el=>el.oninput=()=>texts[tp.id+el.dataset.tx]=el.value);
   dlg.querySelectorAll('[data-mv]').forEach(sel=>sel.onchange=()=>{let c=items.find(x=>x.n===+sel.dataset.mv);parts.forEach(p=>{let k=p.indexOf(c);if(k>=0)p.splice(k,1)});parts[+sel.value].push(c);parts[+sel.value].sort((a,b)=>a.n-b.n);step3(note)});
-  dlg.querySelector('#brBuild').onclick=build}
+  dlg.querySelector('#brMood3').onchange=e=>{mood=e.target.value};dlg.querySelector('#brBuild').onclick=build}
+
+// ---------- the best moments ----------
+// Up to 16 tiny frames across a clip: sharpness (edges), brightness, and how much the picture jumps between
+// frames (shake or fast pans). c.q = [{t, s}], higher s = a nicer moment to show.
+async function scan(c){const v=document.createElement('video');v.muted=true;v.playsInline=true;v.preload='auto';v.src=c.asset.url;
+  try{await new Promise((r,j)=>{let t=setTimeout(()=>j(Error('timeout')),8000);v.onloadeddata=()=>{clearTimeout(t);r()};v.onerror=()=>{clearTimeout(t);j(Error('read'))}});
+    const len=c.out-c.in,N=Math.max(4,Math.min(16,Math.round(len/.5))),W=64,H=Math.max(16,Math.round(64*(v.videoHeight||9)/(v.videoWidth||16))),cv=document.createElement('canvas');cv.width=W;cv.height=H;
+    const g=cv.getContext('2d',{willReadFrequently:true}),raw=[];let prev=null;
+    for(let i=0;i<N;i++){const t=c.in+len*(i+.5)/N;await new Promise(r=>{let to=setTimeout(r,2500);v.onseeked=()=>{clearTimeout(to);r()};v.currentTime=t});
+      g.drawImage(v,0,0,W,H);const d=g.getImageData(0,0,W,H).data,y=new Float32Array(W*H);let mean=0;for(let k=0;k<W*H;k++){y[k]=.299*d[k*4]+.587*d[k*4+1]+.114*d[k*4+2];mean+=y[k]}mean/=W*H;
+      let sharp=0;for(let yy=1;yy<H-1;yy++)for(let xx=1;xx<W-1;xx++){const k=yy*W+xx;sharp+=Math.abs(4*y[k]-y[k-1]-y[k+1]-y[k-W]-y[k+W])}sharp/=(W-2)*(H-2);
+      let jump=0;if(prev){for(let k=0;k<W*H;k++)jump+=Math.abs(y[k]-prev[k]);jump/=W*H}prev=y;raw.push({t,mean,sharp,jump})}
+    const top=Math.max(1,...raw.map(r=>r.sharp));
+    c.q=raw.map(r=>({t:r.t,s:r.sharp/top-(r.mean<45?(45-r.mean)/45:0)-(r.mean>235?.5:0)-Math.max(0,r.jump-20)/40}))}
+  catch{c.q=null}finally{v.removeAttribute('src');v.load()}}
+// The stretch of length L in [a, b] whose frames score best (start time).
+function bestStart(c,a,b,L){if(!c.q?.length||b-a<=L+.05)return null;let best=a,top=-1e9;
+  for(let x=a;x+L<=b+1e-6;x+=.1){const inn=c.q.filter(q=>q.t>=x&&q.t<=x+L);if(!inn.length)continue;const sc=inn.reduce((n,q)=>n+q.s,0)/inn.length;if(sc>top+1e-6){top=sc;best=x}}return best}
 
 // ---------- building the video ----------
 // Talking clips keep everything that's said; other clips are cut to whole beats so cuts land on the music.
 function cut(c,part,beat){let a=c.in,b=c.out;
   if(c.talking&&c.speech){a=Math.max(c.in,c.in+c.speech[0]-.15);b=Math.min(c.out,c.in+c.speech[1]+.35);if(b-a<.5){a=c.in;b=c.out}return [a,b]}
-  if(!beat)return [a,Math.min(b,a+6)];let n=Math.min(part.beats||6,Math.floor((b-a)/beat));if(n<2)return [a,b];let start=Math.min(a+.2,b-n*beat);return [Math.max(a,start),Math.max(a,start)+n*beat]}
+  if(!beat){const L=Math.min(6,b-a),x=bestStart(c,a,b,L);return x==null?[a,a+L]:[x,x+L]}let n=Math.min(part.beats||6,Math.floor((b-a)/beat));if(n<2)return [a,b];
+  const L=n*beat,x=bestStart(c,a,b,L);if(x!=null)return [x,x+L];let start=Math.min(a+.2,b-L);return [Math.max(a,start),Math.max(a,start)+L]}
 const textFrac=(s,W,H)=>{let f=.055,px=f*H,w=s.length*.6*px;return w>W*.84?W*.84/(s.length*.6)/H:f};
 async function build(){if(exporting)return;const btn=dlg.querySelector('#brBuild');btn.disabled=true;btn.textContent='Building…';
-  try{const used=parts.flat().map(c=>c.asset),M=MOODS[mood],beat=M?60/M.bpm:0,heard=parts.flat().some(c=>c.words!==undefined);
+  try{if(mood==='auto')mood=tp.mood;const used=parts.flat().map(c=>c.asset),M=MOODS[mood],beat=M?60/M.bpm:0,heard=parts.flat().some(c=>c.words!==undefined);
+    // Find each non-talking clip's best moment before cutting it.
+    const look=parts.flat().filter(c=>!c.talking&&!c.q);for(let i=0;i<look.length;i++){btn.textContent=`Finding the best moments (${i+1} of ${look.length})…`;await scan(look[i])}
     if(clips.length||graphicTracks.length||extraTracks.length){if(window.veNewProject)await veNewProject();else{clips=[];graphicTracks=[]}}
     for(const a of used)if(!assets.includes(a))assets.push(a);
     $$('aspect').value=shape;setAspect();const W=canvas.width,H=canvas.height;
     // Listen to clips that talk (or all of them after Keep my order) for captions and tidying.
     const listen=(autoCaps||autoTidy)&&typeof window.veClipWords==='function',todo=parts.flat().filter(c=>c.talking||!heard);
-    let t=0,talky=false,failed=false,listened=false,n=0;const spans=[],capWords=[];
+    let t=0,talky=false,failed=false,listened=false,n=0,moveN=0;const spans=[],capWords=[],MOVES=['zoomIn','panLeft','zoomOut','panRight','panUp','zoomIn','panDown'];
     for(let j=0;j<tp.parts.length;j++){const p=tp.parts[j];if(!parts[j].length)continue;let s=t;
       for(const c of parts[j]){let [a,b]=cut(c,p,beat),segs=[[a,b]],words=null;
         if(listen&&!failed&&todo.includes(c)){btn.textContent=`Listening to clip ${++n} of ${todo.length}…`;
@@ -310,12 +368,17 @@ async function build(){if(exporting)return;const btn=dlg.querySelector('#brBuild
             if(autoTidy&&words.length&&!words.est)segs=tidy(words,a,b)}
           catch(e){failed=true;console.warn('Speech engine unavailable:',e)}}
         if(c.talking)talky=true;
-        for(const [x,y] of segs){let cl=makeClip(c.asset);Object.assign(cl,{in:x,out:y,fit:shape==='16:9'?'contain':'cover'});clips.push(cl);
+        segs.forEach(([x,y],si)=>{let cl=makeClip(c.asset);Object.assign(cl,{in:x,out:y,fit:shape==='16:9'?'contain':'cover'});
+          if(autoMove){const speaking=(words&&words.length>=4)||c.talking;
+            // Talking: a gentle drift, and jump cuts alternate with a close-up so they look on purpose. Others: zooms and pans that change every clip, bumps on the beat.
+            if(speaking)cl.motion=segs.length>1&&si%2?'close':'drift';else{cl.motion=MOVES[moveN++%MOVES.length];if(beat)cl.pulse=2*beat}
+            cl.intro=clips.length===0?'':si===0&&c===parts[j][0]?(j%2?'flash':'whip'):speaking?'':'punch'}
+          clips.push(cl);
           if(words)for(const w of words)if(w.e>x&&w.s<y&&!(autoTidy&&!words.est&&FILLER.test(String(w.w).replace(/[^a-z]/gi,''))))capWords.push({w:w.w,s:Math.round((t+Math.max(0,w.s-x))*100)/100,e:Math.round((t+Math.min(y,w.e)-x)*100)/100});
-          t+=y-x}}
-      spans.push([p,s,t-s])}
+          t+=y-x})}
+      spans.push([p,s,t-s,j])}
     btn.textContent='Building…';
-    for(const [p,s,len] of spans){let text=String(texts[tp.id+p.id]??p.text).trim();if(!text)continue;createGraphicTrack('text');let g=graphicTracks.at(-1);
+    for(const [p,s,len,j] of spans){let text=String(partText(j)).trim();if(!text)continue;createGraphicTrack('text');let g=graphicTracks.at(-1);
       Object.assign(g,{name:p.label+': '+text.slice(0,18),text,color:p.color||'#ffffff',size:textFrac(text,W,H)*H*1280/W,x:50,y:p.y,bold:true,background:false,animation:p.anim,offset:Math.round(s*10)/10,length:Math.max(.8,Math.round(Math.min(len,p.textMax||len)*10)/10),boxColor:p.box,boxOpacity:1,boxPad:26,boxRadius:18})}
     if(M&&t>0){btn.textContent='Making your music…';let file=await makeBeat(t,mood);addTrack('audio');let tr=extraTracks.at(-1);tr.name='🎵 '+M.name+' beat';targetTrack=tr.id;await loadTrackMedia(file);tr.volume=talky?.22:.7;renderTracks()}
     $$('projectName').value='B-roll · '+tp.name;selected=-1;render();renderTracks();renderGraphicTracks();await seekTimeline(0);
