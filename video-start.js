@@ -299,7 +299,7 @@ function build(){
   <li class="vs-or" aria-hidden="true"><span>or</span></li>
   <li><button type="button" data-path="blank"><span class="vs-pi" aria-hidden="true">✎</span><span class="vs-pt"><b>Skip all this and tap Video Editor</b><small>At the top right, to create from scratch</small></span><span class="vs-pa" aria-hidden="true">›</span></button></li>
   </ol><button type="button" class="vs-recentlink" id="vsRecentLink" hidden>or continue with a recent video <span aria-hidden="true">›</span></button></div>
-  <section class="vs-steps" id="vsSteps" aria-label="1-2-3 Steps"><div class="vs-qh"><h2>1-2-3 Steps</h2><p class="vs-help">Choose a shape, add your clips, and add a template if you like.</p></div>
+  <section class="vs-steps" id="vsSteps" aria-label="1-2-3 Steps"><div class="vs-qh"><h2>1-2-3 Steps</h2><p class="vs-help">Choose a size format or social media platform, add your clips, and add a template if you like.</p></div>
   <h2><span class="vs-step">1</span>Where will you post it?</h2><p class="vs-help">This sets the shape of your video.</p>
   <div class="vs-plats" id="vsPlats"></div>
   <h2><span class="vs-step">2</span>Add your videos and photos</h2><p class="vs-help">They go on the timeline in this order: videos first, then photos (${PHOTO_SECONDS} seconds each).</p>
