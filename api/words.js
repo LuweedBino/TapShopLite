@@ -73,14 +73,14 @@ async function fumbles(words) {
     headers: { authorization: 'Bearer ' + process.env.GROQ_API_KEY, 'content-type': 'application/json' },
     body: JSON.stringify({ model: process.env.GROQ_TEXT_MODEL || 'llama-3.3-70b-versatile', temperature: 0, response_format: { type: 'json_object' },
       messages: [
-        { role: 'system', content: 'You edit spoken video takes. You get numbered words (index:word) from someone talking to camera. Find the mistakes a video editor would cut: false starts, stutters, words or phrases said twice in a row, sentences started and abandoned, and earlier tries of a line that is said again later (keep only the LAST complete try). Never mark normal speech, and never mark filler words like um or uh (those are handled separately). Reply with JSON only: {"drop":[[first,last],...]} using inclusive index ranges, or {"drop":[]} if there are no mistakes.' },
+        { role: 'system', content: 'You edit spoken video takes. You get numbered words (index:word) from someone talking to camera. Find the mistakes a video editor would cut: false starts, stutters, words or phrases said twice in a row, sentences started and abandoned, and earlier tries of a line that is said again later (keep only the LAST complete try). Also mark whole throwaway takes between "|" clip breaks: a clip that is only "okay", "let me start over", "one more time", "sorry", a cough or a test count. Never mark normal speech, and never mark filler words like um or uh (those are handled separately). Reply with JSON only: {"drop":[[first,last],...]} using inclusive index ranges, or {"drop":[]} if there are no mistakes.' },
         { role: 'user', content: list }] }) });
   if (!r.ok) return [];
   try {
     const j = JSON.parse((await r.json()).choices[0].message.content), out = new Set();
     for (const x of j.drop || []) { const [a, b] = Array.isArray(x) ? x : [x, x]; for (let i = Math.max(0, a | 0); i <= Math.min(words.length - 1, b | 0); i++) out.add(i); }
-    // A safety net: never let it cut more than a third of what was said.
-    return out.size > words.length / 3 ? [] : [...out].sort((a, b) => a - b);
+    // A safety net: never let it cut more than half of what was said.
+    return out.size > words.filter(w => w !== '|').length / 2 ? [] : [...out].sort((a, b) => a - b);
   } catch { return []; }
 }
 
