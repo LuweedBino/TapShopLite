@@ -297,7 +297,7 @@ function build(){
   <li class="vs-or" aria-hidden="true"><span>or</span></li>
   <li><button type="button" data-path="steps"><span class="vs-pi" aria-hidden="true">1·2·3</span><span class="vs-pt"><b>Follow the 1-2-3 steps</b><small>Choose a shape, add clips, add a template</small></span><span class="vs-pa" aria-hidden="true">›</span></button></li>
   <li class="vs-or" aria-hidden="true"><span>or</span></li>
-  <li><button type="button" data-path="blank"><span class="vs-pi" aria-hidden="true">✎</span><span class="vs-pt"><b>Skip all this and tap Video Editor</b><small>At the top right, to create from scratch</small></span><span class="vs-pa" aria-hidden="true">›</span></button></li>
+  <li><button type="button" data-path="blank"><span class="vs-pi" aria-hidden="true">✎</span><span class="vs-pt"><b>Want to create from scratch?</b><small>Skip all this and tap HERE or the Video Editor button at the top right</small></span><span class="vs-pa" aria-hidden="true">›</span></button></li>
   </ol><button type="button" class="vs-recentlink" id="vsRecentLink" hidden>or continue with a recent video <span aria-hidden="true">›</span></button></div>
   <section class="vs-steps" id="vsSteps" aria-label="1-2-3 Steps"><div class="vs-qh"><h2>1-2-3 Steps</h2><p class="vs-help">Choose a size format or social media platform, add your clips, and add a template if you like.</p></div>
   <h2><span class="vs-step">1</span>Where will you post it?</h2><p class="vs-help">This sets the shape of your video.</p>
