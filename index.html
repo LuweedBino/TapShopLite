@@ -76,8 +76,9 @@ h2{font-size:clamp(26px,5.5vw,38px);letter-spacing:-.025em;line-height:1.15;marg
 .card .btn{width:100%;margin-bottom:10px}
 .g{background:#fff;color:#1f1f1f;border-color:#dadce0}[data-theme=dark] .g{border-color:#fff}
 .or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px;margin:8px 0 14px}.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
-input[type=email]{width:100%;min-height:50px;border-radius:14px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:16px;font-family:inherit;padding:0 16px;margin-bottom:10px;outline:none}
-input[type=email]:focus{border-color:var(--pink);box-shadow:0 0 0 4px #ff3ea522}
+input[type=email],input[type=password],input[type=text].pwt{width:100%;min-height:50px;border-radius:14px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:16px;font-family:inherit;padding:0 16px;margin-bottom:10px;outline:none}
+input:focus{border-color:var(--pink);box-shadow:0 0 0 4px #ff3ea522}
+.pw{position:relative}.pw input{padding-right:52px!important}.eye{position:absolute;right:6px;top:5px;width:40px;height:40px;border:0;background:none;font-size:18px;cursor:pointer;opacity:.6}.fine a{color:var(--pink);font-weight:700}
 .fine{font-size:13px;color:var(--muted);margin:6px 0 0}
 .msg{min-height:20px;font-size:14px;margin:4px 0 0}.msg.err{color:#e5484d}
 .done{font-size:44px;line-height:1}
@@ -103,7 +104,7 @@ footer{padding:30px 0 50px;color:var(--muted);font-size:14px;text-align:center}
       <h1>Short videos,<br><span>made for you.</span></h1>
       <p class="lead">Drop in your clips or review screenshots. TapShopLite picks the best moments, adds captions and music, and cuts it all to the beat. Ready for TikTok, Reels and Shorts.</p>
       <div class="cta"><a class="btn main" id="heroGo" href="#join">Start free in 10 seconds →</a></div>
-      <p class="reassure"><span>✓ No password</span> · <span>✓ No credit card</span> · <span>✓ Works on any phone or computer</span></p>
+      <p class="reassure"><span>✓ Free</span> · <span>✓ No credit card</span> · <span>✓ Works on any phone or computer</span></p>
     </div>
     <div class="phone" aria-hidden="true"><div class="screen">
       <div class="hook">Wait… you NEED this 👀</div>
@@ -138,16 +139,17 @@ footer{padding:30px 0 50px;color:var(--muted);font-size:14px;text-align:center}
   <section class="join" id="join">
     <div class="card" id="joinCard">
       <div id="signedOut">
-        <h2>Create your free account</h2>
-        <p class="sub" id="joinSub">Just your email, nothing else. Takes 10 seconds.</p>
+        <h2 id="joinH">Create your free account</h2>
+        <p class="sub" id="joinSub">Just an email and a password. Takes 10 seconds.</p>
         <div id="providers"></div>
         <div class="or" id="orLine">or</div>
         <form id="emailForm" novalidate>
-          <input type="email" id="email" placeholder="you@email.com" autocomplete="email" inputmode="email" aria-label="Your email" required>
-          <button class="btn main" type="submit" id="emailBtn">Email me a sign-in link</button>
+          <input type="email" id="email" placeholder="Your email" autocomplete="email" inputmode="email" aria-label="Your email" required>
+          <div class="pw"><input type="password" id="pass" placeholder="Password (6+ characters)" autocomplete="new-password" aria-label="Password" minlength="6" required><button type="button" class="eye" id="eye" aria-label="Show password">👁</button></div>
+          <button class="btn main" type="submit" id="emailBtn">Create my free account</button>
         </form>
         <p class="msg" id="msg" role="status" aria-live="polite"></p>
-        <p class="fine">Already have an account? Same buttons: we'll sign you in.</p>
+        <p class="fine" id="switchLine">Already have an account? <a href="#" id="switch">Sign in</a></p>
       </div>
       <div id="sent" hidden>
         <div class="done">✉️</div><h2>Check your email</h2>
@@ -178,7 +180,7 @@ footer{padding:30px 0 50px;color:var(--muted);font-size:14px;text-align:center}
   <section class="faq">
     <h2>Questions</h2>
     <details><summary>Is it really free?</summary><p>Yes. TapShopLite is free during early access, with no card and no trial clock. We'll tell you well before a full version arrives.</p></details>
-    <details><summary>Why do I need an account?</summary><p>So we can let you know about new features and the full version. We only ask for your email, and there's no password to remember.</p></details>
+    <details><summary>Why do I need an account?</summary><p>So we can let you know about new features and the full version. We only ask for an email and a password, nothing else.</p></details>
     <details><summary>Where do my videos go?</summary><p>Nowhere. Your clips are edited right on your phone or computer, and the finished video saves straight to your device.</p></details>
     <details><summary>What can I use it on?</summary><p>Phones, tablets, laptops and desktops: iPhone, Android, Mac and Windows, in Chrome, Safari or Edge.</p></details>
   </section>
@@ -198,16 +200,21 @@ if(!A||!A.on){show('open');$('navGo').textContent='Open video maker';$('navGo').
 $('providers').innerHTML=A.providers.filter(p=>NAMES[p]).map(p=>`<button class="btn ${p==='google'?'g':''}" type="button" data-p="${p}">${ICONS[p]||''}Continue with ${NAMES[p]}</button>`).join('');
 $('orLine').hidden=!A.providers.length;
 $('providers').onclick=async e=>{const b=e.target.closest('[data-p]');if(!b)return;b.disabled=true;msg('Opening '+NAMES[b.dataset.p]+'…');try{await A.provider(b.dataset.p)}catch(x){b.disabled=false;msg(x.message||'That didn’t work. Please try again.',true)}};
-$('emailForm').onsubmit=async e=>{e.preventDefault();const v=$('email').value.trim();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)){msg('Please type your email, like you@email.com',true);$('email').focus();return}
-  $('emailBtn').disabled=true;$('emailBtn').textContent='Sending…';msg('');
-  try{await A.email(v);$('sentTo').textContent=v;show('sent')}
-  catch(x){msg(/rate|limit|429/i.test(x.message||'')?'Lots of sign-ups right now. Please try again in a few minutes.':(x.message||'That didn’t work. Please try again.'),true)}
-  finally{$('emailBtn').disabled=false;$('emailBtn').textContent='Email me a sign-in link'}};
+let mode='up';const setMode=m=>{mode=m;const up=m==='up';$('emailBtn').textContent=up?'Create my free account':'Sign in';$('pass').placeholder=up?'Password (6+ characters)':'Your password';$('pass').autocomplete=up?'new-password':'current-password';
+  $('switchLine').innerHTML=up?'Already have an account? <a href="#" id="switch">Sign in</a>':'New here? <a href="#" id="switch">Create a free account</a>';$('joinH').textContent=up?'Create your free account':'Welcome back';msg('');$('switch').onclick=e=>{e.preventDefault();setMode(up?'in':'up')}};
+$('eye').onclick=()=>{const p=$('pass'),show=p.type==='password';p.type=show?'text':'password';p.classList.toggle('pwt',show);$('eye').setAttribute('aria-label',show?'Hide password':'Show password')};
+$('emailForm').onsubmit=async e=>{e.preventDefault();const v=$('email').value.trim(),pw=$('pass').value;
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)){msg('Please type your email, like you@email.com',true);$('email').focus();return}
+  if(pw.length<6){msg('Your password needs at least 6 characters.',true);$('pass').focus();return}
+  const label=$('emailBtn').textContent;$('emailBtn').disabled=true;$('emailBtn').textContent=mode==='up'?'Creating your account…':'Signing in…';msg('');
+  try{await (mode==='up'?A.signUp(v,pw):A.signIn(v,pw));location.href='studio.html'}
+  catch(x){const m=x.message||'';if(/already registered|already exists/i.test(m))setMode('in');msg(/already registered|already exists/i.test(m)?'You already have an account with this email. Type your password and tap Sign in.':/invalid login|invalid credentials/i.test(m)?'That email and password don’t match. Try again?':/rate|limit|429/i.test(m)?'Too many tries right now. Please wait a minute and try again.':(m||'That didn’t work. Please try again.'),true)}
+  finally{$('emailBtn').disabled=false;$('emailBtn').textContent=mode==='up'?'Create my free account':'Sign in'}};
 $('again').onclick=()=>{show('signedOut');$('email').select()};
 $('out').onclick=async()=>{await A.signOut();render(null)};
 function render(s){if(s){show('signedIn');$('who').textContent='Signed in as '+(s.user?.email||'you')+'.';$('navGo').textContent='Open video maker';$('navGo').href='studio.html';$('heroGo').textContent='Open the video maker →';$('heroGo').href='studio.html'}
   else{show('signedOut');$('navGo').textContent='Sign up free';$('navGo').href='#join';$('heroGo').textContent='Start free in 10 seconds →';$('heroGo').href='#join'}}
-if(signin){$('joinSub').textContent='Sign up free (or sign in) to open the video maker. Just your email, nothing else.';setTimeout(()=>$('join').scrollIntoView(),50)}
+setMode('up');if(signin){$('joinSub').textContent='Create a free account (or sign in) to open the video maker.';setTimeout(()=>$('join').scrollIntoView(),50)}
 A.session().then(render,()=>render(null));A.onChange(render);
 })();
 </script>
