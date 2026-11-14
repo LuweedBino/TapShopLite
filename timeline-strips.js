@@ -195,11 +195,14 @@ html body .strip-tip button{flex:none;width:30px;height:30px;padding:0!important
 // The "how strips work" note: pops up for 9 s the first 3 times the editor is used on this device (and on the
 // first tap of a strip until it has been seen 3 times). The ✕ closes it for good.
 let tipShown=false;
-function stripTip(force){let n=0;try{n=+localStorage.getItem('tapshop-strip-tip')||0}catch{}if(tipShown||n>=3&&!force)return;tipShown=true;try{localStorage.setItem('tapshop-strip-tip',String(n+1))}catch{}
+function stripTip(force){if(!editorWithStrips())return;let n=0;try{n=+localStorage.getItem('tapshop-strip-tip')||0}catch{}if(tipShown||n>=3&&!force)return;tipShown=true;try{localStorage.setItem('tapshop-strip-tip',String(n+1))}catch{}
   const el=document.createElement('div');el.className='strip-tip';el.setAttribute('role','status');
   el.innerHTML='<div><b>✨ New: moving strips is easier</b><ul><li><b style="display:inline">Tap</b> a strip to pick it, then drag it along the timeline.</li><li>Drag it <b style="display:inline">up or down</b> to put it on another row, or on a new layer of its own.</li><li><b style="display:inline">Double-tap</b> a strip to open its editing menu.</li></ul></div><button type="button" aria-label="Close" style="background:none">✕</button>';
-  document.body.appendChild(el);const go=()=>el.remove();el.querySelector('button').onclick=()=>{try{localStorage.setItem('tapshop-strip-tip','3')}catch{}go()};setTimeout(go,9000)}
-{const showWhenEditor=()=>{const s=document.getElementById('veStart');if(!s||!s.getClientRects().length)setTimeout(()=>stripTip(),700);else setTimeout(showWhenEditor,1500)};showWhenEditor()}
+  document.body.appendChild(el);const go=()=>{el.remove();clearInterval(watch)},watch=setInterval(()=>{if(!editorWithStrips())go()},500);el.querySelector('button').onclick=()=>{try{localStorage.setItem('tapshop-strip-tip','3')}catch{}go()};setTimeout(go,9000)}
+// Only in the editor itself: the page has finished loading, the start screen is closed, and strips are showing
+// on the timeline. Checked every second until then; if the start screen opens again, the note goes away.
+const editorWithStrips=()=>{const st=document.getElementById('veStart');return document.readyState==='complete'&&!document.documentElement.classList.contains('ve-boot')&&!!st&&!st.getClientRects().length&&[...document.querySelectorAll('.tracks .duration-strip')].some(x=>x.getClientRects().length)};
+{const wait=()=>{if(editorWithStrips())setTimeout(()=>{if(editorWithStrips())stripTip()},600);else setTimeout(wait,1000)};addEventListener('load',()=>setTimeout(wait,800))}
 
 // Dragging between rows. Runs alongside the left/right drag in the pointer handlers above.
 let laneLine=null,laneTarget=null;
