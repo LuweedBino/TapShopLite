@@ -48,7 +48,9 @@ async function fill(rec,files){let st=rec.state,id=rec.id;
   for(let aid of new Set(st.clips.map(c=>c.assetId))){let f=files[id+':a:'+aid];if(!f)continue;try{let a=await loadAsset(f);a.id=aid}catch(e){toast(e.message)}}
   clips=st.clips.filter(c=>assets.some(a=>a.id===c.assetId));selected=Math.min(st.selected??0,clips.length-1);graphicTracks=st.graphic||[];
   for(let s of st.extra||[]){addTrack(s.type);let t=extraTracks.at(-1),f=s.hasFile&&Object.entries(files).find(([k])=>k.startsWith(id+':x:'+s.id+':'))?.[1];
-    if(f){targetTrack=t.id;await loadTrackMedia(f)}let {hasFile,...keep}=s;Object.assign(t,keep)}
+    if(f){targetTrack=t.id;await loadTrackMedia(f)}let {hasFile,...keep}=s;Object.assign(t,keep);
+    // Videos saved before fades and ducking existed keep sounding as they did.
+    for(const x of ['fadeIn','fadeOut','duck','duckAmt'])if(!(x in keep))delete t[x]}
   history.length=0;try{redoStack.length=0;syncUndoButtons()}catch{}render();renderTracks();renderGraphicTracks();await seekTimeline(0);window.veRecleanSound?.()}
 
 // ---------- Projects in the Media Vault ----------

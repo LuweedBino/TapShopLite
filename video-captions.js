@@ -311,3 +311,38 @@ let css=document.createElement('style');css.textContent=`.duration-strip[data-ki
 let btn=document.createElement('button');btn.type='button';btn.textContent='✨ Captions';btn.title='Auto captions';btn.onclick=()=>openCaptions();
 let smart=[...document.querySelectorAll('.timebar button')].find(b=>/Smart tools/.test(b.textContent));(smart||document.querySelector('.timebar button'))?.after(btn);
 })();
+
+// ---- Speech windows for auto-ducking: [{start, end}] in timeline seconds where someone is talking.
+// From the Captions track's words when there are any; otherwise (and for clips the captions don't cover) from the sound itself:
+// loudness (RMS) in 50 ms steps, above a level worked out per file. Words closer than 0.4 s join into one block, then each block
+// gets 0.15 s before and 0.35 s after, so music dips once per sentence instead of pumping on every word.
+// Speech comes from main clips, video layers, and audio tracks that don't duck themselves (a voiceover you added, say).
+(()=>{
+const STEP=.05,cache=new Map();let dirty=true,last=[];
+// Loudness per 50 ms for one file (decoded at 16 kHz, cached). Returns the numbers, or a promise while it's working, or 'none'.
+function loudness(file){if(!file)return 'none';let r=cache.get(file);if(r)return r;
+  r=(async()=>{try{const buf=await new OfflineAudioContext(1,1,16000).decodeAudioData(await file.arrayBuffer()),SR=buf.sampleRate,hop=Math.round(SR*STEP),n=Math.floor(buf.length/hop),chs=[...Array(buf.numberOfChannels)].map((_,c)=>buf.getChannelData(c)),out=new Float32Array(n);
+      for(let i=0;i<n;i++){let s=0;for(let k=i*hop;k<(i+1)*hop;k++){let v=0;for(const d of chs)v+=d[k];v/=chs.length;s+=v*v}out[i]=Math.sqrt(s/hop)}
+      const sorted=Float32Array.from(out).sort(),floor=sorted[Math.floor(n*.15)]||0,loud=sorted[Math.floor(n*.95)]||0;out.thr=Math.max(floor*2.5,loud*.18,.008);cache.set(file,out);dirty=true;return out}
+    catch{cache.set(file,'none');dirty=true;return 'none'}})();
+  cache.set(file,r);return r}
+const speaking=(r,from,to,at,speed,push)=>{for(let f=Math.max(0,Math.floor(from/STEP));f<Math.min(r.length,Math.ceil(to/STEP));f++)if(r[f]>r.thr){const T=at+(f*STEP-from)/speed;push({start:T,end:T+STEP/speed})}};
+function join(ws,gap){ws.sort((a,b)=>a.start-b.start);const out=[];for(const w of ws){const p=out.at(-1);if(p&&w.start-p.end<gap)p.end=Math.max(p.end,w.end);else out.push({start:w.start,end:w.end})}return out}
+function build(){const raw=[],pending=[],push=w=>raw.push(w);
+  const caps=graphicTracks.filter(t=>t.type==='captions'&&Array.isArray(t.words)&&!t.hidden),said=[];
+  for(const t of caps)for(const w of t.words)if(w.e>w.s)said.push({start:t.offset+w.s,end:t.offset+w.e});
+  raw.push(...said);
+  // Main clips the captions don't cover: listen to their sound.
+  clips.forEach((c,i)=>{if((c.volume??1)<=0)return;const a=asset(c),S=startOf(i),E=S+duration(c);if(said.some(w=>w.end>S&&w.start<E))return;
+    const r=loudness(a?.cleanFile||a?.file);if(r instanceof Promise)pending.push(r);else if(r!=='none')speaking(r,c.in,c.out,S,c.speed||1,push)});
+  // Video layers, and audio tracks that aren't music or sound effects (no duck, no beat, not tied to a strip).
+  for(const t of extraTracks){if(!t.media||t.muted||t.volume<=0)continue;if(!(t.type==='video'||(t.type==='audio'&&!t.duck&&!t.bpm&&!t.sfxFor&&t.lane!=='sfx')))continue;
+    const r=loudness(t.file);if(r instanceof Promise)pending.push(r);else if(r!=='none')speaking(r,t.start,t.end,t.offset,t.speed||1,push)}
+  const blocks=join(raw,.4).map(w=>({start:Math.max(0,w.start-.15),end:w.end+.35}));
+  return {windows:join(blocks,0),pending}}
+window.veSpeechWindows=function(){if(!dirty)return last;const b=build();last=b.windows;if(!b.pending.length)dirty=false;return last};
+// For the export: wait until every file has been listened to, then give the final windows.
+window.veSpeechReady=async function(){for(let k=0;k<4;k++){const b=build();if(!b.pending.length){last=b.windows;dirty=false;return last}await Promise.all(b.pending)}return veSpeechWindows()};
+// Anything on the timeline changing redraws the strips: work the windows out again next time they're needed.
+{const base=decorateStrips;decorateStrips=function(){dirty=true;return base.apply(this,arguments)}}
+})();

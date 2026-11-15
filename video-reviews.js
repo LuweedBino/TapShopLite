@@ -113,7 +113,7 @@ function build(){if(!work.imgs.length)return toast('Add at least one review firs
 // a sparkle (with confetti) or a tap on the ending line, and music as long as the video. Remade when the review video is updated.
 async function sounds(t){if(typeof extraTracks==='undefined')return;for(const x of extraTracks.filter(x=>x.sfxFor===t.id))deleteTrack(x.id);
   const i0=intro(t),n=(t.imgs||[]).length,per=+t.per||2.2,step=t.layout==='wall'?Math.min(per,.7):per;
-  if(t.music&&window.veMakeBeat&&veMoods?.[t.music]){try{const f=await veMakeBeat(t.length,t.music);addTrack('audio');const m=extraTracks.at(-1);Object.assign(m,{name:'🎵 '+veMoods[t.music].name+' beat',offset:t.offset,sfxFor:t.id,sfxAt:0,volume:.6});targetTrack=m.id;await loadTrackMedia(f);if(!m.media)deleteTrack(m.id)}catch{}}
+  if(t.music&&window.veMakeBeat&&veMoods?.[t.music]){try{const f=await veMakeBeat(t.length,t.music,{bare:1});addTrack('audio');const m=extraTracks.at(-1);Object.assign(m,{name:'🎵 '+veMoods[t.music].name+' beat',offset:t.offset,sfxFor:t.id,sfxAt:0,volume:.6},window.veMusicTrackMeta?veMusicTrackMeta(t.music):{});targetTrack=m.id;await loadTrackMedia(f);if(!m.media)deleteTrack(m.id)}catch{}}
   if(t.sfx!=='no'&&window.TapSFX){const list=[];if(t.t1)list.push(['whoosh',0]);for(let i=0;i<n;i++)list.push(['pop',i0+i*step+.05]);if(t.t2)list.push([t.confetti!=='no'?'sparkle':'click',i0+n*per+.1]);
     for(const [k,at] of list)try{await TapSFX.add(k,{at:t.offset+at,rel:at,forId:t.id,noSnap:1,quiet:1})}catch{}}
   renderTracks();renderGraphicTracks()}

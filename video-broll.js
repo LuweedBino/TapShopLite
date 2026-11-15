@@ -308,7 +308,9 @@ async function makeBeat(seconds,moodKey,opt={}){
   if(F.swell){const g=oc.createGain(),o=oc.createOscillator(),d=oc.createGain();g.gain.value=1-F.swell/2;o.frequency.value=.11;d.gain.value=F.swell/2;o.connect(d);d.connect(g.gain);o.start(0);o.stop(len+.05);chain(g)}
   chain(comp);comp.connect(oc.destination);
   if(F.comp==='tight'){comp.threshold.value=-18;comp.knee.value=6;comp.ratio.value=8;comp.attack.value=.002;comp.release.value=.1}
-  const vol=M.vol||.55;master.gain.setValueAtTime(0,0);master.gain.linearRampToValueAtTime(vol,F.noFade?.004:.3);master.gain.setValueAtTime(vol,Math.max(.31,len-1.8));master.gain.linearRampToValueAtTime(0,len);
+  // opt.bare: no fade-in/out baked in (only 5 ms against clicks): a track made for the timeline fades with its own fadeIn/fadeOut instead.
+  const vol=M.vol||.55;master.gain.setValueAtTime(0,0);if(opt.bare){master.gain.linearRampToValueAtTime(vol,.005);master.gain.setValueAtTime(vol,Math.max(.006,len-.02));master.gain.linearRampToValueAtTime(0,len)}
+  else{master.gain.linearRampToValueAtTime(vol,F.noFade?.004:.3);master.gain.setValueAtTime(vol,Math.max(.31,len-1.8));master.gain.linearRampToValueAtTime(0,len)}
   const noise=oc.createBuffer(1,SR,SR),nd=noise.getChannelData(0);for(let i=0;i<SR;i++)nd[i]=Math.random()*2-1;
   // Music goes to bus (which pumps on the kick when F.pump), drums straight to master; reverb and dotted delay are sends.
   const bus=F.pump?oc.createGain():master;if(F.pump)bus.connect(master);
@@ -668,7 +670,7 @@ async function build(){if(exporting)return;const btn=dlg.querySelector('#brBuild
     btn.textContent='Building…';
     for(const [p,s,len,j] of spans){let text=String(partText(j)).trim();if(!text)continue;createGraphicTrack('text');let g=graphicTracks.at(-1);
       Object.assign(g,{name:p.label+': '+text.slice(0,18),text,color:p.color||'#ffffff',size:textFrac(text,W,H)*H*1280/W,x:50,y:p.y,bold:true,background:false,animation:p.anim,offset:Math.round(s*10)/10,length:Math.max(.8,Math.round(Math.min(len,p.textMax||len)*10)/10),boxColor:p.box,boxOpacity:1,boxPad:26,boxRadius:18,_part:p.id})}
-    if(M&&t>0){btn.textContent='Making your music…';const after=spans.find(([p])=>p.id==='after');let file=await makeBeat(t,mood,{dropAt:after?after[1]:0});addTrack('audio');let tr=extraTracks.at(-1);tr.name='🎵 '+M.name+' beat';targetTrack=tr.id;await loadTrackMedia(file);tr.volume=talky?.22:.7;renderTracks()}
+    if(M&&t>0){btn.textContent='Making your music…';const after=spans.find(([p])=>p.id==='after');let file=await makeBeat(t,mood,{dropAt:after?after[1]:0,bare:1});addTrack('audio');let tr=extraTracks.at(-1);tr.name='🎵 '+M.name+' beat';Object.assign(tr,musicTrackMeta(mood));targetTrack=tr.id;await loadTrackMedia(file);tr.volume=talky?.5:.7;renderTracks()}
     if(autoSfx&&window.TapSFX){btn.textContent='Adding sound effects…';const words=graphicTracks.filter(g=>g._part);
       for(const g of words){const key=partSfx(g._part,tp.id);delete g._part;if(key)try{await TapSFX.add(key,{at:g.offset,forId:g.id,noSnap:1,quiet:1})}catch{}}
       renderTracks()}
@@ -696,6 +698,10 @@ function tidy(words,a,b){const ws=words.filter(w=>w.e>a&&w.s<b),isF=w=>w.drop||F
   out.push([start,Math.min(b,kept.at(-1).e+.3)]);const good=out.filter(([x,y])=>y-x>.15);return good.length?good:[[a,b]]}
 
 // ---------- ways in ----------
+// The timeline's music settings for a style: its tempo (beat markers and snapping), fade-in (none for styles that start at full
+// energy), 1.5 s fade-out, and auto-ducking under speech.
+const musicTrackMeta=k=>{const M=MOODS[k];return M?{bpm:M.bpm,fadeIn:M.fx?.noFade?0:.3,fadeOut:1.5,duck:true,duckAmt:.7,musicKey:k}:{}};
+window.veMusicTrackMeta=musicTrackMeta;
 window.openBroll=open;window.veMakeBeat=makeBeat;window.veMoods=MOODS;window.veCreatorMoods=CREATOR;window.veMusicGroups=GROUPS;
 // Free music for any audio track: pick a style, hear 10 seconds, then it's made as long as the video
 // (at least 15 s, at most 5 minutes) and put on that track.
@@ -734,7 +740,7 @@ window.openFreeMusic=function(trackId){if(exporting)return;pause();let d=$$('fmD
     if(b.dataset.p){const was=b.textContent==='■';fmAudio?.pause();fmAudio=null;d.querySelectorAll('[data-p]').forEach(x=>x.textContent='▶');if(was)return;
       b.textContent='…';try{const a=new Audio(URL.createObjectURL(await makeBeat(10,b.dataset.p)));fmAudio=a;a.onended=()=>b.textContent='▶';await a.play();b.textContent='■'}catch{b.textContent='▶';say('Couldn’t play it here.')}return}
     if(b.dataset.u){const k=b.dataset.u;fmAudio?.pause();d.querySelectorAll('button').forEach(x=>x.disabled=true);say(`Making your ${MOODS[k].name} music…`);
-      try{const f=await makeBeat(len,k);targetTrack=trackId;await loadTrackMedia(f);const t=extraTracks.find(x=>x.id===trackId);if(t)t.name='🎵 '+MOODS[k].name+' beat';window.recordRecent?.(k);renderTracks();d.close();toast(`${MOODS[k].name} music added.`)}
+      try{const f=await makeBeat(len,k,{bare:1});targetTrack=trackId;{const t0=extraTracks.find(x=>x.id===trackId);if(t0){for(const x of ['fadeIn','fadeOut','duck','duckAmt','bpm','musicKey'])delete t0[x];Object.assign(t0,musicTrackMeta(k))}}await loadTrackMedia(f);const t=extraTracks.find(x=>x.id===trackId);if(t)t.name='🎵 '+MOODS[k].name+' beat';window.recordRecent?.(k);renderTracks();d.close();toast(`${MOODS[k].name} music added.`)}
       catch(e){say('Couldn’t make the music: '+(e.message||e))}finally{d.querySelectorAll('button').forEach(x=>x.disabled=false)}}};
   d.showModal()};
 let fmAudio=null;
