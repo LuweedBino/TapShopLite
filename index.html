@@ -331,7 +331,7 @@ const ICONS={google:'<svg width="18" height="18" viewBox="0 0 48 48" aria-hidden
 const A=window.TapAuth,signin=/[?&]signin=1/.test(location.search);
 const show=v=>{for(const id of ['signedOut','sent','signedIn','open'])$(id).hidden=id!==v};
 const msg=(t,err)=>{$('msg').textContent=t;$('msg').classList.toggle('err',!!err)};
-if(!A||!A.on){show('open');$('navGo').textContent='Open video maker';$('navGo').href='studio.html';$('heroGo').textContent='Make a video free →';$('heroGo').href='studio.html';return}
+if(!A||!A.on){show('open');$('navGo').textContent='Open editor';$('navGo').href='studio.html';$('heroGo').textContent='Make a video free →';$('heroGo').href='studio.html';return}
 // Sign-in buttons for the providers switched on in config.js.
 $('providers').innerHTML=A.providers.filter(p=>NAMES[p]).map(p=>`<button class="btn ${p==='google'?'g':''}" type="button" data-p="${p}">${ICONS[p]||''}Continue with ${NAMES[p]}</button>`).join('');
 $('orLine').hidden=!A.providers.length;
@@ -362,7 +362,7 @@ $('again').onclick=()=>{show('signedOut');$('email').select()};
 $('chpw').onclick=async()=>{const s=await A.session().catch(()=>null),to=s?.user?.email;if(!to)return;$('chpw').disabled=true;$('inMsg').classList.remove('err');$('inMsg').textContent='Sending…';
   try{await A.resetPassword(to);$('inMsg').textContent='We emailed a link to '+to+'. Tap it to choose a new password.'}catch(x){$('inMsg').classList.add('err');$('inMsg').textContent=/rate|limit|429|seconds/i.test(x.message||'')?'Please wait a minute and try again.':(x.message||'We couldn’t send the email.')}finally{$('chpw').disabled=false}};
 $('out').onclick=async()=>{await A.signOut();render(null)};
-function render(s){if(s){show('signedIn');$('who').textContent='Signed in as '+(s.user?.email||'you')+'.';$('navGo').textContent='Open video maker';$('navGo').href='studio.html';$('heroGo').textContent='Open the video maker →';$('heroGo').href='studio.html'}
+function render(s){if(s){show('signedIn');$('who').textContent='Signed in as '+(s.user?.email||'you')+'.';$('navGo').textContent='Open editor';$('navGo').href='studio.html';$('heroGo').textContent='Open the video maker →';$('heroGo').href='studio.html'}
   else{show('signedOut');$('navGo').textContent='Sign up free';$('navGo').href='#join';$('heroGo').textContent='Start free in 10 seconds →';$('heroGo').href='#join'}}
 setMode(/[?&]login=1/.test(location.search)?'in':'up');if(/[?&]login=1/.test(location.search))setTimeout(()=>$('join').scrollIntoView(),50);if(signin){$('joinSub').textContent='Create a free account (or sign in) to open the video maker.';setTimeout(()=>$('join').scrollIntoView(),50)}
 A.session().then(render,()=>render(null));A.onChange(render);
