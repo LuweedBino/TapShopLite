@@ -13,7 +13,7 @@
 <meta property="og:title" content="TapShopLite: short videos, made for you">
 <meta property="og:description" content="Drop in your clips or review screenshots. We cut, caption and score them. Free during early access.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2216%22 fill=%22%23ff4f8b%22/%3E%3Cpath d=%22M25 19v26l21-13z%22 fill=%22white%22/%3E%3C/svg%3E">
-<script>/* Light or dark: the editor's saved choice, else the device's. */(()=>{let t;try{t=localStorage.getItem('forma-theme')}catch{}if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t})()</script>
+<script>/* Light or dark: the editor's saved choice, else the device's. */(()=>{let t;try{t=localStorage.getItem('forma-theme')}catch{}if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t;document.documentElement.classList.add('js')})()</script>
 <script src="config.js"></script>
 <script src="auth.js"></script>
 <style>
@@ -158,6 +158,84 @@ footer{padding:30px 0 50px;color:var(--muted);font-size:14px;text-align:center}
 .mode .mt span{display:block;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px #0005;transition:transform .2s}
 .mode[aria-checked=true] .mt{background:var(--pink)}.mode[aria-checked=true] .mt span{transform:translateX(14px)}
 @media(max-width:520px){.mode .ml{display:none}.mode{padding:0 9px}.btn.small{padding:0 13px}.nav .wrap{gap:8px}}.btn{white-space:nowrap}
+
+/* ===== Home page revamp: hero, numbers, idea strip, feature chapters, sound and caption showcases, privacy ===== */
+.center{text-align:center}.sub.center{margin-left:auto;margin-right:auto}
+.btn.ghost{background:transparent}
+.hero{grid-template-columns:1fr;padding-bottom:10px}
+@media(min-width:860px){.hero{grid-template-columns:1.05fr .95fr;gap:20px;padding:64px 0 30px}}
+.hero .cta{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.hero-art{position:relative;display:grid;place-items:center;padding:26px 0 18px;isolation:isolate}
+.hero-art .mini{width:min(270px,64vw);transform:rotate(-2deg);transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.hero-art:hover .mini{transform:rotate(0)}
+.glow{position:absolute;inset:8% 10%;z-index:-1;border-radius:50%;background:radial-gradient(closest-side,#ff3ea566,#ff8a5b33 60%,transparent);filter:blur(30px);animation:breathe 7s ease-in-out infinite}
+@keyframes breathe{50%{transform:scale(1.08);opacity:.8}}
+.float{position:absolute;z-index:2;padding:8px 12px;border-radius:14px;font-size:13px;font-weight:700;white-space:nowrap;color:var(--ink);background:color-mix(in srgb,var(--card) 78%,transparent);border:1px solid var(--line);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:var(--shadow);animation:bob 6s ease-in-out infinite}
+.f1{top:12%;left:2%}.f2{top:22%;right:0;animation-delay:-1.5s}.f3{bottom:20%;left:0;animation-delay:-3s}.f4{bottom:8%;right:4%;animation-delay:-4.5s}
+@media(max-width:420px){.float{font-size:11.5px;padding:6px 9px}.f1{left:0}.f2{right:-2px}.f3{left:-2px}.f4{right:0}}
+@keyframes bob{50%{transform:translateY(-8px)}}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;margin:10px 0 0;border-radius:22px;overflow:hidden;background:var(--line);border:1px solid var(--line);box-shadow:var(--shadow)}
+@media(min-width:760px){.stats{grid-template-columns:repeat(4,1fr)}}
+.stats div{background:var(--card);padding:18px 14px;text-align:center}
+.stats b{display:block;font-size:clamp(26px,5vw,36px);letter-spacing:-.03em;line-height:1.1;background:linear-gradient(90deg,var(--pink),#ff8a5b);-webkit-background-clip:text;background-clip:text;color:transparent}
+.stats span{font-size:13px;color:var(--muted)}
+.marquee{margin:34px 0 6px;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.mq-track{display:flex;gap:10px;width:max-content;animation:mq 46s linear infinite}
+.marquee:hover .mq-track{animation-play-state:paused}
+.mq-track span{padding:9px 15px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:14px;font-weight:600;white-space:nowrap}
+@keyframes mq{to{transform:translateX(calc(-50% - 5px))}}
+.chapter{display:grid;gap:26px;align-items:center;padding:56px 0}
+@media(min-width:860px){.chapter{grid-template-columns:1fr 1fr;gap:56px;padding:80px 0}.chapter.flip .ch-text{order:2}}
+.eyebrow{display:inline-block;padding:6px 12px;border-radius:999px;background:var(--soft);color:var(--pink);font-weight:700;font-size:13px;margin-bottom:12px}
+.chapter h2{font-size:clamp(30px,6vw,46px);line-height:1.06;letter-spacing:-.035em;margin:0 0 14px}
+.chapter p{color:var(--muted);font-size:17px;margin:0 0 18px;max-width:32em}
+.pills{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:8px}
+.pills li{padding:7px 12px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:13.5px;font-weight:600}
+.pills li::before{content:"✓ ";color:var(--pink);font-weight:800}
+.ch-art{display:grid;place-items:center;position:relative}
+.ch-art::before{content:"";position:absolute;inset:10% 14%;z-index:-1;border-radius:50%;background:radial-gradient(closest-side,#ff3ea52e,transparent);filter:blur(24px)}
+.hero-art .tag{display:none}
+.capshow .tag{display:inline-block;padding:4px 9px;border-radius:999px;background:#0008;color:#fff;font-size:10.5px;font-weight:700}
+.sv-strip i.q{opacity:.35}
+.d3 .ex{position:absolute;top:8px;right:8px;z-index:3;padding:3px 8px;border-radius:999px;background:#0009;color:#fff;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+/* caption styles showcase */
+.capshow .scr{background:linear-gradient(160deg,#3b2a55,#a0577a 55%,#f0a26b);display:grid;place-items:center}
+.capshow .tag{position:absolute;top:12px;left:12px}
+.cs{position:absolute;inset:auto 10px 30%;text-align:center;opacity:0;animation:cs 10s infinite}
+.cs i{display:block;font-style:normal;font-size:11px;font-weight:700;color:#fffc;margin-bottom:8px;letter-spacing:.06em;text-transform:uppercase}
+.cs p{margin:0;font-weight:900;font-size:21px;line-height:1.15;color:#fff;letter-spacing:-.01em}
+.s1 p{text-shadow:0 2px 0 #000,0 0 6px #000}.s1 b{color:#ffe14d;display:inline-block;animation:popw 2.5s infinite}
+.s2{animation-delay:2.5s}.s2 p{color:#ffffff8a}.s2 b{color:#fff;background:linear-gradient(90deg,var(--pink),var(--pink));-webkit-background-clip:text;background-clip:text}
+.s3{animation-delay:5s}.s3 p{color:#bff8ff;text-shadow:0 0 8px #3de9ff,0 0 18px #3de9ff}.s3 b{color:#fff}
+.s4{animation-delay:7.5s}.s4 p{display:inline;background:#000;padding:4px 8px;border-radius:8px;box-decoration-break:clone;-webkit-box-decoration-break:clone;line-height:1.6}
+@keyframes cs{0%{opacity:0;transform:translateY(10px)}4%,22%{opacity:1;transform:none}26%,100%{opacity:0;transform:translateY(-6px)}}
+@keyframes popw{0%,100%{transform:scale(1)}10%{transform:scale(1.18)}20%{transform:scale(1)}}
+/* sound showcase: a mini timeline that plays */
+.sv{position:relative;width:min(440px,100%);padding:16px;border-radius:24px;background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);overflow:hidden}
+.sv-head{display:flex;gap:8px;margin-bottom:10px}.sv-chip{padding:6px 11px;border-radius:999px;background:var(--pink);color:#fff;font-weight:700;font-size:12.5px}.sv-chip.soft{background:var(--soft);color:var(--pink)}
+.sv-ruler{height:12px;margin:0 0 8px 76px;border-bottom:1px solid var(--line);background:linear-gradient(90deg,var(--pink) 0 1.5px,transparent 1.5px) 0 100%/12.5% 9px repeat-x,linear-gradient(90deg,#ff3ea566 0 1px,transparent 1px) 0 100%/3.125% 5px repeat-x}
+.sv-row{display:flex;align-items:center;gap:8px;margin:8px 0}.sv-row b{width:68px;flex:none;font-size:12px;color:var(--muted)}
+.sv-strip{position:relative;flex:1;height:40px;border-radius:10px;display:flex;align-items:center;gap:2px;padding:0 6px;overflow:hidden}
+.sv-strip.voice{background:#6a4e8a}.sv-strip.music{background:#1f6f73}.sv-strip.fx{background:var(--soft);justify-content:space-around}
+.sv-strip i{flex:1;border-radius:2px;background:#fffc;min-height:2px}
+.sv-strip.music i{animation:duck 6s infinite}
+@keyframes duck{0%,18%{opacity:1}24%,56%{opacity:.28}62%,100%{opacity:1}}
+.sv-duck{position:absolute;right:8px;top:50%;transform:translateY(-50%);padding:3px 8px;border-radius:999px;background:#000b;color:#fff;font-size:11px;font-weight:700;opacity:0;animation:duckb 6s infinite}
+@keyframes duckb{0%,20%{opacity:0}26%,54%{opacity:1}60%,100%{opacity:0}}
+.sv-strip.fx span{font-size:18px;opacity:.35;animation:fxp 6s infinite}.sv-strip.fx .x2{animation-delay:1.5s}.sv-strip.fx .x3{animation-delay:3s}.sv-strip.fx .x4{animation-delay:4.5s}
+@keyframes fxp{0%,100%{opacity:.35;transform:scale(1)}6%{opacity:1;transform:scale(1.45)}14%{opacity:.35;transform:scale(1)}}
+.sv-play{position:absolute;top:44px;bottom:12px;left:92px;width:2px;background:var(--pink);box-shadow:0 0 10px var(--pink);animation:play 6s linear infinite}
+@keyframes play{to{left:calc(100% - 22px)}}
+/* privacy promise */
+.privacy{margin:30px 0;padding:44px 22px;border-radius:30px;text-align:center;color:#fff;background:radial-gradient(120% 140% at 10% 0%,#ff3ea5 0%,#a2287a 45%,#2b1033 100%);box-shadow:0 20px 50px #ff3ea533}
+.privacy h2{color:#fff;margin:6px 0 10px}.privacy p{max-width:34em;margin:0 auto 18px;color:#ffffffd9;font-size:17px}
+.pv-icon{font-size:38px}.pv-points{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}.pv-points span{padding:8px 13px;border-radius:999px;background:#ffffff22;border:1px solid #ffffff33;font-size:14px;font-weight:600}
+.feats{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}@media(min-width:760px){.feats{grid-template-columns:repeat(4,1fr)}}
+.feat{transition:transform .25s,box-shadow .25s}.feat:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+/* reveal on scroll (only when scripts run; still for reduced motion) */
+.js .reveal{opacity:0;transform:translateY(28px);transition:opacity .9s ease,transform .9s cubic-bezier(.2,.7,.2,1)}
+.js .reveal.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.js .reveal{opacity:1;transform:none;transition:none}.mq-track,.float,.glow,.cs,.sv *{animation:none!important}.mq-track{flex-wrap:wrap;width:auto;justify-content:center}.mq-track span[aria-hidden]{display:none}.cs.s1{opacity:1}.sv-play{display:none}.marquee{-webkit-mask-image:none;mask-image:none}}
 </style>
 </head>
 <body>
@@ -167,34 +245,49 @@ footer{padding:30px 0 50px;color:var(--muted);font-size:14px;text-align:center}
   <a class="btn small" id="navGo" href="#join">Sign up free</a>
 </div></header>
 
-<main class="wrap">
+<main>
+<div class="wrap">
   <div class="hero">
-    <div>
+    <div class="hero-copy">
       <span class="badge"><b></b>Free during early access</span>
-      <h1>Short videos,<br><span>made for you.</span></h1>
-      <p class="lead">Drop in your clips or review screenshots. TapShopLite picks the best moments, adds captions and music, and cuts it all to the beat. Ready for TikTok, Reels and Shorts.</p>
-      <div class="cta"><a class="btn main" id="heroGo" href="#join">Start free in 10 seconds →</a></div>
+      <h1>Scroll-stopping videos,<br><span>made for you.</span></h1>
+      <p class="lead">Drop in your clips or review screenshots. TapShopLite builds the story, adds captions, music and sound effects, and cuts it all to the beat. Ready for TikTok, Reels and Shorts.</p>
+      <div class="cta"><a class="btn main" id="heroGo" href="#join">Start free in 10 seconds →</a><a class="btn ghost" href="#features">See what it does ↓</a></div>
       <p class="reassure"><span>✓ Free</span> · <span>✓ No credit card</span> · <span>✓ Works on any phone or computer</span></p>
     </div>
-  </div>
-
-
-  <section>
-    <h2>See it in action</h2>
-    <p class="sub">Little peeks at what TapShopLite does for you.</p>
-    <div class="demos">
-      <div class="demo">
-        <div class="mini d1" aria-hidden="true"><div class="scr">
+    <div class="hero-art">
+      <div class="glow" aria-hidden="true"></div>
+      <div class="mini d1" aria-hidden="true"><div class="scr">
           <video id="talkVid" src="media/demo-talking.mp4" poster="media/demo-talking.jpg" muted loop playsinline preload="metadata"></video>
           <span class="tag">🎙 Talking clip + auto captions</span>
           <div class="hk" id="talkHook">Wait… you NEED this 👀</div>
           <div class="cp" id="talkCap"></div>
           <div class="ct" id="talkCta">Link in bio 👇</div>
         </div></div>
-        <h3>✨ Auto captions</h3><p>Words from your video pop up on screen, with many storyline styles like hooks and “link in bio” calls to action.</p><ul class="ticks"><li>8 animated styles</li><li>Word pop, Karaoke, Neon &amp; more</li><li>Highlights each word as it’s said</li><li>Hooks &amp; link-in-bio CTAs</li><li>Fix any word with a tap</li><li>Save your own style</li><li>12 languages</li></ul>
-      </div>
-      <div class="demo">
-        <div class="mini d2" aria-hidden="true"><div class="scr">
+      <span class="float f1" aria-hidden="true">✨ Auto captions</span>
+      <span class="float f2" aria-hidden="true">🎵 78 free tracks</span>
+      <span class="float f3" aria-hidden="true">🎙️ Music dips when you talk</span>
+      <span class="float f4" aria-hidden="true">🔊 Sound effects</span>
+    </div>
+  </div>
+</div>
+
+<div class="wrap"><div class="stats reveal" aria-label="TapShopLite in numbers">
+  <div><b data-count="78">78</b><span>free music tracks</span></div>
+  <div><b data-count="12">12</b><span>sound effects</span></div>
+  <div><b data-count="8">8</b><span>caption styles</span></div>
+  <div><b>1080p</b><span>MP4 for every app</span></div>
+</div></div>
+
+<div class="marquee" aria-label="Videos creators make with TapShopLite"><div class="mq-track"><span>📦 Unboxings</span><span>💄 GRWM</span><span>⭐ Product reviews</span><span>🍳 Quick recipes</span><span>👟 Sneaker drops</span><span>🧴 Skincare routines</span><span>🛍️ Hauls & try-ons</span><span>📱 Tech reviews</span><span>💸 Side-hustle tips</span><span>🐶 Pet products</span><span>✈️ Travel hacks</span><span>📚 BookTok</span><span>🏋️ Fitness & supplements</span><span>🔗 Link-in-bio CTAs</span><span>⚖️ Dupe vs high-end</span><span>🚨 Scam warnings</span><span aria-hidden="true">📦 Unboxings</span><span aria-hidden="true">💄 GRWM</span><span aria-hidden="true">⭐ Product reviews</span><span aria-hidden="true">🍳 Quick recipes</span><span aria-hidden="true">👟 Sneaker drops</span><span aria-hidden="true">🧴 Skincare routines</span><span aria-hidden="true">🛍️ Hauls & try-ons</span><span aria-hidden="true">📱 Tech reviews</span><span aria-hidden="true">💸 Side-hustle tips</span><span aria-hidden="true">🐶 Pet products</span><span aria-hidden="true">✈️ Travel hacks</span><span aria-hidden="true">📚 BookTok</span><span aria-hidden="true">🏋️ Fitness & supplements</span><span aria-hidden="true">🔗 Link-in-bio CTAs</span><span aria-hidden="true">⚖️ Dupe vs high-end</span><span aria-hidden="true">🚨 Scam warnings</span></div></div>
+
+<div class="wrap" id="features">
+  <section class="chapter reveal">
+    <div class="ch-text"><span class="eyebrow">🎞️ B-roll Video Maker</span>
+      <h2>Raw clips in.<br>Finished video out.</h2>
+      <p>Drop in your clips. It picks the story, keeps the best moments, cuts out the “um”s, adds a hook, captions, music and a call to action, all timed to the beat.</p>
+      <ul class="pills"><li>Story picked for you</li><li>Best moments chosen</li><li>Pauses & “um”s cut</li><li>Hook & link-in-bio</li><li>Slow, smooth zooms</li><li>Music & sound effects</li></ul></div>
+    <div class="ch-art"><div class="mini d2" aria-hidden="true"><div class="scr">
           <div class="ttl">🎞️ B-roll Video Maker</div>
           <div class="slots">
             <div class="slot"><i>1 · Hook</i><span class="clip">🗣</span><span class="ok">✅</span></div>
@@ -204,11 +297,15 @@ footer{padding:30px 0 50px;color:var(--muted);font-size:14px;text-align:center}
           </div>
           <div class="built">✨ Done! Captions, music &amp; cuts added</div>
           <div class="wave"><u></u><u></u><u></u><u></u><u></u><u></u><u></u></div>
-        </div></div>
-        <h3>🎞️ B-roll Video Maker</h3><p><b>Raw b-roll in, finished video out.</b> Drop in your clips and get a ready-to-post video with little or no editing.</p><ul class="ticks"><li>Auto captions</li><li>Hook &amp; call to action</li><li>Best moments picked</li><li>Free music</li><li>Cuts &amp; zooms on the beat</li><li>Pauses &amp; “um”s removed</li></ul>
-      </div>
-      <div class="demo">
-        <div class="mini d3" aria-hidden="true"><div class="scr">
+        </div></div></div>
+  </section>
+
+  <section class="chapter flip reveal">
+    <div class="ch-text"><span class="eyebrow">⭐ Reviews Video Maker</span>
+      <h2>Turn reviews into<br>a video that sells.</h2>
+      <p>Paste screenshots of real customer reviews. They're animated in one by one with stars and badges, a hook, a pop on every review and a confetti finish. Post it alone or drop it over your own clip.</p>
+      <ul class="pills"><li>Paste or upload screenshots</li><li>5 layouts</li><li>Stars & verified badges</li><li>Pop sound on every review</li><li>Optional music</li><li>Perfect for affiliates</li></ul></div>
+    <div class="ch-art"><div class="mini d3" aria-hidden="true"><div class="scr"><span class="ex">Example</span>
           <div class="hk3">Everyone's obsessed 😍</div>
           <div class="rv r1"><div class="rh"><span class="av" style="background:#ff7ac0">J</span><span><b>Jess M.</b><i>★★★★★</i></span><span class="vf">✔ Verified</span></div><p>Honestly the best purchase this year. Works exactly like they said!</p></div>
           <div class="rv r2"><div class="rh"><span class="av" style="background:#5b8def">M</span><span><b>Marco D.</b><i>★★★★★</i></span><span class="vf">✔ Verified</span></div><p>Arrived fast and the quality is amazing. Already ordered another one.</p></div>
@@ -216,42 +313,88 @@ footer{padding:30px 0 50px;color:var(--muted);font-size:14px;text-align:center}
           <div class="score">⭐ 4.9 · 2,000+ reviews</div>
           <div class="ct3">Link in bio 👇</div>
           <div class="conf"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-        </div></div>
-        <h3>⭐ Reviews Video Maker</h3><p><b>Review screenshots in, video out.</b> Paste screenshots of real customer reviews and get an animated video that sells, ready to post on its own, or dropped on top of one of your videos as extra proof. Perfect for affiliates.</p><ul class="ticks"><li>Paste or upload screenshots</li><li>Animated one by one</li><li>Star &amp; verified badges</li><li>5 layouts</li><li>Hook &amp; link in bio</li><li>Confetti finish</li><li>Add it over your own clip</li></ul>
-      </div>
-      <div class="demo">
-        <div class="mini d4" aria-hidden="true"><div class="scr">
+        </div></div></div>
+  </section>
+
+  <section class="chapter reveal">
+    <div class="ch-text"><span class="eyebrow">✨ Auto captions</span>
+      <h2>Every word,<br>right on time.</h2>
+      <p>Captions appear as you talk, each word lighting up as it's said. Pick a style, fix any word with a tap, and save your own look for next time.</p>
+      <ul class="pills"><li>8 animated styles</li><li>Word-by-word highlight</li><li>12 languages</li><li>Tap to fix a word</li><li>Save your style</li><li>Redo after edits</li></ul></div>
+    <div class="ch-art"><div class="mini capshow" aria-hidden="true"><div class="scr">
+      <span class="tag">Caption styles</span>
+      <div class="cs s1"><i>Word pop</i><p>THIS <b>CHANGED</b> EVERYTHING</p></div>
+      <div class="cs s2"><i>Karaoke</i><p><b>THIS</b> <b>CHANGED</b> EVERYTHING</p></div>
+      <div class="cs s3"><i>Neon</i><p>THIS CHANGED <b>EVERYTHING</b></p></div>
+      <div class="cs s4"><i>Bold box</i><p>THIS CHANGED EVERYTHING</p></div>
+    </div></div></div>
+  </section>
+
+  <section class="chapter flip reveal">
+    <div class="ch-text"><span class="eyebrow">🎵 Pro sound, built in</span>
+      <h2>Sounds like you<br>hired an editor.</h2>
+      <p>78 free tracks made for creators, 12 sound effects, and music that quietly dips whenever you talk. Clips snap to the beat, and one tap gives your voice a pro sound style.</p>
+      <ul class="pills"><li>78 free music tracks</li><li>12 sound effects</li><li>Auto-ducking under your voice</li><li>Snaps to the beat</li><li>Finds your song’s tempo</li><li>Podcast-voice sound styles</li><li>Removes fan noise & clicks</li></ul></div>
+    <div class="ch-art"><div class="sv" aria-hidden="true">
+      <div class="sv-head"><span class="sv-chip">🎚️ Podcast voice</span><span class="sv-chip soft">♩ 104 BPM</span></div>
+      <div class="sv-ruler"></div>
+      <div class="sv-row"><b>🎙️ Voice</b><div class="sv-strip voice" data-bars="voice"></div></div>
+      <div class="sv-row"><b>🎵 Music</b><div class="sv-strip music" data-bars="music"><span class="sv-duck">🎙️ dipping</span></div></div>
+      <div class="sv-row"><b>🔊 FX</b><div class="sv-strip fx"><span class="x1">💨</span><span class="x2">🫧</span><span class="x3">💰</span><span class="x4">✨</span></div></div>
+      <i class="sv-play"></i>
+    </div></div>
+  </section>
+
+  <section class="chapter reveal">
+    <div class="ch-text"><span class="eyebrow">🎬 Full video editor</span>
+      <h2>Fine-tune anything,<br>layer by layer.</h2>
+      <p>Every video opens in a real editor. Clips, music, text, stickers, effects and captions each sit on their own layer: tap to pick, drag to move, double-tap to edit.</p>
+      <ul class="pills"><li>Unlimited layers</li><li>Drag & resize on the preview</li><li>Giant text animations</li><li>Trim, split & speed</li><li>Delete a clip, gaps close</li><li>Undo & redo</li><li>1080p MP4 export</li></ul></div>
+    <div class="ch-art"><div class="mini d4" aria-hidden="true"><div class="scr">
           <img src="media/editor-layers.jpg" alt="" loading="lazy">
           <span class="chip4">🧩 7 layers · tap any to edit</span>
-        </div></div>
-        <h3>🎬 Full video editor</h3><p><b>Fine-tune everything, layer by layer.</b> Every video opens in a real editor: clips, music, text, stickers, effects, graphics and captions each sit on their own layer you can tap and change.</p><ul class="ticks"><li>Unlimited layers</li><li>Drag, resize &amp; rotate</li><li>Trim, split &amp; speed</li><li>Fonts, colours &amp; animations</li><li>Stickers, shapes &amp; effects</li><li>Bring forward / send back</li><li>Undo &amp; redo</li><li>1080p MP4 export</li></ul>
-      </div>
-    </div>
+        </div></div></div>
   </section>
-  <section>
-    <h2>Three taps to a finished video</h2>
-    <p class="sub">No editing skills needed.</p>
+
+  <section class="privacy reveal">
+    <div class="pv-icon" aria-hidden="true">🔒</div>
+    <h2>Your videos never leave your phone.</h2>
+    <p>Editing, captions, music, sound effects and sound styles all happen right on your device. Nothing you edit is uploaded or stored by us.</p>
+    <div class="pv-points"><span>📱 Made on your device</span><span>🙈 Nothing stored by us</span><span>☁️ Cloud AI only if you tick it</span></div>
+  </section>
+
+  <section class="reveal">
+    <h2 class="center">Three taps to a finished video</h2>
+    <p class="sub center">No editing skills needed.</p>
     <div class="steps">
       <div class="step"><b>1</b><h3>Add your clips</h3><p>Videos from your phone, or screenshots of reviews.</p></div>
-      <div class="step"><b>2</b><h3>We build it</h3><p>Story, music, captions, cuts and movement, picked for you.</p></div>
+      <div class="step"><b>2</b><h3>We build it</h3><p>Story, captions, music, sound effects, cuts and movement, picked for you.</p></div>
       <div class="step"><b>3</b><h3>Save and post</h3><p>An MP4 that TikTok, Instagram, Facebook and YouTube all accept.</p></div>
     </div>
   </section>
 
-  <section>
-    <h2>Everything a creator needs</h2>
-    <p class="sub">Built for UGC creators, affiliates and small shops.</p>
+  <section class="reveal">
+    <h2 class="center">Everything a creator needs</h2>
+    <p class="sub center">Built for UGC creators, affiliates and small shops.</p>
     <div class="feats">
-      <div class="feat"><span>🎞️</span><h3>B-roll Video Maker</h3><p>Raw clips in, finished video out: story, captions, hook, music and cuts done for you.</p></div>
-      <div class="feat"><span>⭐</span><h3>Reviews Video Maker</h3><p>Paste review screenshots and they're animated for you.</p></div>
-      <div class="feat"><span>✨</span><h3>Auto captions</h3><p>The words you say, on screen, in bold styles.</p></div>
-      <div class="feat"><span>✂️</span><h3>Cuts the ums</h3><p>Long pauses and "um"s are trimmed so you sound sharp.</p></div>
-      <div class="feat"><span>🎵</span><h3>Free music</h3><p>23 styles made just for your video, so no copyright worries.</p></div>
-      <div class="feat"><span>🔒</span><h3>Private by design</h3><p>Your videos stay on your device. Nothing is uploaded.</p></div>
+      <div class="feat"><span>🎞️</span><h3>B-roll Video Maker</h3><p>Raw clips in, finished video out.</p></div>
+      <div class="feat"><span>⭐</span><h3>Reviews Video Maker</h3><p>Review screenshots, animated to sell.</p></div>
+      <div class="feat"><span>✨</span><h3>Auto captions</h3><p>8 styles, 12 languages, word by word.</p></div>
+      <div class="feat"><span>✂️</span><h3>Cuts the “um”s</h3><p>Pauses and fillers trimmed for you.</p></div>
+      <div class="feat"><span>🎵</span><h3>78 free tracks</h3><p>Made fresh on your device. Nothing to license.</p></div>
+      <div class="feat"><span>🔊</span><h3>12 sound effects</h3><p>Swoosh, pop, cha-ching and more, on any text.</p></div>
+      <div class="feat"><span>🎙️</span><h3>Auto-ducking</h3><p>Music dips whenever you talk.</p></div>
+      <div class="feat"><span>🥁</span><h3>Beat snapping</h3><p>Cuts land right on the beat, even in your own songs.</p></div>
+      <div class="feat"><span>🎚️</span><h3>Sound styles</h3><p>Podcast voice, warm lo-fi, punchy promo.</p></div>
+      <div class="feat"><span>🔇</span><h3>Clean sound</h3><p>Fan hum and record clicks removed.</p></div>
+      <div class="feat"><span>🧩</span><h3>Layer editor</h3><p>Text, stickers, effects and video layers.</p></div>
+      <div class="feat"><span>🔒</span><h3>Private by design</h3><p>Your videos stay on your device.</p></div>
     </div>
   </section>
+</div>
 
-  <section class="join" id="join">
+<div class="wrap">
+<section class="join" id="join">
     <div class="card" id="joinCard">
       <div id="signedOut">
         <h2 id="joinH">Create your free account</h2>
@@ -304,8 +447,11 @@ footer{padding:30px 0 50px;color:var(--muted);font-size:14px;text-align:center}
     <details><summary>Is it really free?</summary><p>Yes. TapShopLite is free during early access, with no card and no trial clock. We'll tell you well before a full version arrives.</p></details>
     <details><summary>Why do I need an account?</summary><p>So we can let you know about new features and the full version. We only ask for an email and a password, nothing else.</p></details>
     <details><summary>Where do my videos go?</summary><p>Nowhere. Your clips are edited right on your phone or computer, and the finished video saves straight to your device.</p></details>
+    <details><summary>Can I use the music on TikTok and YouTube?</summary><p>Yes. The free music is made fresh on your device for your video, so there's no song library and no licence to buy. Songs you upload yourself need your own rights.</p></details>
+    <details><summary>Do I need editing skills?</summary><p>No. The video makers build the whole video for you. The editor is there if you want to fine-tune anything.</p></details>
     <details><summary>What can I use it on?</summary><p>Phones, tablets, laptops and desktops: iPhone, Android, Mac and Windows, in Chrome, Safari or Edge.</p></details>
   </section>
+</div>
 </main>
 <footer>© <span id="yr"></span> TapShopLite · Made for creators · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></footer>
 
@@ -368,6 +514,19 @@ setMode(/[?&]login=1/.test(location.search)?'in':'up');if(/[?&]login=1/.test(loc
 A.session().then(render,()=>render(null));A.onChange(render);
 if(/[?&]deleted=1/.test(location.search)){msg('Your account has been deleted. Sorry to see you go!');history.replaceState(null,'',location.pathname+'#join')}
 })();
+</script>
+
+<script>
+/* Home page motion: reveal sections as they scroll in, count up the numbers, and draw the sound showcase's waveforms. */
+(()=>{const calm=matchMedia('(prefers-reduced-motion: reduce)').matches,els=document.querySelectorAll('.reveal');
+  const count=el=>{const n=+el.dataset.count;if(!n||calm)return;const t0=performance.now(),step=t=>{const k=Math.min(1,(t-t0)/1100);el.textContent=Math.round(n*(1-Math.pow(1-k,3)));if(k<1)requestAnimationFrame(step)};requestAnimationFrame(step)};
+  const show=el=>{el.classList.add('in');el.querySelectorAll('[data-count]').forEach(count)};
+  if(calm||!('IntersectionObserver' in window))els.forEach(show);
+  else{const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){show(e.target);io.unobserve(e.target)}}),{threshold:.15,rootMargin:'0px 0px -6% 0px'});els.forEach(el=>io.observe(el))}
+  // Waveforms: the voice talks in the middle (where the music dips), the music keeps a beat.
+  document.querySelectorAll('[data-bars]').forEach(box=>{const voice=box.dataset.bars==='voice',n=34,f=document.createDocumentFragment();
+    for(let i=0;i<n;i++){const x=i/n,talk=x>.2&&x<.58,h=voice?(talk?30+50*Math.abs(Math.sin(i*1.7))+15*Math.sin(i*.6):4):(i%4===0?85:35+30*Math.abs(Math.sin(i*2.3)));const b=document.createElement('i');b.style.height=Math.max(6,Math.min(95,h))+'%';if(voice&&!talk)b.className='q';f.appendChild(b)}
+    box.prepend(f)})})();
 </script>
 </body>
 </html>
