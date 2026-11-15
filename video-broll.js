@@ -172,6 +172,18 @@ const MOODS={
   subbox:{name:'Subscription box reveal',bpm:113,chords:[[63,'maj'],[67,'min'],[68,'maj'],[70,'maj']],layers:{bass:1,drums:2,stab:3,mel:3},kick:[0,8,11],snare:[4,12],hats:2,bass:'pluck',bassPat:[0,3,8,11],bassNotes:[0,12,0,7],lead:'marimba',arpPat:'0 . 1 2 . 1 . 0 3 . 1 2 . 1 . 2'.split(' '),arpAmp:.6,stab:[6,14],stabType:'lead',stabLead:'glock',fromStart:1,pad:1500,padType:'sine',padVol:.35,fx:{mid:4,wide:.6}},
   hustle:{name:'Side hustle groove',bpm:89,chords:[[58,'m9'],[63,'dom9'],[58,'m11'],[65,'7sus4']],kick:[0,7,10],snare:[4,12],hats:2,swing:.08,bass:'pluck',bassPat:[0,3,6,7,10,14],bassNotes:[0,3,5,7,10,12],lead:'rhodes',arp:0,melLead:'sine',melAmp:.8,pad:1000,padType:'sine',padVol:.5,vol:.55,fx:{mid:4,warm:1.5,reverb:{sec:.7,mix:.12}}},
   scam:{name:'Scam warning',bpm:145,chords:[[53,'min'],[54,'maj'],[59,'pow'],[52,'maj']],kick:[0,8],snare:[],hats:0,tick:[1,3,5,7,9,11,13,15],bass:'saw',bassPat:[0,2,4,6,8,10,12,14],bassNotes:[0,0,0,0,0,0,1,0],lead:'square',arp:0,pad:900,padVol:.4,fromStart:1,vol:1.2,fx:{mid:4,bassBP:520,delay:{steps:1,fb:.18,mix:.15}}},
+  // Sales, reviews and storytelling (batch 3). New here: leads quirk (bends into each note, wobbles), musicbox, stacc (short strings),
+  // fx.center (every melodic part in the middle), ending + endChord (the last 2.6 s is one bright final chord ringing out).
+  deinfluence:{name:'De-influencing honest',bpm:87,chords:[[55,'min'],[62,'min'],[63,'maj'],[65,'maj']],kick:[0,8],snare:[],rim:[4,12],hats:0,bass:'pluck',bassPat:[0,4,6,8,12],bassNotes:[0,0,7,0,5],lead:'sine',arp:0,pad:900,padType:'sine',padVol:.3,melAmp:.8,vol:.75,fx:{mid:4}},
+  viral:{name:'Viral product reality check',bpm:103,chords:[[61,'min7'],[66,'dom7'],[61,'m6'],[64,'maj7']],kick:[0,7,10],snare:[4,12],hats:2,bass:'pluck',bassPat:[0,7,10,13],bassNotes:[0,0,7,10],lead:'quirk',arp:0,pad:1200,padType:'sine',padVol:.45,melOrder:[0,1,0,1],fx:{mid:4,wobble:{rate:.4,cents:8},delay:{steps:2,fb:.28,mix:.22}}},
+  giftguide:{name:'Holiday gift guide',bpm:125,chords:[[65,'maj'],[62,'min7'],[70,'maj'],[72,'dom7']],kick:[0,8],snare:[],clap:[4,12],hats:0,shaker:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],bass:'pluck',bassPat:[0,3,8,11],bassNotes:[0,7,0,7],lead:'glock',arpPat:'4 . 3 . 2 . 3 . 4 . . . 2 . . .'.split(' '),arpAmp:.4,melLead:'bell',melOct:24,melAmp:.9,pad:1600,padVol:.45,vol:.48,fx:{mid:4,bright:4,comp:'tight',reverb:{sec:1.8,mix:.2}}},
+  smallbiz:{name:'Small business packing',bpm:97,chords:[[57,'maj'],[64,'maj'],[66,'min7'],[62,'maj9']],kick:[0,10],snare:[4,12],hats:4,shaker:[2,6,10,14],bass:'sub',bassPat:[0,10],bassNotes:[0,7],lead:'guitar',stab:[0,6,10],stabType:'lead',arp:0,melLead:'piano',melAmp:.75,pad:1100,padType:'sine',padVol:.4,vol:0.53,fx:{mid:4,tape:1.5,reverb:{sec:2,mix:.18}}},
+  testimonial:{name:'5-star testimonial',bpm:75,chords:[[63,'maj9'],[58,'maj'],[60,'min7'],[56,'maj7']],kick:[0,8],snare:[],rim:[12],hats:0,bass:'sub',bassPat:[0,8],bassNotes:[0,0],lead:'piano',stab:[0,4,8,12],stabType:'lead',arp:0,melAmp:.8,pad:1000,padType:'sine',padVol:.5,vol:.55,fx:{mid:4,chorus:1,reverb:{sec:1,mix:.16}}},
+  travel:{name:'Travel essentials',bpm:121,chords:[[59,'maj'],[57,'maj'],[64,'add9'],[59,'sus4']],kick:[0,6,8],snare:[4,12],hats:2,open:[14],bass:'saw',bassPat:[0,6,8,14],bassNotes:[0,0,0,12],lead:'pluck',arpPat:'0 . 1 2 . 1 2 . 3 . 2 1 . 2 . .'.split(' '),arpAmp:.5,melLead:'triangle',pad:1700,padVol:.4,fx:{mid:4,bright:3,delay:{dotted:1,fb:.32,mix:.24}}},
+  car:{name:'Car detailing',bpm:99,chords:[[63,'min'],[59,'maj'],[61,'maj'],[58,'maj']],kick:[0,6,9],snare:[4,12],hats:2,open:[15],bass:'sub',bassPat:[0,6,9,14],bassNotes:[0,0,5,7],boom:1,lead:'square',arp:0,pad:1000,padVol:.4,vol:.3,fx:{mid:4,sat:3.5,comp:'tight',metal:1,reverb:{sec:.4,mix:.08}}},
+  booktok:{name:'BookTok cozy reading',bpm:67,chords:[[67,'maj7'],[69,'add9'],[64,'m9'],[62,'6']],drums:false,kick:[],snare:[],hats:0,bass:'sub',bassPat:[0],bassNotes:[0],lead:'musicbox',arp:0,melOct:24,melAmp:.85,pad:1100,padType:'sine',padVol:1,vol:.6,fx:{mid:4,lp:3200,wobble:{rate:.7,cents:10},reverb:{sec:3,mix:.32},padAtt:1}},
+  mistakes:{name:'3 mistakes myth-buster',bpm:131,chords:[[64,'min'],[60,'maj'],[59,'dom7'],[64,'min']],kick:[0,8],snare:[4,12],hats:2,bass:'saw',bassPat:[0,4,8,12],bassNotes:[0,0,0,0],lead:'stacc',arpPat:'0 . 0 . 2 . 0 . 1 . 1 . 2 . 3 .'.split(' '),arpAmp:.6,melLead:'stacc',pad:1300,padVol:.35,fromStart:1,vol:0.5,fx:{mid:4,center:1,comp:'tight'}},
+  finale:{name:'Link in bio finale',bpm:107,chords:[[65,'maj9'],[67,'sus4'],[64,'min7'],[67,'dom7']],ending:1,endChord:[60,'add9'],endLead:'piano',layers:{bass:1,drums:2,mel:2},kick:[0,8],snare:[4,12],hats:2,bass:'pluck',bassPat:[0,8,11],bassNotes:[0,0,7],lead:'piano',stab:[0,8],stabType:'lead',arp:0,melLead:'bell',melOct:24,melAmp:.85,pad:1500,padVol:.6,fromStart:1,vol:0.72,fx:{mid:4,reverb:{sec:2.2,mix:.22}}},
 };
 // Each style's own tune: two one-bar phrases, played A A B A. 16 steps a bar: a number is a note of the chord
 // playing at the time (0 = root, 1 = next chord note up…, past the top goes up an octave, negative goes down),
@@ -245,12 +257,23 @@ const MEL={
   subbox:['0 . 2 . 4 . 2 . 3 - - . . . . .','4 . 5 . 6 . 4 . 3 - 2 - . . . .'],
   hustle:['. . 3 . . 2 . . . 4 - 3 . . . .','. . 2 . . 3 . . . 1 - 0 . . . .'],
   scam:['0 . . . 1 . . . 0 . . . . . . .','0 . . . 3 . . . 2 . . . . . . .'],
+  deinfluence:['. . 0 . . . . . 2 . . 1 . . . .','. . 3 . . . . . 2 . . 0 . . . .'],
+  viral:['0 . . 2 . 1 . . . 3 . . 2 . . .','. . 1 . 2 . 3 . . 4 - . 3 . . .'],
+  giftguide:['2 . 4 . 5 . 4 . 3 - 2 - . . . .','4 . 5 . 6 . 5 . 4 . 3 . 2 - . .'],
+  smallbiz:['. . 0 . 1 . 2 - - . 4 . 3 . 2 .','. . 3 . 4 . 5 - - . 4 . 2 - - -'],
+  testimonial:['. . 1 - 2 - . . 4 - - - 3 . . .','. . 3 - 2 - . . 1 - - - 0 - - -'],
+  travel:['0 . 2 . . 3 . 4 . . 2 . 3 . . .','4 . 3 . . 2 . 3 . . 4 . 5 - . .'],
+  car:['. . . . 0 . . 1 . . . . 2 . . .','. . . . 3 . . 2 . . . . 0 . . .'],
+  booktok:['4 . 3 . 2 . 3 . 4 - - - . . . .','5 . 4 . 3 . 2 . 1 - - - . . . .'],
+  mistakes:['0 . . . 0 . . . 3 . 2 . 1 . . .','2 . . . 2 . . . 3 . 4 . 3 . . .'],
+  finale:['. . 0 . 1 . 2 - . . 3 . 4 - - -','. . 4 . 3 . 4 - . . 5 . 6 - - -'],
 };
 for(const k in MEL)if(MOODS[k])MOODS[k].mel=MEL[k].map(p=>p.split(' '));
 // Answering tunes (call and response): the second half of each bar answers the first, panned the other way.
 MOODS.dupes.resp=['. . . . . . . . 4 . 3 . 2 - . .','. . . . . . . . 2 . 3 . 0 - . .'].map(p=>p.split(' '));
 // The creator tracks (UGC, TikTok Shop, reviews, ads) get their own group in the music menus.
 const CREATOR=['hook','unbox','tech','flash','luxe','reveal','haul','story','fitness','tutorial'];
+const STORY=['deinfluence','viral','giftguide','smallbiz','testimonial','travel','car','booktok','mistakes','finale'];
 const TECH=['dupes','capsule','perfume','athleisure','shades','rgb','saas','notion','droptest','smarthome','wfh','filmmaker','subbox','hustle','scam'];
 const LIFE=['desk','rainy','kitchen','tidy','pet','toy','coffee','plant','scrub','apartment','sneaker','thrift','jewelry','grwm','silk'];
 Object.entries({hook:'grab them in 2 seconds',unbox:'unboxing, morning routine',tech:'gadget and app reviews',flash:'sales, deals, last chance',luxe:'skincare, beauty, luxury',
@@ -260,9 +283,11 @@ Object.entries({hook:'grab them in 2 seconds',unbox:'unboxing, morning routine',
   jewelry:'jewelry and watches',grwm:'get ready with me, nights out',silk:'haircare, slow-mo',
   dupes:'dupe vs high-end comparisons',capsule:'capsule wardrobe, packing',perfume:'fragrance and perfume',athleisure:'activewear try-ons',shades:'sunglasses, summer, vacation',rgb:'gaming setups, RGB',
   saas:'AI tools, app walkthroughs',notion:'productivity, Notion tours',droptest:'phone cases, EDC, drop tests',smarthome:'smart home, gadgets',wfh:'work from home gear',filmmaker:'camera gear, filmmaking',
-  subbox:'app unboxing, subscription boxes',hustle:'side hustles, money tips',scam:'scam warnings, security tips'}).forEach(([k,v])=>{if(MOODS[k])MOODS[k].for=v});
+  subbox:'app unboxing, subscription boxes',hustle:'side hustles, money tips',scam:'scam warnings, security tips',
+  deinfluence:'honest reviews, de-influencing',viral:'viral product reality checks',giftguide:'gift guides, Black Friday hauls',smallbiz:'small business, packing orders',testimonial:'customer testimonials, 5-star reviews',
+  travel:'travel essentials, airport hacks',car:'car detailing, auto accessories',booktok:'BookTok, Kindle, cozy reading',mistakes:'myth-busting, “3 mistakes”',finale:'the ending: “link in bio”'}).forEach(([k,v])=>{if(MOODS[k])MOODS[k].for=v});
 // Music menus in groups: creator tracks, lifestyle tracks, then everything else.
-const GROUPS=()=>[['🛍️ For creators',CREATOR],['🏡 Lifestyle, home, fashion & beauty',LIFE],['💻 Style, tech, gaming & productivity',TECH],['🎵 More styles',Object.keys(MOODS).filter(k=>!CREATOR.includes(k)&&!LIFE.includes(k)&&!TECH.includes(k))]];
+const GROUPS=()=>[['🛍️ For creators',CREATOR],['🏡 Lifestyle, home, fashion & beauty',LIFE],['💻 Style, tech, gaming & productivity',TECH],['⭐ Sales, reviews & storytelling',STORY],['🎵 More styles',Object.keys(MOODS).filter(k=>!CREATOR.includes(k)&&!LIFE.includes(k)&&!TECH.includes(k)&&!STORY.includes(k))]];
 const moodOpts=sel=>{const o=k=>`<option value="${k}"${k===sel?' selected':''}>🎵 ${enc(MOODS[k].name)} · ${MOODS[k].bpm} BPM</option>`;
   return GROUPS().map(([l,ks])=>`<optgroup label="${l}">${ks.filter(k=>MOODS[k]).map(o).join('')}</optgroup>`).join('')};
 const TONES={maj:[0,4,7],min:[0,3,7],min7:[0,3,7,10],maj7:[0,4,7,11],m9:[0,3,7,10,14],dom7:[0,4,7,10],add9:[0,4,7,14],sus2:[0,2,7],sus4:[0,5,7],pow:[0,7,12],maj9:[0,4,7,11,14],dom9:[0,4,7,10,14],m6:[0,3,7,9],6:[0,4,7,9],m11:[0,3,7,10,17],'7sus4':[0,5,7,10]};
@@ -294,7 +319,7 @@ async function makeBeat(seconds,moodKey,opt={}){
     dly=oc.createGain();dly.connect(d);d.connect(lo);lo.connect(fb);fb.connect(d);lo.connect(mix);mix.connect(p);p.connect(bus);
     if(F.delay.ping&&oc.createStereoPanner){const d2=oc.createDelay(2),p2=oc.createStereoPanner(),m2=oc.createGain();d2.delayTime.value=d.delayTime.value;p.pan.value=-.8;p2.pan.value=.8;m2.gain.value=F.delay.mix;lo.connect(d2);d2.connect(m2);m2.connect(p2);p2.connect(bus)}}
   let apan=null;if(F.autopan&&oc.createStereoPanner){apan=oc.createStereoPanner();const o=oc.createOscillator(),d=oc.createGain();o.frequency.value=.09;d.gain.value=F.autopan;o.connect(d);d.connect(apan.pan);o.start(0);o.stop(len+.05);apan.connect(bus)}
-  const out=(node,pan=0,kind)=>{let n=node;if(pan&&oc.createStereoPanner){let p=oc.createStereoPanner();p.pan.value=pan;node.connect(p);n=p}
+  const out=(node,pan=0,kind)=>{if(F.center&&kind!=='d')pan=0;let n=node;if(pan&&oc.createStereoPanner){let p=oc.createStereoPanner();p.pan.value=pan;node.connect(p);n=p}
     if(kind==='d'){n.connect(master);return}n.connect(kind==='l'&&apan?apan:bus);if(verb)n.connect(verb);if(dly&&kind==='l')n.connect(dly)};
   const outD=(node,pan=0)=>out(node,pan,'d');
   const lfo=(rate,depth)=>{const o=oc.createOscillator(),g=oc.createGain();o.frequency.value=rate;g.gain.value=depth;o.connect(g);o.start(0);o.stop(len+.05);return g};
@@ -338,6 +363,11 @@ async function makeBeat(seconds,moodKey,opt={}){
     if(L==='marimba')return partials(t,m,pan,amp,[[1,.1,.42],[3.93,.025,.07],[9.2,.006,.02]]);
     if(L==='glass'){const f0=hz(m),dd=Math.min(1.4,.5+d),c=oc.createOscillator(),md=oc.createOscillator(),mg=oc.createGain(),g=oc.createGain();c.type=md.type='sine';c.frequency.value=f0;md.frequency.value=f0*3.5;
       mg.gain.setValueAtTime(f0*.9,t);mg.gain.exponentialRampToValueAtTime(f0*.05,t+.25);md.connect(mg);mg.connect(c.frequency);env(g,t,.06*amp,.003,dd);c.connect(g);out(g,pan,'l');c.start(t);md.start(t);c.stop(t+dd+.05);md.stop(t+dd+.05);return}
+    if(L==='quirk'){let o=oc.createOscillator(),f=oc.createBiquadFilter(),g=oc.createGain(),v=oc.createOscillator(),vd=oc.createGain(),dd=Math.max(.2,d);o.type='square';o.frequency.setValueAtTime(hz(m+1.5),t);o.frequency.exponentialRampToValueAtTime(hz(m),t+.07);
+      v.frequency.value=5.5;vd.gain.setValueAtTime(0,t);vd.gain.linearRampToValueAtTime(18,t+dd);v.connect(vd);vd.connect(o.detune);f.type='lowpass';f.frequency.value=2200;env(g,t,.045*amp,.004,dd);o.connect(f);f.connect(g);out(g,pan,'l');o.start(t);v.start(t);o.stop(t+dd+.05);v.stop(t+dd+.05);return}
+    if(L==='musicbox')return partials(t,m,pan,amp,[[1,.075,Math.max(1,d)],[3.98,.02,.25],[6.2,.008,.08]],.001);
+    if(L==='stacc'){let f=oc.createBiquadFilter(),g=oc.createGain(),dd=.09;f.type='lowpass';f.Q.value=1.5;f.frequency.setValueAtTime(3000,t);f.frequency.exponentialRampToValueAtTime(900,t+dd);env(g,t,.05*amp,.002,dd);f.connect(g);out(g,pan,'l');
+      for(const det of [-6,6]){let o=oc.createOscillator();o.type='sawtooth';o.frequency.value=hz(m);o.detune.value=det;o.connect(f);o.start(t);o.stop(t+dd+.05)}return}
     if(L==='felt')return partials(t,m,pan,amp,[[1,.09,Math.min(2.4,.9+d)],[2,.016,.7],[3,.005,.3]],.018);
     if(L==='glock')return partials(t,m,pan,amp,[[1,.075,Math.max(.7,d)],[2.76,.026,.3],[5.4,.012,.11]],.001);
     if(L==='pizz'){let o=oc.createOscillator(),f=oc.createBiquadFilter(),g=oc.createGain(),dd=.2;o.type='triangle';o.frequency.setValueAtTime(hz(m-3),t);o.frequency.exponentialRampToValueAtTime(hz(m),t+.05);f.type='lowpass';f.frequency.value=2600;
@@ -364,12 +394,15 @@ async function makeBeat(seconds,moodKey,opt={}){
   const dropBar=F.split?(opt.dropAt>0?Math.max(1,Math.round(opt.dropAt/barLen)):Math.max(1,Math.min(4,Math.round(len*F.split/barLen)))):0,dropT=dropBar*barLen;
   if(F.split&&dropT<len){sweep.frequency.setValueAtTime(320,0);sweep.frequency.exponentialRampToValueAtTime(1500,Math.max(.1,dropT-.03));sweep.frequency.exponentialRampToValueAtTime(18000,dropT+.3);
     riser(Math.max(0,dropT-barLen),Math.min(barLen,dropT),.06,comp);crash(dropT,comp)}
+  const endT=M.ending&&len>5?len-2.6:Infinity;
+  if(endT<Infinity){const [r,q]=M.endChord,tn=TONES[q].map(x=>r+x);pad(endT,tn,2.6);tn.forEach((m,i)=>pluck(endT+i*.02,m+12,i%2?-.2:.2,.8,1.6,M.endLead||M.lead));crash(endT,bus);kick(endT)}
   const cb=M.chordBars||1,drums=M.drums!==false,order=M.melOrder||[0,0,1,0],mo=M.melOct??12;let side=0;
   for(let bar=0;bar*barLen<len;bar++){let t0=bar*barLen,[root,q]=M.chords[Math.floor(bar/cb)%M.chords.length],tones=TONES[q].map(x=>root+x),L=tones.length,full=bar>=dropBar,early=bar>0||!drums||M.fromStart,lay=k=>!M.layers||bar>=(M.layers[k]||0),cyc=bar%4,hit=!M.build||(cyc===0&&bar>0);
     if(M.build&&cyc===0&&bar>0)crash(t0,bus);if(M.build&&cyc===3)riser(t0,barLen,.05,bus);
-    if(bar%cb===0)pad(t0,tones,barLen*cb);
+    if(t0>=endT)break;
+    if(bar%cb===0)pad(t0,tones,Math.min(barLen*cb,endT-t0+.25));
     if(F.rise&&bar%4===3&&full)riser(t0,barLen,.035,bus);
-    for(let s=0;s<16;s++){let t=t0+s*step+(M.swing&&s%2?M.swing*step*2:0);if(t>=len)break;
+    for(let s=0;s<16;s++){let t=t0+s*step+(M.swing&&s%2?M.swing*step*2:0);if(t>=len||t>=endT)break;
       if(M.build&&!(cyc===0&&bar>0)&&s%[4,2,1,1][cyc]===0)tick(t,s%4===0);
       if(drums&&full&&lay('drums')&&hit){if(M.kick.includes(s))kick(t);if(M.snare.includes(s))snare(t);if(M.clap?.includes(s))clap(t);if(M.rim?.includes(s))rim(t);if(M.shaker?.includes(s))shaker(t);if(M.snap?.includes(s))snap(t);if(M.tick?.includes(s))tick(t,s%4===0);
         if(M.hats>0&&s%M.hats===0){if(M.roll?.includes(s))for(let k=0;k<3;k++)hat(t+k*step/3,false);else hat(t,false)}if(M.open?.includes(s))hat(t,true)}

@@ -163,7 +163,17 @@ const META={
   filmmaker:['Tech & Gaming',['cinematic','moody','dramatic'],['camera gear','filmmaking b-roll','lens review'],['camera','filmmaking','cinematic','b-roll','swells','moody'],'A Aeolian',2],
   subbox:['Tech & Gaming',['curious','building','upbeat'],['app unboxing','subscription box reveal','first look'],['subscription box','unboxing','reveal','marimba','layers','app'],'E♭ Ionian',2],
   hustle:['Productivity',['smooth','confident','smart'],['side hustle tip','passive income','money advice'],['side hustle','money','passive income','groove','bassline','business'],'B♭ Dorian',2],
-  scam:['Tech & Gaming',['urgent','nervous','tense'],['scam warning hook','cybersecurity tip','do not buy'],['scam','warning','security','pulse','ticking','alert'],'F Phrygian',2]};
+  scam:['Tech & Gaming',['urgent','nervous','tense'],['scam warning hook','cybersecurity tip','do not buy'],['scam','warning','security','pulse','ticking','alert'],'F Phrygian',2],
+  deinfluence:['Sales & Reviews',['serious','dry','honest'],['brutally honest review','de-influencing','don’t buy this'],['honest','review','de-influencing','bass pluck','dry','real talk'],'G Aeolian',3],
+  viral:['Sales & Reviews',['skeptical','quirky','curious'],['viral product reality check','does it work','TikTok made me buy it'],['viral','reality check','skeptical','quirky','pitch bend','test'],'C♯ Dorian',3],
+  giftguide:['Sales & Reviews',['festive','sparkling','upbeat'],['holiday gift guide','Black Friday haul','Christmas deals'],['holiday','gift guide','black friday','bells','christmas','sale'],'F Ionian',3],
+  smallbiz:['Storytelling',['heartwarming','hopeful','proud'],['small business','packing orders','behind the scenes'],['small business','packing orders','bts','acoustic','hopeful','shop'],'A Ionian',3],
+  testimonial:['Sales & Reviews',['sincere','warm','reassuring'],['customer testimonial','5-star review','before you buy'],['testimonial','5 star','review','piano','trust','customer'],'E♭ Ionian',3],
+  travel:['Lifestyle',['adventurous','exciting','airy'],['travel essentials','airport hack','carry-on packing'],['travel','airport','essentials','plucks','adventure','trip'],'B Mixolydian',3],
+  car:['Tech & Gaming',['powerful','sleek','gritty'],['car detailing','auto accessories','car cleaning'],['car','detailing','auto','808','metallic','garage'],'E♭ harmonic minor',3],
+  booktok:['Storytelling',['dreamy','nostalgic','cozy'],['BookTok','Kindle setup','cozy reading'],['booktok','kindle','reading','music box','cozy','books'],'G Lydian',3],
+  mistakes:['Storytelling',['authoritative','sharp','brisk'],['myth-busting','3 mistakes you’re making','tips list'],['mistakes','myth','tips','staccato','strings','facts'],'E harmonic minor',3],
+  finale:['Sales & Reviews',['uplifting','resolving','confident'],['link in bio call-to-action','video ending','shop now outro'],['link in bio','cta','ending','outro','finale','shop now'],'C Ionian (ends on C)',3]};
 const LEN={swoosh:.5,pop:.15,cash:.8,shutter:.2,sparkle:1,drop:.9,click:.05,buzz:.35,ding:.6,riser:1.2,scratch:.3,whoosh:.4};
 let cur=null;const stop=()=>{try{cur?.pause()}catch{}cur=null};
 const music=k=>{const m=veMoods[k],x=META[k],g=(window.veMusicGroups?veMusicGroups():[]).find(([,ks])=>ks.includes(k));
