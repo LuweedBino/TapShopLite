@@ -154,6 +154,24 @@ const MOODS={
   jewelry:{name:'Jewelry close-up',bpm:60,chords:[[54,'maj7'],[56,'add9'],[54,'maj9'],[56,'sus2']],chordBars:2,drums:false,kick:[],snare:[],hats:0,bass:'sub',bassPat:[0],bassNotes:[0],lead:'chime',arpPat:'. . 4 . . . . . . . 3 . . . . .'.split(' '),arpAmp:.45,melOct:24,melAmp:.7,pad:900,padType:'sine',padVol:1.3,vol:.7,fx:{mid:4,reverb:{sec:5,mix:.4},autopan:.8,padAtt:2}},
   grwm:{name:'GRWM night out',bpm:123,chords:[[60,'m9'],[56,'maj7'],[63,'maj9'],[55,'7sus4']],kick:[0,4,8,12],snare:[],clap:[4,12],hats:0,open:[2,6,10,14],bass:'saw',bassPat:[2,6,10,14],bassNotes:[0,12,0,12],stab:[3,11],lead:'rhodes',arp:0,melLead:'sine',melAmp:.8,pad:1700,padVol:.45,fx:{mid:4,pump:.4,bright:3}},
   silk:{name:'Silky hair slow-mo',bpm:62,chords:[[62,'maj9'],[66,'min7'],[67,'maj9'],[69,'7sus4']],chordBars:2,drums:false,kick:[],snare:[],hats:0,bass:'sub',bassPat:[0],bassNotes:[0],lead:'bow',arp:0,pad:1500,padVol:1.1,melAmp:.9,vol:.6,fx:{mid:4,chorus:1,padAtt:2,reverb:{sec:2.6,mix:.3}}},
+  // Style comparisons, tech, gaming and productivity (batch 2). New here: resp + respLead (an answering tune, panned opposite the
+  // tune by fx.call), build (ticks speed up for 3 bars, then an impact bar with the beat), layers {bass,drums,stab,arp,mel: first bar},
+  // lead glass (FM), fx.lfoLp {lo,hi,rate} (slow filter sweeps), bassBP (band-passed bass), reverb.gate, delay.ping.
+  dupes:{name:'Dupe vs high-end',bpm:105,chords:[[55,'min7'],[60,'dom7'],[58,'maj7'],[62,'min7']],kick:[0,7,10],snare:[4,12],hats:2,bass:'pluck',bassPat:[0,7,10],bassNotes:[0,0,7],lead:'pluck',melLead:'square',respLead:'kalimba',arp:0,pad:1200,padType:'sine',padVol:.5,fx:{mid:4,call:.7}},
+  capsule:{name:'Capsule wardrobe packing',bpm:111,chords:[[65,'add9'],[67,'maj'],[69,'min7'],[60,'sus2']],kick:[0,8],snare:[4,12],hats:2,shaker:[3,11],bass:'pluck',bassPat:[0,8,11],bassNotes:[0,0,7],lead:'guitar',stab:[0,3,6,8,11,14],stabType:'lead',arp:0,melLead:'triangle',melAmp:.8,pad:1100,padType:'sine',padVol:.35,fx:{mid:4,reverb:{sec:.9,mix:.14}}},
+  perfume:{name:'Perfume editorial',bpm:58,chords:[[61,'min'],[62,'maj7'],[61,'m9'],[57,'maj7']],drums:false,kick:[],snare:[],hats:0,bass:'sub',bassPat:[0,8],bassNotes:[0,-5],lead:'chime',arpPat:'. . . . . . 4 . . . . . . . . .'.split(' '),arpAmp:.5,melOct:24,melAmp:.7,pad:1100,padType:'sawtooth',padVol:.7,vol:.7,fx:{mid:4,lfoLp:{lo:500,hi:2600,rate:.06},reverb:{sec:4.5,mix:.4},padAtt:1.5}},
+  athleisure:{name:'Activewear try-on',bpm:117,chords:[[64,'min7'],[69,'dom7'],[62,'maj'],[67,'maj7']],kick:[0,5,8,13],snare:[4,12],hats:2,open:[6],bass:'saw',bassPat:[0,3,5,8,11,13],bassNotes:[0,0,12,0,7,12],lead:'square',arp:0,pad:1300,padVol:.4,vol:.48,fx:{mid:6,comp:'tight'}},
+  shades:{name:'Sunglasses summer',bpm:101,chords:[[56,'dom9'],[54,'maj7'],[61,'add9'],[63,'min7']],kick:[0,10],snare:[4,12],hats:2,swing:.1,open:[14],bass:'pluck',bassPat:[0,3,10],bassNotes:[0,7,12],lead:'triangle',stab:[2,7,12],arp:0,pad:1400,padVol:.7,fx:{mid:4,tape:1.6,chorus:1,delay:{dotted:1,fb:.3,mix:.2}}},
+  rgb:{name:'RGB gaming setup',bpm:142,chords:[[59,'min'],[55,'maj'],[60,'maj'],[57,'maj']],kick:[0,8],snare:[4,12],hats:2,bass:'saw',bassPat:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],bassNotes:[0,0,12,0,0,12,0,7,0,0,12,0,0,12,7,12],lead:'pluck',arpPat:'0 2 4 2 1 3 4 3 0 2 4 2 3 4 5 4'.split(' '),arpAmp:.4,melLead:'glass',pad:1600,padVol:.4,vol:.5,fx:{mid:4,sat:2.5,wide:.75,delay:{steps:3,fb:.35,mix:.25,ping:1}}},
+  saas:{name:'AI tool walkthrough',bpm:115,chords:[[57,'maj7'],[59,'add9'],[61,'min7'],[54,'m9']],kick:[0,8],snare:[],rim:[4,12],hats:4,bass:'sub',bassPat:[0,8,14],bassNotes:[0,0,7],lead:'marimba',arpPat:'0 . 2 . 1 . 3 . 0 . 2 . 4 . 3 .'.split(' '),arpAmp:.45,melLead:'sine',melAmp:.8,pad:1400,padType:'sine',padVol:.4,fx:{mid:7}},
+  notion:{name:'Notion study beat',bpm:79,chords:[[61,'maj7'],[58,'m9'],[63,'min7'],[56,'dom9']],kick:[0,9],snare:[4,12],hats:2,swing:.12,bass:'sub',bassPat:[0,9],bassNotes:[0,7],lead:'felt',stab:[0,10],stabType:'lead',melAmp:.7,pad:800,padType:'sine',padVol:.5,vol:.6,fx:{mid:4,lp:2200,crackle:.6}},
+  droptest:{name:'Drop test impact',bpm:127,chords:[[62,'min'],[62,'min'],[58,'maj'],[57,'dom7']],build:1,kick:[0,3,8,11],snare:[4,12],hats:2,boom:1,bass:'sub',bassPat:[0,3,8,11],bassNotes:[0,0,-2,0],lead:'square',arp:0,pad:1000,padVol:.45,fromStart:1,vol:.5,fx:{mid:4,reverb:{sec:.25,mix:.18,gate:1}}},
+  smarthome:{name:'Smart home future',bpm:109,chords:[[66,'min'],[62,'maj7'],[64,'add9'],[61,'7sus4']],kick:[0,8],snare:[],clap:[12],hats:2,bass:'pluck',bassPat:[0,4,8,12],bassNotes:[0,0,0,0],lead:'glass',arpPat:'0 1 2 . 0 1 2 . 3 2 1 . 3 2 1 .'.split(' '),arpAmp:.45,pad:1500,padType:'sine',padVol:.5,fx:{mid:4,delay:{steps:2,fb:.25,mix:.2},reverb:{sec:1.2,mix:.15}}},
+  wfh:{name:'Work from home gear',bpm:119,chords:[[60,'add9'],[64,'min7'],[57,'min7'],[65,'maj9']],kick:[0,8,10],snare:[],clap:[4,12],hats:2,bass:'pluck',bassPat:[0,6,8,14],bassNotes:[0,7,0,5],lead:'pluck',arp:0,pad:1500,padType:'sine',padVol:.4,melAmp:1,fx:{mid:4,bright:3}},
+  filmmaker:{name:'Camera gear cinematic',bpm:71,chords:[[57,'min'],[53,'maj7'],[60,'maj'],[52,'7sus4']],kick:[0],snare:[8],hats:0,boom:1,bass:'sub',bassPat:[0,8],bassNotes:[0,0],lead:'bow',arp:0,pad:1400,padVol:1,vol:.6,fx:{mid:4,lfoLp:{lo:700,hi:3200,rate:.05},reverb:{sec:3.2,mix:.32},padAtt:1.6}},
+  subbox:{name:'Subscription box reveal',bpm:113,chords:[[63,'maj'],[67,'min'],[68,'maj'],[70,'maj']],layers:{bass:1,drums:2,stab:3,mel:3},kick:[0,8,11],snare:[4,12],hats:2,bass:'pluck',bassPat:[0,3,8,11],bassNotes:[0,12,0,7],lead:'marimba',arpPat:'0 . 1 2 . 1 . 0 3 . 1 2 . 1 . 2'.split(' '),arpAmp:.6,stab:[6,14],stabType:'lead',stabLead:'glock',fromStart:1,pad:1500,padType:'sine',padVol:.35,fx:{mid:4,wide:.6}},
+  hustle:{name:'Side hustle groove',bpm:89,chords:[[58,'m9'],[63,'dom9'],[58,'m11'],[65,'7sus4']],kick:[0,7,10],snare:[4,12],hats:2,swing:.08,bass:'pluck',bassPat:[0,3,6,7,10,14],bassNotes:[0,3,5,7,10,12],lead:'rhodes',arp:0,melLead:'sine',melAmp:.8,pad:1000,padType:'sine',padVol:.5,vol:.55,fx:{mid:4,warm:1.5,reverb:{sec:.7,mix:.12}}},
+  scam:{name:'Scam warning',bpm:145,chords:[[53,'min'],[54,'maj'],[59,'pow'],[52,'maj']],kick:[0,8],snare:[],hats:0,tick:[1,3,5,7,9,11,13,15],bass:'saw',bassPat:[0,2,4,6,8,10,12,14],bassNotes:[0,0,0,0,0,0,1,0],lead:'square',arp:0,pad:900,padVol:.4,fromStart:1,vol:1.2,fx:{mid:4,bassBP:520,delay:{steps:1,fb:.18,mix:.15}}},
 };
 // Each style's own tune: two one-bar phrases, played A A B A. 16 steps a bar: a number is a note of the chord
 // playing at the time (0 = root, 1 = next chord note up…, past the top goes up an octave, negative goes down),
@@ -212,18 +230,39 @@ const MEL={
   jewelry:['4 - - - - - - - - - - - 3 - - -','5 - - - - - - - 4 - - - - - - -'],
   grwm:['. . 0 . . 2 . . . 1 . . 0 - . .','. . 3 . . 2 . . . 4 . . 3 - . .'],
   silk:['2 - - - - - - - 3 - - - 1 - - -','4 - - - - - 3 - - - - - 2 - - -'],
+  dupes:['0 . 2 . 1 - . . . . . . . . . .','3 . 2 . 4 - . . . . . . . . . .'],
+  capsule:['. . 2 . 3 . 4 - . . 3 . 2 - . .','. . 4 . 3 . 2 . 1 . 2 - - - . .'],
+  perfume:['. . . . 4 - - - - - 3 - - - - -','. . . . 2 - - - 1 - - - - - - -'],
+  athleisure:['0 . . 2 . . 0 . 3 . . 2 . . . .','0 . . 4 . . 3 . 2 . . 1 . . . .'],
+  shades:['. 2 - 3 . 4 - - . 3 . 2 - - . .','. 4 - 5 . 4 - 3 - - 2 . . . . .'],
+  rgb:['4 - - . 3 - - . 2 - - . 3 - - -','5 - - . 4 - - . 6 - - . 4 - - -'],
+  saas:['. . . . 2 - . . . . . . 3 - . .','. . . . 4 - . . 3 - . . 2 - . .'],
+  notion:['. . . . 3 - 2 - . . . . 1 - - -','. . . . 2 - 3 - 4 - - - . . . .'],
+  droptest:['0 . . 0 . . 0 . . . 2 . 1 . . .','3 . . 3 . . 2 . . . 1 . 0 . . .'],
+  smarthome:['4 . . . 3 . . . 2 . 3 . 4 - - -','5 . . . 4 . . . 3 . 2 . 3 - - -'],
+  wfh:['0 . 1 . 2 . . 4 . . 3 . 2 . . .','2 . 3 . 4 . . 5 . 4 . 3 . 2 . .'],
+  filmmaker:['0 - - - - - 1 - - - 2 - - - - -','4 - - - 3 - - - - - 1 - - - - -'],
+  subbox:['0 . 2 . 4 . 2 . 3 - - . . . . .','4 . 5 . 6 . 4 . 3 - 2 - . . . .'],
+  hustle:['. . 3 . . 2 . . . 4 - 3 . . . .','. . 2 . . 3 . . . 1 - 0 . . . .'],
+  scam:['0 . . . 1 . . . 0 . . . . . . .','0 . . . 3 . . . 2 . . . . . . .'],
 };
 for(const k in MEL)if(MOODS[k])MOODS[k].mel=MEL[k].map(p=>p.split(' '));
+// Answering tunes (call and response): the second half of each bar answers the first, panned the other way.
+MOODS.dupes.resp=['. . . . . . . . 4 . 3 . 2 - . .','. . . . . . . . 2 . 3 . 0 - . .'].map(p=>p.split(' '));
 // The creator tracks (UGC, TikTok Shop, reviews, ads) get their own group in the music menus.
 const CREATOR=['hook','unbox','tech','flash','luxe','reveal','haul','story','fitness','tutorial'];
+const TECH=['dupes','capsule','perfume','athleisure','shades','rgb','saas','notion','droptest','smarthome','wfh','filmmaker','subbox','hustle','scam'];
 const LIFE=['desk','rainy','kitchen','tidy','pet','toy','coffee','plant','scrub','apartment','sneaker','thrift','jewelry','grwm','silk'];
 Object.entries({hook:'grab them in 2 seconds',unbox:'unboxing, morning routine',tech:'gadget and app reviews',flash:'sales, deals, last chance',luxe:'skincare, beauty, luxury',
   reveal:'quiet “before”, big “after” drop',haul:'hauls and try-ons',story:'storytime, real talk',fitness:'gym, supplements, energy',tutorial:'how-to, step by step',
   desk:'aesthetic desk, clean girl',rainy:'self-care night, rainy day',kitchen:'kitchen gadgets, quick recipes',tidy:'organizing, restocks, ASMR',pet:'pet products, cute moments',toy:'parenting hacks, toys',
   coffee:'coffee bar, drink pours',plant:'plants, garden, patio',scrub:'cleaning hacks, timelapses',apartment:'apartment and room tours',sneaker:'streetwear, sneaker drops',thrift:'thrift flips, DIY',
-  jewelry:'jewelry and watches',grwm:'get ready with me, nights out',silk:'haircare, slow-mo'}).forEach(([k,v])=>{if(MOODS[k])MOODS[k].for=v});
+  jewelry:'jewelry and watches',grwm:'get ready with me, nights out',silk:'haircare, slow-mo',
+  dupes:'dupe vs high-end comparisons',capsule:'capsule wardrobe, packing',perfume:'fragrance and perfume',athleisure:'activewear try-ons',shades:'sunglasses, summer, vacation',rgb:'gaming setups, RGB',
+  saas:'AI tools, app walkthroughs',notion:'productivity, Notion tours',droptest:'phone cases, EDC, drop tests',smarthome:'smart home, gadgets',wfh:'work from home gear',filmmaker:'camera gear, filmmaking',
+  subbox:'app unboxing, subscription boxes',hustle:'side hustles, money tips',scam:'scam warnings, security tips'}).forEach(([k,v])=>{if(MOODS[k])MOODS[k].for=v});
 // Music menus in groups: creator tracks, lifestyle tracks, then everything else.
-const GROUPS=()=>[['🛍️ For creators',CREATOR],['🏡 Lifestyle, home, fashion & beauty',LIFE],['🎵 More styles',Object.keys(MOODS).filter(k=>!CREATOR.includes(k)&&!LIFE.includes(k))]];
+const GROUPS=()=>[['🛍️ For creators',CREATOR],['🏡 Lifestyle, home, fashion & beauty',LIFE],['💻 Style, tech, gaming & productivity',TECH],['🎵 More styles',Object.keys(MOODS).filter(k=>!CREATOR.includes(k)&&!LIFE.includes(k)&&!TECH.includes(k))]];
 const moodOpts=sel=>{const o=k=>`<option value="${k}"${k===sel?' selected':''}>🎵 ${enc(MOODS[k].name)} · ${MOODS[k].bpm} BPM</option>`;
   return GROUPS().map(([l,ks])=>`<optgroup label="${l}">${ks.filter(k=>MOODS[k]).map(o).join('')}</optgroup>`).join('')};
 const TONES={maj:[0,4,7],min:[0,3,7],min7:[0,3,7,10],maj7:[0,4,7,11],m9:[0,3,7,10,14],dom7:[0,4,7,10],add9:[0,4,7,14],sus2:[0,2,7],sus4:[0,5,7],pow:[0,7,12],maj9:[0,4,7,11,14],dom9:[0,4,7,10,14],m6:[0,3,7,9],6:[0,4,7,9],m11:[0,3,7,10,17],'7sus4':[0,5,7,10]};
@@ -237,6 +276,7 @@ async function makeBeat(seconds,moodKey,opt={}){
   if(F.mid){const q=oc.createBiquadFilter();q.type='peaking';q.frequency.value=1800;q.Q.value=.8;q.gain.value=-F.mid;chain(q)}
   let sweep=null;if(F.lp||F.split){sweep=oc.createBiquadFilter();sweep.type='lowpass';sweep.frequency.value=F.lp||18000;sweep.Q.value=F.split?1.4:.5;chain(sweep)}
   if(F.bright){const q=oc.createBiquadFilter();q.type='highshelf';q.frequency.value=6000;q.gain.value=F.bright;chain(q)}
+  if(F.lfoLp){const q=oc.createBiquadFilter(),o=oc.createOscillator(),d=oc.createGain(),{lo,hi,rate}=F.lfoLp;q.type='lowpass';q.Q.value=1.1;q.frequency.value=(lo+hi)/2;o.frequency.value=rate||.07;d.gain.value=(hi-lo)/2;o.connect(d);d.connect(q.frequency);o.start(0);o.stop(len+.05);chain(q)}
   if(F.hp){const q=oc.createBiquadFilter();q.type='highpass';q.frequency.value=F.hp;q.Q.value=.6;chain(q)}
   if(F.warm){const q=oc.createBiquadFilter();q.type='peaking';q.frequency.value=380;q.Q.value=.7;q.gain.value=F.warm;chain(q)}
   if(F.tape){const w=oc.createWaveShaper(),c=new Float32Array(1024),k=F.tape;for(let i=0;i<1024;i++){const x=i/511.5-1;c[i]=Math.tanh(k*x)/Math.tanh(k)}w.curve=c;const g=oc.createGain();g.gain.value=1.1/k;chain(w);chain(g)}
@@ -247,11 +287,12 @@ async function makeBeat(seconds,moodKey,opt={}){
   const noise=oc.createBuffer(1,SR,SR),nd=noise.getChannelData(0);for(let i=0;i<SR;i++)nd[i]=Math.random()*2-1;
   // Music goes to bus (which pumps on the kick when F.pump), drums straight to master; reverb and dotted delay are sends.
   const bus=F.pump?oc.createGain():master;if(F.pump)bus.connect(master);
-  let verb=null;if(F.reverb){const c=oc.createConvolver(),n=Math.ceil(F.reverb.sec*SR),ir=oc.createBuffer(2,n,SR);for(let ch=0;ch<2;ch++){const d=ir.getChannelData(ch);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,3)}
+  let verb=null;if(F.reverb){const c=oc.createConvolver(),n=Math.ceil(F.reverb.sec*SR),ir=oc.createBuffer(2,n,SR);for(let ch=0;ch<2;ch++){const d=ir.getChannelData(ch);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*(F.reverb.gate?(i<n*.85?.6:0):Math.pow(1-i/n,3))}
     c.buffer=ir;verb=oc.createGain();verb.gain.value=F.reverb.mix;verb.connect(c);c.connect(bus)}
   let dly=null;if(F.delay){const d=oc.createDelay(2),fb=oc.createGain(),lo=oc.createBiquadFilter(),mix=oc.createGain(),p=oc.createStereoPanner?oc.createStereoPanner():oc.createGain();
     d.delayTime.value=Math.min(1.9,step*(F.delay.steps||(F.delay.dotted?3:2)));fb.gain.value=F.delay.fb;lo.type='lowpass';lo.frequency.value=3500;mix.gain.value=F.delay.mix;if(p.pan)p.pan.value=-.35;
-    dly=oc.createGain();dly.connect(d);d.connect(lo);lo.connect(fb);fb.connect(d);lo.connect(mix);mix.connect(p);p.connect(bus)}
+    dly=oc.createGain();dly.connect(d);d.connect(lo);lo.connect(fb);fb.connect(d);lo.connect(mix);mix.connect(p);p.connect(bus);
+    if(F.delay.ping&&oc.createStereoPanner){const d2=oc.createDelay(2),p2=oc.createStereoPanner(),m2=oc.createGain();d2.delayTime.value=d.delayTime.value;p.pan.value=-.8;p2.pan.value=.8;m2.gain.value=F.delay.mix;lo.connect(d2);d2.connect(m2);m2.connect(p2);p2.connect(bus)}}
   let apan=null;if(F.autopan&&oc.createStereoPanner){apan=oc.createStereoPanner();const o=oc.createOscillator(),d=oc.createGain();o.frequency.value=.09;d.gain.value=F.autopan;o.connect(d);d.connect(apan.pan);o.start(0);o.stop(len+.05);apan.connect(bus)}
   const out=(node,pan=0,kind)=>{let n=node;if(pan&&oc.createStereoPanner){let p=oc.createStereoPanner();p.pan.value=pan;node.connect(p);n=p}
     if(kind==='d'){n.connect(master);return}n.connect(kind==='l'&&apan?apan:bus);if(verb)n.connect(verb);if(dly&&kind==='l')n.connect(dly)};
@@ -282,7 +323,7 @@ async function makeBeat(seconds,moodKey,opt={}){
   const tick=(t,hi)=>{let o=oc.createOscillator(),g=oc.createGain();o.type='sine';o.frequency.value=hi?2900:2100;env(g,t,hi?.07:.05,.0005,.022);o.connect(g);outD(g,hi?.35:-.35);o.start(t);o.stop(t+.04)};
   const shaker=t=>{let s=oc.createBufferSource(),f=oc.createBiquadFilter(),g=oc.createGain();s.buffer=noise;f.type='bandpass';f.frequency.value=6000;f.Q.value=1.2;env(g,t,.06,.012,.05);s.connect(f);f.connect(g);outD(g,.4);s.start(t,Math.random()*.5);s.stop(t+.08)};
   const bass=(t,m,d)=>{if(M.bass==='sub'){let o=oc.createOscillator(),g=oc.createGain();o.type='sine';o.frequency.setValueAtTime(hz(m+12),t);o.frequency.exponentialRampToValueAtTime(hz(m),t+.06);g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(.3,t+.01);g.gain.setValueAtTime(.3,t+d*.6);g.gain.exponentialRampToValueAtTime(0.0001,t+d);o.connect(g);outB(g);o.start(t);o.stop(t+d+.02);return}
-    let o=oc.createOscillator(),f=oc.createBiquadFilter(),g=oc.createGain();o.type=M.bass==='pluck'?'square':'sawtooth';o.frequency.value=hz(m);f.type='lowpass';f.frequency.value=M.bass==='pluck'?600:380;if(M.bass==='pluck')d=Math.min(d,.22);g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(.28,t+.01);g.gain.setValueAtTime(.28,t+d*.7);g.gain.exponentialRampToValueAtTime(0.0001,t+d);o.connect(f);f.connect(g);outB(g);o.start(t);o.stop(t+d+.02)};
+    let o=oc.createOscillator(),f=oc.createBiquadFilter(),g=oc.createGain();o.type=M.bass==='pluck'?'square':'sawtooth';o.frequency.value=hz(m);if(F.bassBP){f.type='bandpass';f.frequency.value=F.bassBP;f.Q.value=4}else{f.type='lowpass';f.frequency.value=M.bass==='pluck'?600:380}if(M.bass==='pluck')d=Math.min(d,.22);g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(.28,t+.01);g.gain.setValueAtTime(.28,t+d*.7);g.gain.exponentialRampToValueAtTime(0.0001,t+d);o.connect(f);f.connect(g);outB(g);o.start(t);o.stop(t+d+.02)};
   // Pads: padHP takes out the low-mids under a voice, padAtt gives slow velvety swells, chorus splits them wide left/right with a slow wobble.
   const pad=(t,notes,d)=>{const pv=.045*(M.padVol||1),att=F.padAtt?Math.min(F.padAtt,d*.45):.35,rel=F.padAtt?Math.min(F.padAtt,d*.45):.3;
     for(const [pan,dets,ci] of chor?[[-.7,[-9,-3],0],[.7,[3,9],1]]:[[0,[-7,7]]]){let f=oc.createBiquadFilter(),g=oc.createGain(),head=f;f.type='lowpass';f.frequency.value=M.pad;
@@ -295,6 +336,8 @@ async function makeBeat(seconds,moodKey,opt={}){
   const partials=(t,m,pan,amp,list,att=.002)=>{for(const [r,v,dd] of list){let o=oc.createOscillator(),g=oc.createGain();o.type='sine';o.frequency.value=hz(m)*r;wob(o);env(g,t,v*amp,att,dd);o.connect(g);out(g,pan,'l');o.start(t);o.stop(t+att+dd+.05)}};
   const pluck=(t,m,pan,amp=1,d=0,L=M.lead)=>{if(L==='bell'){for(const [r,v,dc] of [[1,.06,.5],[3.5,.018,.18]]){let o=oc.createOscillator(),g=oc.createGain(),dd=Math.max(dc,d*(r===1?1:.4));o.type='sine';o.frequency.value=hz(m)*r;env(g,t,v*amp,.002,dd);o.connect(g);out(g,pan,'l');o.start(t);o.stop(t+dd+.05)}return}
     if(L==='marimba')return partials(t,m,pan,amp,[[1,.1,.42],[3.93,.025,.07],[9.2,.006,.02]]);
+    if(L==='glass'){const f0=hz(m),dd=Math.min(1.4,.5+d),c=oc.createOscillator(),md=oc.createOscillator(),mg=oc.createGain(),g=oc.createGain();c.type=md.type='sine';c.frequency.value=f0;md.frequency.value=f0*3.5;
+      mg.gain.setValueAtTime(f0*.9,t);mg.gain.exponentialRampToValueAtTime(f0*.05,t+.25);md.connect(mg);mg.connect(c.frequency);env(g,t,.06*amp,.003,dd);c.connect(g);out(g,pan,'l');c.start(t);md.start(t);c.stop(t+dd+.05);md.stop(t+dd+.05);return}
     if(L==='felt')return partials(t,m,pan,amp,[[1,.09,Math.min(2.4,.9+d)],[2,.016,.7],[3,.005,.3]],.018);
     if(L==='glock')return partials(t,m,pan,amp,[[1,.075,Math.max(.7,d)],[2.76,.026,.3],[5.4,.012,.11]],.001);
     if(L==='pizz'){let o=oc.createOscillator(),f=oc.createBiquadFilter(),g=oc.createGain(),dd=.2;o.type='triangle';o.frequency.setValueAtTime(hz(m-3),t);o.frequency.exponentialRampToValueAtTime(hz(m),t+.05);f.type='lowpass';f.frequency.value=2600;
@@ -322,20 +365,23 @@ async function makeBeat(seconds,moodKey,opt={}){
   if(F.split&&dropT<len){sweep.frequency.setValueAtTime(320,0);sweep.frequency.exponentialRampToValueAtTime(1500,Math.max(.1,dropT-.03));sweep.frequency.exponentialRampToValueAtTime(18000,dropT+.3);
     riser(Math.max(0,dropT-barLen),Math.min(barLen,dropT),.06,comp);crash(dropT,comp)}
   const cb=M.chordBars||1,drums=M.drums!==false,order=M.melOrder||[0,0,1,0],mo=M.melOct??12;let side=0;
-  for(let bar=0;bar*barLen<len;bar++){let t0=bar*barLen,[root,q]=M.chords[Math.floor(bar/cb)%M.chords.length],tones=TONES[q].map(x=>root+x),L=tones.length,full=bar>=dropBar,early=bar>0||!drums||M.fromStart;
+  for(let bar=0;bar*barLen<len;bar++){let t0=bar*barLen,[root,q]=M.chords[Math.floor(bar/cb)%M.chords.length],tones=TONES[q].map(x=>root+x),L=tones.length,full=bar>=dropBar,early=bar>0||!drums||M.fromStart,lay=k=>!M.layers||bar>=(M.layers[k]||0),cyc=bar%4,hit=!M.build||(cyc===0&&bar>0);
+    if(M.build&&cyc===0&&bar>0)crash(t0,bus);if(M.build&&cyc===3)riser(t0,barLen,.05,bus);
     if(bar%cb===0)pad(t0,tones,barLen*cb);
     if(F.rise&&bar%4===3&&full)riser(t0,barLen,.035,bus);
     for(let s=0;s<16;s++){let t=t0+s*step+(M.swing&&s%2?M.swing*step*2:0);if(t>=len)break;
-      if(drums&&full){if(M.kick.includes(s))kick(t);if(M.snare.includes(s))snare(t);if(M.clap?.includes(s))clap(t);if(M.rim?.includes(s))rim(t);if(M.shaker?.includes(s))shaker(t);if(M.snap?.includes(s))snap(t);if(M.tick?.includes(s))tick(t,s%4===0);
+      if(M.build&&!(cyc===0&&bar>0)&&s%[4,2,1,1][cyc]===0)tick(t,s%4===0);
+      if(drums&&full&&lay('drums')&&hit){if(M.kick.includes(s))kick(t);if(M.snare.includes(s))snare(t);if(M.clap?.includes(s))clap(t);if(M.rim?.includes(s))rim(t);if(M.shaker?.includes(s))shaker(t);if(M.snap?.includes(s))snap(t);if(M.tick?.includes(s))tick(t,s%4===0);
         if(M.hats>0&&s%M.hats===0){if(M.roll?.includes(s))for(let k=0;k<3;k++)hat(t+k*step/3,false);else hat(t,false)}if(M.open?.includes(s))hat(t,true)}
-      if(M.stab?.includes(s)&&full)stab(t,tones);
-      if(M.bass!=='none'&&full){if(M.bassPat){const bi=M.bassPat.indexOf(s);if(bi>=0){let nx=M.bassPat[bi+1]??16;bass(t,root-24+(M.bassNotes?M.bassNotes[bi]:s===14&&M.bass!=='sub'?7:0),step*(nx-s)*.95)}}
+      if(M.stab?.includes(s)&&full&&lay('stab'))stab(t,tones);
+      if(M.bass!=='none'&&full&&lay('bass')){if(M.bassPat){const bi=M.bassPat.indexOf(s);if(bi>=0){let nx=M.bassPat[bi+1]??16;bass(t,root-24+(M.bassNotes?M.bassNotes[bi]:s===14&&M.bass!=='sub'?7:0),step*(nx-s)*.95)}}
         else if(s%4===0||(s%4===3&&M.bpm>100))bass(t,root-24+(s===14?7:0),step*(s%4===0?2.6:.9))}
       const arpAmp=M.arpAmp||(M.mel?.45:1);
-      if(M.arpPat){const tok=M.arpPat[s];if(early&&tok!=='.'){const k=+tok;pluck(t,tones[k%L]+12*Math.floor(k/L)+12,F.wide?(k%2?-F.wide:F.wide):(k%2?-.3:.3),arpAmp)}}
+      if(M.arpPat){const tok=M.arpPat[s];if(early&&lay('arp')&&tok!=='.'){const k=+tok;pluck(t,tones[k%L]+12*Math.floor(k/L)+12,F.wide?(k%2?-F.wide:F.wide):(k%2?-.3:.3),arpAmp)}}
       else if(s%M.arp===0&&early){let k=(s/M.arp)%(L+1);pluck(t,tones[k%L]+12+(k>=L?12:0),F.wide?(k%2?-F.wide:F.wide):(k%2?-.3:.3),arpAmp)}
       // The tune: from the second bar (the first is an intro; fromStart = straight away), phrases A A B A unless melOrder says otherwise.
-      if(M.mel&&(bar>0||M.fromStart)){const ph=M.mel[order[bar%order.length]],tok=ph[s];if(tok!=null&&tok!=='.'&&tok!=='-'){let v=+tok,hold=1;while(ph[s+hold]==='-')hold++;const note=tones[((v%L)+L)%L]+12*Math.floor(v/L)+mo;pluck(t,note,F.pan?(side++%2?-F.pan:F.pan):0,M.melAmp||1.15,hold*step,M.melLead||M.lead)}}}}
+      if(M.resp&&(bar>0||M.fromStart)){const ph=M.resp[bar%M.resp.length],tok=ph[s];if(tok!=null&&tok!=='.'&&tok!=='-'){let v=+tok,hold=1;while(ph[s+hold]==='-')hold++;pluck(t,tones[((v%L)+L)%L]+12*Math.floor(v/L)+mo,F.call||.6,M.melAmp||1.15,hold*step,M.respLead||M.lead)}}
+      if(M.mel&&lay('mel')&&(bar>0||M.fromStart)){const ph=M.mel[order[bar%order.length]],tok=ph[s];if(tok!=null&&tok!=='.'&&tok!=='-'){let v=+tok,hold=1;while(ph[s+hold]==='-')hold++;const note=tones[((v%L)+L)%L]+12*Math.floor(v/L)+mo;pluck(t,note,F.call?-F.call:F.pan?(side++%2?-F.pan:F.pan):0,M.melAmp||1.15,hold*step,M.melLead||M.lead)}}}}
   const buf=await oc.startRendering();return new File([wav(buf)],`TapShopLite beat · ${M.name} ${M.bpm} BPM.wav`,{type:'audio/wav'})}
 
 function wav(buf){const ch=buf.numberOfChannels,n=buf.length,out=new DataView(new ArrayBuffer(44+n*ch*2)),w=(o,s)=>{for(let i=0;i<s.length;i++)out.setUint8(o+i,s.charCodeAt(i))};
