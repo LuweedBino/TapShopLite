@@ -128,3 +128,38 @@ const st=document.createElement('style');st.textContent=`#sfxDialog{width:min(52
 .sfx-pick{display:flex;flex-wrap:wrap;align-items:flex-end;gap:6px 8px;margin:0 0 10px;padding:8px;border:1px dashed #ff3ea566;border-radius:10px}.sfx-pick label{flex:1;min-width:170px}.sfx-pick select{width:100%}.sfx-pick button{width:40px;height:36px;padding:0!important;flex:none}.sfx-pick small{flex-basis:100%;opacity:.65;font-size:11px}
 .sfx-play{width:40px;height:40px;padding:0!important;border-radius:50%!important;flex:none}`;document.head.appendChild(st);
 })();
+
+// ---- AUDIO_LIBRARY: every free sound in one list with its details, for menus, search and the makers.
+// Music is made on the device to any length (durationSeconds is the default length play() uses); sound effects have a fixed length.
+// play(seconds) starts it and returns {stop()}. Batch 1 (Lifestyle, Home, Fashion & Beauty) has full hand-written details.
+(()=>{
+const META={
+  desk:['Fashion & Beauty',['soft','airy','aesthetic'],['clean girl routine','desk setup','stationery haul'],['clean girl','aesthetic','desk','rhodes','bells','minimal'],'A♭ Lydian'],
+  rainy:['Home',['cozy','calm','dreamy'],['self-care night','rainy day vlog','candle and skincare'],['cozy','rain','self care','felt piano','lofi','night'],'E Aeolian'],
+  kitchen:['Home',['playful','bouncy','upbeat'],['kitchen gadget demo','quick recipe','meal prep'],['kitchen','recipe','gadget','kalimba','snaps','food'],'D Mixolydian'],
+  tidy:['Home',['satisfying','steady','focused'],['home organization','fridge restock','ASMR containers'],['restock','organize','asmr','marimba','satisfying','tidy'],'F♯ Dorian'],
+  pet:['Lifestyle',['cute','whimsical','light'],['pet products','dog or cat moment','pet hauls'],['pet','dog','cat','cute','pizzicato','funny'],'C Ionian'],
+  toy:['Lifestyle',['cheerful','innocent','bright'],['parenting hack','kid-friendly toy ad','family moments'],['kids','toy','parenting','glockenspiel','happy','family'],'E Ionian'],
+  coffee:['Lifestyle',['smooth','laid-back','warm'],['coffee bar','aesthetic drink pour','café vlog'],['coffee','latte','neo soul','rhodes','chill','drink'],'E♭ Dorian'],
+  plant:['Home',['organic','breezy','peaceful'],['plant care','gardening','patio makeover'],['plants','garden','patio','acoustic','harmonics','outdoor'],'A Mixolydian'],
+  scrub:['Home',['energetic','bubbly','motivating'],['cleaning hack','deep scrub timelapse','sped-up chores'],['cleaning','scrub','timelapse','plucks','fast','motivation'],'C♯ Aeolian'],
+  apartment:['Home',['modern','spacious','calm'],['apartment tour','room tour','minimalist home'],['apartment','room tour','minimal','ambient','architecture','delay'],'B Lydian'],
+  sneaker:['Fashion & Beauty',['confident','gritty','cool'],['sneaker drop','streetwear haul','outfit check'],['sneakers','streetwear','hip hop','808','trap hats','drop'],'G♯ Phrygian'],
+  thrift:['Fashion & Beauty',['quirky','creative','fun'],['thrift flip','DIY upcycle','sewing project'],['thrift','diy','upcycle','indie pop','bassline','vintage'],'B♭ Ionian'],
+  jewelry:['Fashion & Beauty',['luxurious','delicate','glowing'],['jewelry close-up','watch reveal','unboxing a gift'],['jewelry','watch','luxury','chimes','drone','sparkle'],'F♯ Lydian'],
+  grwm:['Fashion & Beauty',['glamorous','upbeat','stylish'],['get ready with me','night out','makeup routine'],['grwm','night out','house','makeup','party','dance'],'C Aeolian'],
+  silk:['Fashion & Beauty',['silky','lush','elegant'],['haircare','slow-mo hair flip','blowout results'],['hair','haircare','slow motion','strings','lush','beauty'],'D Ionian']};
+const LEN={swoosh:.5,pop:.15,cash:.8,shutter:.2,sparkle:1,drop:.9,click:.05,buzz:.35,ding:.6,riser:1.2,scratch:.3,whoosh:.4};
+let cur=null;const stop=()=>{try{cur?.pause()}catch{}cur=null};
+const music=k=>{const m=veMoods[k],x=META[k],g=(window.veMusicGroups?veMusicGroups():[]).find(([,ks])=>ks.includes(k));
+  return {id:k,title:m.name,type:'music',category:x?x[0]:g&&/creators/.test(g[0])?'Creators':'General',moods:x?x[1]:[],useCases:x?x[2]:m.for?m.for.split(/,\s*/):[],
+    keywords:x?x[3]:m.name.toLowerCase().split(/\W+/).filter(Boolean),bpm:m.bpm,mode:x?x[4]:undefined,durationSeconds:30,anyLength:true,voiceoverSafe:!!(m.fx&&m.fx.mid),batch:x?1:undefined,
+    async play(seconds=10){stop();const a=new Audio(URL.createObjectURL(await veMakeBeat(seconds,k)));cur=a;await a.play();return {stop}},
+    file(seconds=30){return veMakeBeat(seconds,k)}}};
+const fx=([k,e,n,u])=>({id:'sfx-'+k,key:k,title:e+' '+n,type:'sfx',category:'Sound effects',moods:[],useCases:[u],keywords:[k,n.toLowerCase()],bpm:null,durationSeconds:LEN[k],voiceoverSafe:true,
+  play(){TapSFX.play(k);return {stop(){}}},file(){return TapSFX.file(k)}});
+const build=()=>window.veMoods?[...(window.veMusicGroups?veMusicGroups().flatMap(([,ks])=>ks):Object.keys(veMoods)).filter(k=>veMoods[k]).map(music),...TapSFX.list.map(fx)]:[];
+window.AUDIO_LIBRARY=build();
+// Search by words (title, moods, use cases, keywords): AUDIO_LIBRARY_SEARCH('cozy coffee').
+window.AUDIO_LIBRARY_SEARCH=q=>{const w=String(q||'').toLowerCase().split(/\s+/).filter(Boolean);return AUDIO_LIBRARY.map(t=>[t,w.filter(x=>[t.title,t.category,...t.moods,...t.useCases,...t.keywords].join(' ').toLowerCase().includes(x)).length]).filter(([,n])=>n).sort((a,b)=>b[1]-a[1]).map(([t])=>t)};
+})();
