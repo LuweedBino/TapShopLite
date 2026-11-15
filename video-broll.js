@@ -670,7 +670,7 @@ async function build(){if(exporting)return;const btn=dlg.querySelector('#brBuild
     btn.textContent='Building…';
     for(const [p,s,len,j] of spans){let text=String(partText(j)).trim();if(!text)continue;createGraphicTrack('text');let g=graphicTracks.at(-1);
       Object.assign(g,{name:p.label+': '+text.slice(0,18),text,color:p.color||'#ffffff',size:textFrac(text,W,H)*H*1280/W,x:50,y:p.y,bold:true,background:false,animation:p.anim,offset:Math.round(s*10)/10,length:Math.max(.8,Math.round(Math.min(len,p.textMax||len)*10)/10),boxColor:p.box,boxOpacity:1,boxPad:26,boxRadius:18,_part:p.id})}
-    if(M&&t>0){btn.textContent='Making your music…';const after=spans.find(([p])=>p.id==='after');let file=await makeBeat(t,mood,{dropAt:after?after[1]:0,bare:1});addTrack('audio');let tr=extraTracks.at(-1);tr.name='🎵 '+M.name+' beat';Object.assign(tr,musicTrackMeta(mood));targetTrack=tr.id;await loadTrackMedia(file);tr.volume=talky?.5:.7;renderTracks()}
+    if(M&&t>0){btn.textContent='Making your music…';const after=spans.find(([p])=>p.id==='after');let file=await makeBeat(t,mood,{dropAt:after?after[1]:0,bare:1});addTrack('audio');let tr=extraTracks.at(-1);tr.name='🎵 '+M.name+' beat';Object.assign(tr,musicTrackMeta(mood));targetTrack=tr.id;await loadTrackMedia(file);tr.volume=.6;renderTracks()}
     if(autoSfx&&window.TapSFX){btn.textContent='Adding sound effects…';const words=graphicTracks.filter(g=>g._part);
       for(const g of words){const key=partSfx(g._part,tp.id);delete g._part;if(key)try{await TapSFX.add(key,{at:g.offset,forId:g.id,noSnap:1,quiet:1})}catch{}}
       renderTracks()}
@@ -700,7 +700,7 @@ function tidy(words,a,b){const ws=words.filter(w=>w.e>a&&w.s<b),isF=w=>w.drop||F
 // ---------- ways in ----------
 // The timeline's music settings for a style: its tempo (beat markers and snapping), fade-in (none for styles that start at full
 // energy), 1.5 s fade-out, and auto-ducking under speech.
-const musicTrackMeta=k=>{const M=MOODS[k];return M?{bpm:M.bpm,fadeIn:M.fx?.noFade?0:.3,fadeOut:1.5,duck:true,duckAmt:.7,musicKey:k}:{}};
+const musicTrackMeta=k=>{const M=MOODS[k];return M?{bpm:M.bpm,fadeIn:M.fx?.noFade?0:.3,fadeOut:1.5,duck:true,duckAmt:.85,volume:.6,musicKey:k}:{}};
 window.veMusicTrackMeta=musicTrackMeta;
 window.openBroll=open;window.veMakeBeat=makeBeat;window.veMoods=MOODS;window.veCreatorMoods=CREATOR;window.veMusicGroups=GROUPS;
 // Free music for any audio track: pick a style, hear 10 seconds, then it's made as long as the video
