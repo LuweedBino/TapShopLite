@@ -91,7 +91,7 @@ window.TapSFX={list:LIST,fx:FX,
   // o.forId ties it to a strip: it then starts when that strip starts (plus o.rel seconds) and goes away with it.
   async add(key,o={}){if(exporting)return;const it=LIST.find(x=>x[0]===key);if(!it)return;const at=+(o.at??playhead).toFixed(2);if(!o.noSnap)snapshot();addTrack('audio');const t=extraTracks.at(-1);
     Object.assign(t,{name:it[1]+' '+it[2],lane:'sfx',offset:at},o.forId?{sfxFor:o.forId,sfxKey:key,sfxAt:+(o.rel||0).toFixed(2)}:{});targetTrack=t.id;await loadTrackMedia(await this.file(key));
-    if(!t.media){if(o.noSnap)deleteTrack(t.id);else undo();return false}t.offset=at;renderTracks();await seekTimeline(playhead);if(!o.quiet)toast(`${it[2]} added at ${at.toFixed(1)} s. Drag it to move it.`);return true}};
+    if(!t.media){if(o.noSnap)deleteTrack(t.id);else undo();return false}t.offset=at;renderTracks();await seekTimeline(playhead);window.recordRecent?.('sfx-'+key);if(!o.quiet)toast(`${it[2]} added at ${at.toFixed(1)} s. Drag it to move it.`);return true}};
 
 // ---- A sound effect on a text box or sticker: a "🔊 Sound effect" menu in its editing menu (timeline and preview pop-up).
 // The sound is its own audio track (sfxFor = the strip's id, sfxKey = which sound) that always starts with the strip.
@@ -175,9 +175,23 @@ const META={
   mistakes:['Storytelling',['authoritative','sharp','brisk'],['myth-busting','3 mistakes you’re making','tips list'],['mistakes','myth','tips','staccato','strings','facts'],'E harmonic minor',3],
   finale:['Sales & Reviews',['uplifting','resolving','confident'],['link in bio call-to-action','video ending','shop now outro'],['link in bio','cta','ending','outro','finale','shop now'],'C Ionian (ends on C)',3]};
 const LEN={swoosh:.5,pop:.15,cash:.8,shutter:.2,sparkle:1,drop:.9,click:.05,buzz:.35,ding:.6,riser:1.2,scratch:.3,whoosh:.4};
+// Moods and uses for the styles that came before the batches (so search and filters can find them too).
+const OLD={bright:[['happy','upbeat','pop'],['product demo','everyday vlog']],upbeat:[['upbeat','energetic','dance'],['hauls','fast edits']],chill:[['chill','calm','lofi'],['vlogs','aesthetic b-roll']],
+  trap:[['hype','bold','urban'],['streetwear','hype edits']],rnb:[['smooth','warm','sensual'],['beauty','night routine']],acoustic:[['happy','warm','organic'],['lifestyle','family']],
+  tropical:[['sunny','breezy','happy'],['travel','summer']],inspire:[['uplifting','hopeful','motivating'],['brand story','business']],epic:[['epic','dramatic','cinematic'],['big reveals','trailers']],
+  dreamy:[['dreamy','soft','calm'],['beauty','slow-mo']],funk:[['funky','groovy','playful'],['fashion','dance']],synthwave:[['retro','neon','driving'],['tech','night drive']],
+  boombap:[['nostalgic','laid-back','urban'],['storytelling','vlogs']],afro:[['joyful','groovy','warm'],['fashion','dance']],reggaeton:[['sexy','bouncy','party'],['fashion','summer']],
+  dnb:[['fast','energetic','intense'],['sports','action']],futurebass:[['euphoric','bright','energetic'],['unboxing','reveals']],jazz:[['classy','smooth','warm'],['food','café']],
+  hype:[['hype','aggressive','powerful'],['sales','sports']],playful:[['playful','silly','fun'],['funny clips','pets']],dark:[['dark','suspense','tense'],['mystery','horror']],
+  holiday:[['festive','cheerful','cozy'],['holidays','gifts']],piano:[['emotional','gentle','calm'],['story','heartfelt']],guitar:[['warm','cozy','relaxed'],['outdoors','campfire']],
+  bossa:[['smooth','sunny','relaxed'],['café','travel']],gospel:[['uplifting','soulful','warm'],['testimonials','inspiration']],kids:[['cheerful','silly','bright'],['kids','toys']],
+  workout:[['energetic','driving','pumped'],['gym','fitness']],hook:[['urgent','punchy','attention-grabbing'],['hook','2-second hook']],unbox:[['cozy','warm','lofi'],['unboxing','morning routine']],
+  tech:[['clean','focused','modern'],['tech review','gadgets']],flash:[['urgent','fast','exciting'],['flash sale','limited time']],luxe:[['luxurious','calm','elegant'],['skincare','luxury']],
+  reveal:[['dramatic','uplifting','transforming'],['before and after','glow-up']],haul:[['playful','bouncy','upbeat'],['haul','try-on']],story:[['honest','warm','calm'],['storytime','real talk']],
+  fitness:[['powerful','motivating','energetic'],['fitness','supplements']],tutorial:[['friendly','light','steady'],['tutorial','how-to']]};
 let cur=null;const stop=()=>{try{cur?.pause()}catch{}cur=null};
 const music=k=>{const m=veMoods[k],x=META[k],g=(window.veMusicGroups?veMusicGroups():[]).find(([,ks])=>ks.includes(k));
-  return {id:k,title:m.name,type:'music',category:x?x[0]:g&&/creators/.test(g[0])?'Creators':'General',moods:x?x[1]:[],useCases:x?x[2]:m.for?m.for.split(/,\s*/):[],
+  return {id:k,title:m.name,type:'music',category:x?x[0]:g&&/creators/.test(g[0])?'Creators':'General',moods:x?x[1]:OLD[k]?OLD[k][0]:[],useCases:x?x[2]:[...new Set([...(m.for?m.for.split(/,\s*/):[]),...(OLD[k]?OLD[k][1]:[])])],
     keywords:x?x[3]:m.name.toLowerCase().split(/\W+/).filter(Boolean),bpm:m.bpm,mode:x?x[4]:undefined,batch:x?(x[5]||1):undefined,durationSeconds:30,anyLength:true,voiceoverSafe:!!(m.fx&&m.fx.mid),
     async play(seconds=10){stop();const a=new Audio(URL.createObjectURL(await veMakeBeat(seconds,k)));cur=a;await a.play();return {stop}},
     file(seconds=30){return veMakeBeat(seconds,k)}}};
