@@ -32,51 +32,51 @@ const S=(id,label,text,look,say,o={})=>({id,label,text,look,say,...o});
 const HOOK=S('hook','Hook','Wait… you NEED this 👀',{talk:1,product:.6,happy:.3},/\b(wait|stop|you need|obsessed|game ?changer|i found|nobody|pov|okay so|you guys|listen|this is|watch)\b/i,{y:22,box:'#ff3ea5',anim:'pop',textMax:3.5,beats:4});
 const CTA=S('cta','Call to action','Link in bio 👇',{talk:.8,screen:.7,product:.5,happy:.3},/\b(link|bio|grab|get yours|get it|shop|buy|code|discount|check it out|click|order|follow|comment|tap)\b/i,{y:78,box:'#ffd84d',color:'#111111',anim:'bounce',beats:6});
 const TEMPLATES=[
-  {id:'pas',name:'Hook → Problem → Solution',tag:'The classic UGC ad',mood:'bright',parts:[HOOK,
+  {id:'pas',name:'Hook → Problem → Solution',tag:'The classic UGC ad',mood:'hook',parts:[HOOK,
     S('problem','Problem','The problem? 😩',{upset:1,messy:1,talk:.3},/\b(tired of|hate|struggl|problem|annoying|never works|always|messy|hard to|sick of|used to|ugh|frustrat|can'?t)\b/i,{y:20,box:'#111111',anim:'left',beats:6}),
     S('solution','Solution','Then I found this ✨',{using:1,product:.7,clean:.5,happy:.4},/\b(so i|tried|found|works|changed|now i|fixed|solves|love how|use it|just|this one|it's so)\b/i,{y:20,box:'#ffffff',color:'#111111',anim:'pop',beats:8}),
     CTA]},
-  {id:'beforeafter',name:'Before → After',tag:'Show the glow-up',mood:'upbeat',parts:[HOOK,
+  {id:'beforeafter',name:'Before → After',tag:'Show the glow-up',mood:'reveal',parts:[HOOK,
     S('before','Before','BEFORE',{messy:1,upset:.7},/\b(before|used to|was|look at this|look how)\b/i,{y:12,box:'#111111',anim:'left',beats:8}),
     S('after','After','AFTER ✨',{clean:1,happy:.6,product:.3},/\b(after|now|look at|wow|so much better|finally)\b/i,{y:12,box:'#ffffff',color:'#111111',anim:'pop',beats:8}),
     CTA]},
-  {id:'reasons',name:'3 reasons I love it',tag:'Quick reasons people save',mood:'upbeat',parts:[S('hook','Hook','3 reasons I love this 💕',HOOK.look,HOOK.say,{...HOOK,text:'3 reasons I love this 💕'}),
+  {id:'reasons',name:'3 reasons I love it',tag:'Quick reasons people save',mood:'haul',parts:[S('hook','Hook','3 reasons I love this 💕',HOOK.look,HOOK.say,{...HOOK,text:'3 reasons I love this 💕'}),
     S('r1','Reason 1','Reason #1 💡',{using:1,product:.8,happy:.3},/\b(first|one|number one|reason one|1)\b/i,{y:18,box:'#7c3aed',anim:'pop',beats:6}),
     S('r2','Reason 2','Reason #2 🙌',{using:.9,product:.8,clean:.3},/\b(second|two|also|plus|another|2)\b/i,{y:18,box:'#7c3aed',anim:'pop',beats:6}),
     S('r3','Reason 3','Reason #3 😍',{happy:1,using:.6,clean:.5},/\b(third|three|finally|best part|last|3)\b/i,{y:18,box:'#7c3aed',anim:'pop',beats:6}),
     CTA]},
-  {id:'unboxing',name:'Unboxing',tag:'First look at something new',mood:'bright',parts:[S('hook','Hook','It’s finally here! 📦',HOOK.look,HOOK.say,{...HOOK,text:'It’s finally here! 📦'}),
+  {id:'unboxing',name:'Unboxing',tag:'First look at something new',mood:'unbox',parts:[S('hook','Hook','It’s finally here! 📦',HOOK.look,HOOK.say,{...HOOK,text:'It’s finally here! 📦'}),
     S('open','Unboxing','Let’s open it 🎁',{unbox:1.2,product:.4,using:.3},/\b(open|unbox|box|package|arrived|came|inside)\b/i,{y:18,box:'#111111',anim:'down',beats:8}),
     S('look','First look','First look 👀',{product:1.1,clean:.4},/\b(look|comes with|inside|feel|quality|size|color|colour)\b/i,{y:18,box:'#ffffff',color:'#111111',anim:'pop',beats:6}),
     S('fav','Favourite part','My favourite part 😍',{using:1,happy:.8},/\b(favou?rite|love|best|obsessed|amazing|so good)\b/i,{y:18,box:'#ff3ea5',anim:'pop',beats:6}),
     CTA]},
-  {id:'howto',name:'How to use it',tag:'A quick step-by-step',mood:'bright',parts:[S('hook','Hook','Here’s how I use it 👇',HOOK.look,HOOK.say,{...HOOK,text:'Here’s how I use it 👇'}),
+  {id:'howto',name:'How to use it',tag:'A quick step-by-step',mood:'tutorial',parts:[S('hook','Hook','Here’s how I use it 👇',HOOK.look,HOOK.say,{...HOOK,text:'Here’s how I use it 👇'}),
     S('s1','Step 1','Step 1 ☝️',{using:1,product:.6,unbox:.3},/\b(first|step one|start|open|take)\b/i,{y:18,box:'#111111',anim:'left',beats:6}),
     S('s2','Step 2','Step 2 ✌️',{using:1,product:.4},/\b(then|next|step two|after that|second)\b/i,{y:18,box:'#111111',anim:'left',beats:6}),
     S('s3','Step 3','Step 3 🤟',{using:.9,clean:.4},/\b(finally|last|step three|third|and then)\b/i,{y:18,box:'#111111',anim:'left',beats:6}),
     S('result','Result','The result 😍',{clean:1,happy:.8,product:.3},/\b(result|look at|done|that's it|and now|wow)\b/i,{y:18,box:'#ffffff',color:'#111111',anim:'pop',beats:8}),
     CTA]},
-  {id:'myth',name:'Myth vs truth',tag:'Bust a common belief',mood:'upbeat',parts:[S('hook','Hook','You’ve been told this… 🤔',HOOK.look,HOOK.say,{...HOOK,text:'You’ve been told this… 🤔'}),
+  {id:'myth',name:'Myth vs truth',tag:'Bust a common belief',mood:'tech',parts:[S('hook','Hook','You’ve been told this… 🤔',HOOK.look,HOOK.say,{...HOOK,text:'You’ve been told this… 🤔'}),
     S('myth','The myth','MYTH ❌',{upset:.8,messy:.6,talk:.5},/\b(myth|they say|people think|you've been told|everyone says|wrong|lie)\b/i,{y:16,box:'#e11d48',anim:'left',beats:6}),
     S('truth','The truth','TRUTH ✅',{talk:.6,product:.6,using:.5},/\b(truth|actually|in fact|really|the real|turns out)\b/i,{y:16,box:'#16a34a',anim:'pop',beats:6}),
     S('proof','The proof','Here’s the proof 👀',{using:1,clean:.7,product:.5,screen:.3},/\b(proof|look|see|show|results|watch)\b/i,{y:18,box:'#ffffff',color:'#111111',anim:'pop',beats:8}),
     CTA]},
-  {id:'dayinlife',name:'Day in my life',tag:'Your day, with it in it',mood:'chill',parts:[S('hook','Morning','A day in my life ☀️',{outside:.6,food:.5,happy:.5,talk:.3},/\b(morning|wake|day in|good morning|coffee)\b/i,{y:16,box:'#ff3ea5',anim:'pop',textMax:3.5,beats:6}),
+  {id:'dayinlife',name:'Day in my life',tag:'Your day, with it in it',mood:'unbox',parts:[S('hook','Morning','A day in my life ☀️',{outside:.6,food:.5,happy:.5,talk:.3},/\b(morning|wake|day in|good morning|coffee)\b/i,{y:16,box:'#ff3ea5',anim:'pop',textMax:3.5,beats:6}),
     S('use','Using it','How it fits in my day ✨',{using:1,product:.6,beauty:.3,food:.3},/\b(use|using|routine|every day|daily|part of)\b/i,{y:18,box:'#ffffff',color:'#111111',anim:'fade',beats:8}),
     S('moment','The moment','My favourite moment 💛',{happy:1,outside:.5,food:.4},/\b(love|favou?rite|best|moment|feel)\b/i,{y:18,box:'#111111',anim:'fade',beats:8}),
     S('night','Wrap-up','Would recommend 💯',{talk:.8,happy:.5,product:.4},/\b(night|end of|recommend|would|wrap)\b/i,{y:18,box:'#ffffff',color:'#111111',anim:'fade',beats:6}),
     CTA]},
-  {id:'versus',name:'This vs that',tag:'Old way vs new way',mood:'upbeat',parts:[S('hook','Hook','Stop doing it the old way 🛑',HOOK.look,HOOK.say,{...HOOK,text:'Stop doing it the old way 🛑'}),
+  {id:'versus',name:'This vs that',tag:'Old way vs new way',mood:'fitness',parts:[S('hook','Hook','Stop doing it the old way 🛑',HOOK.look,HOOK.say,{...HOOK,text:'Stop doing it the old way 🛑'}),
     S('old','The old way','The old way 😩',{messy:1,upset:.8},/\b(old|used to|before|instead of|normal|regular|other)\b/i,{y:16,box:'#111111',anim:'left',beats:6}),
     S('new','The new way','The new way 😎',{using:1,product:.7,clean:.6},/\b(new|now|this|instead|switch|upgrade)\b/i,{y:16,box:'#ffffff',color:'#111111',anim:'pop',beats:8}),
     S('why','Why it wins','Why it wins 🏆',{happy:.8,clean:.7,product:.5,talk:.3},/\b(because|why|better|faster|easier|cheaper|saves|wins)\b/i,{y:16,box:'#ff3ea5',anim:'pop',beats:6}),
     CTA]},
-  {id:'pov',name:'POV / storytime',tag:'Tell it like a story',mood:'chill',parts:[S('hook','The hook','POV: you finally found it 🫠',{talk:.8,upset:.4,happy:.3},/\b(pov|storytime|so this happened|let me tell|story)\b/i,{y:22,box:'#111111',anim:'fade',textMax:3.5,beats:6}),
+  {id:'pov',name:'POV / storytime',tag:'Tell it like a story',mood:'story',parts:[S('hook','The hook','POV: you finally found it 🫠',{talk:.8,upset:.4,happy:.3},/\b(pov|storytime|so this happened|let me tell|story)\b/i,{y:22,box:'#111111',anim:'fade',textMax:3.5,beats:6}),
     S('moment','The moment','It all started when… 👀',{upset:.7,messy:.6,talk:.5,outside:.3},/\b(so|then|when|started|one day|happened)\b/i,{y:18,box:'#ffffff',color:'#111111',anim:'fade',beats:8}),
     S('twist','The twist','Then THIS happened 😳',{happy:.7,product:.6,unbox:.4},/\b(but|then|suddenly|turns out|twist|until)\b/i,{y:18,box:'#ff3ea5',anim:'pop',beats:6}),
     S('product','The product','This is what changed it ✨',{product:1,using:.8},/\b(this|product|changed|found|it's called)\b/i,{y:18,box:'#ffffff',color:'#111111',anim:'pop',beats:8}),
     CTA]},
-  {id:'honest',name:'Honest review',tag:'The good, the bad, the verdict',mood:'bright',parts:[S('hook','Hook','My honest review 📝',HOOK.look,HOOK.say,{...HOOK,text:'My honest review 📝'}),
+  {id:'honest',name:'Honest review',tag:'The good, the bad, the verdict',mood:'story',parts:[S('hook','Hook','My honest review 📝',HOOK.look,HOOK.say,{...HOOK,text:'My honest review 📝'}),
     S('good','The good','The good 👍',{happy:1,using:.7,clean:.5},/\b(love|good|great|like|amazing|pros?)\b/i,{y:16,box:'#16a34a',anim:'pop',beats:6}),
     S('bad','The not-so-good','The not-so-good 👎',{upset:.8,talk:.5,product:.3},/\b(but|don't|not|wish|only thing|cons?|downside|bad)\b/i,{y:16,box:'#e11d48',anim:'left',beats:6}),
     S('verdict','The verdict','The verdict ⭐⭐⭐⭐⭐',{talk:.8,product:.6,happy:.5},/\b(overall|verdict|worth|would|recommend|rating|out of)\b/i,{y:16,box:'#ffd84d',color:'#111111',anim:'bounce',beats:6}),
@@ -189,7 +189,7 @@ const moodOpts=sel=>{const o=([k,m])=>`<option value="${k}"${k===sel?' selected'
   return `<optgroup label="🛍️ For creators">${e.filter(([k])=>CREATOR.includes(k)).map(o).join('')}</optgroup><optgroup label="🎵 More styles">${e.filter(([k])=>!CREATOR.includes(k)).map(o).join('')}</optgroup>`};
 const TONES={maj:[0,4,7],min:[0,3,7],min7:[0,3,7,10],maj7:[0,4,7,11],m9:[0,3,7,10,14],dom7:[0,4,7,10],add9:[0,4,7,14],sus2:[0,2,7],sus4:[0,5,7],pow:[0,7,12],maj9:[0,4,7,11,14],dom9:[0,4,7,10,14],m6:[0,3,7,9],6:[0,4,7,9],m11:[0,3,7,10,17],'7sus4':[0,5,7,10]};
 const hz=m=>440*Math.pow(2,(m-69)/12);
-async function makeBeat(seconds,moodKey){
+async function makeBeat(seconds,moodKey,opt={}){
   const M=MOODS[moodKey]||MOODS.bright,F=M.fx||{},SR=44100,len=Math.max(1,seconds),oc=new OfflineAudioContext(2,Math.ceil((len+.05)*SR),SR);
   const step=60/M.bpm/4,barLen=16*step,master=oc.createGain(),comp=oc.createDynamicsCompressor();
   // Whole-mix effects, only for styles that ask (F = M.fx): a dip around 1.8 kHz so a voice sits on top (mid), low-pass (lp),
@@ -263,7 +263,7 @@ async function makeBeat(seconds,moodKey){
   if(F.crackle){const n=2*SR,b=oc.createBuffer(1,n,SR),x=b.getChannelData(0);for(let i=0;i<n;i++)x[i]=(Math.random()<.0007?(Math.random()*2-1)*.8:0)+(Math.random()*2-1)*.01;
     let s=oc.createBufferSource(),f=oc.createBiquadFilter(),g=oc.createGain();s.buffer=b;s.loop=true;f.type='highpass';f.frequency.value=900;g.gain.value=.22*F.crackle;s.connect(f);f.connect(g);g.connect(master);s.start(0);s.stop(len)}
   // Before & After: the first few bars are only pads and the tune behind a closed filter, then it opens wide at the drop.
-  const dropBar=F.split?Math.max(1,Math.min(4,Math.round(len*F.split/barLen))):0,dropT=dropBar*barLen;
+  const dropBar=F.split?(opt.dropAt>0?Math.max(1,Math.round(opt.dropAt/barLen)):Math.max(1,Math.min(4,Math.round(len*F.split/barLen)))):0,dropT=dropBar*barLen;
   if(F.split&&dropT<len){sweep.frequency.setValueAtTime(320,0);sweep.frequency.exponentialRampToValueAtTime(1500,Math.max(.1,dropT-.03));sweep.frequency.exponentialRampToValueAtTime(18000,dropT+.3);
     riser(Math.max(0,dropT-barLen),Math.min(barLen,dropT),.06,comp);crash(dropT,comp)}
   const cb=M.chordBars||1,drums=M.drums!==false,order=M.melOrder||[0,0,1,0],mo=M.melOct??12;let side=0;
@@ -366,6 +366,7 @@ let autoTidy=(()=>{try{return localStorage.getItem('tapshop-broll-tidy')!=='off'
 let autoClean=(()=>{try{return localStorage.getItem('tapshop-broll-clean')!=='off'}catch{return true}})();
 let autoCloud=(()=>{try{return localStorage.getItem('tapshop-broll-cloud')!=='off'}catch{return true}})();
 let autoMove=(()=>{try{return localStorage.getItem('tapshop-broll-motion')!=='off'}catch{return true}})();
+let autoSfx=(()=>{try{return localStorage.getItem('tapshop-broll-sfx')!=='off'}catch{return true}})();
 const shapes=()=>[...($$('aspect')?.options||[])].map(o=>[o.value,o.textContent]);
 // From the start screen the chosen platform has already set the shape; otherwise UGC defaults to vertical.
 function open(fromStart){if(exporting)return;stopped=false;parts=null;let a=$$('aspect')?.value;shape=(fromStart===true||clips.length)&&['9:16','1:1','4:5','16:9'].includes(a)?a:'9:16';if(!items.length&&clips.length)useTimeline(true);step1();dlg.showModal()}
@@ -386,6 +387,7 @@ function step1(){const flow=t=>t.parts.map(p=>p.label).join(' → ');
   <label class="br-caps"><input type="checkbox" id="brClean"${autoClean?' checked':''}> <span><b>🔇 Clean up the sound</b><small>We take out steady background noise like a fan or AC, and the click when you start and stop recording.</small></span></label>
   ${window.veCloudOn?.()?`<label class="br-caps"><input type="checkbox" id="brCloud"${autoCloud?' checked':''}> <span><b>☁️ Use cloud AI (more accurate)</b><small>Better captions, and it also cuts fumbles and retakes. The sound of your talking clips is sent to Groq’s AI to be written down. Turn off to keep everything on this device.</small></span></label>`:''}
   <label class="br-caps"><input type="checkbox" id="brMove"${autoMove?' checked':''}> <span><b>🎬 Add slow, smooth zooms</b><small>A slow, gentle zoom on each clip so still shots feel alive. Cuts still land on the beat.</small></span></label>
+  <label class="br-caps"><input type="checkbox" id="brSfx"${autoSfx?' checked':''}> <span><b>🔊 Add sound effects</b><small>A sound as each line of words pops up: a whoosh on the hook, a ding on the fix, a sparkle on the “after”, a tap on “link in bio”.</small></span></label>
   <p class="sub">The first time, your browser downloads the clip reader (a one-time download, about 130 MB). After that it’s saved. Phones are slower than computers.</p>
   <div class="row"><button type="button" id="brCancel">Cancel</button><button type="button" id="brSkip"${items.length?'':' disabled'}>Keep my order</button><button type="button" class="primary" id="brGo"${items.length?'':' disabled'}>✨ Sort my clips</button></div>`;
   dlg.querySelector('.dialog-x').onclick=dlg.querySelector('#brCancel').onclick=close;
@@ -394,7 +396,7 @@ function step1(){const flow=t=>t.parts.map(p=>p.label).join(' → ');
   const fi=dlg.querySelector('#brFiles');dlg.querySelector('#brChoose').onclick=()=>fi.click();fi.onchange=()=>{addFiles([...fi.files]);fi.value=''};
   dlg.querySelector('#brVault')?.addEventListener('click',()=>VaultPicker.open({title:'Pick a clip',kinds:['video'],onPick:async it=>{try{toast('Loading '+it.name+'…');await addFiles([await VaultPicker.file(it)])}catch(e){toast(e.message)}if(!dlg.open)dlg.showModal()}}));
   dlg.querySelector('#brTimeline')?.addEventListener('click',()=>{useTimeline();step1()});
-  dlg.querySelector('#brShape').onchange=e=>shape=e.target.value;dlg.querySelector('#brMood').onchange=e=>{mood=e.target.value;stopListen()};dlg.querySelector('#brListen').onclick=listen;dlg.querySelector('#brCaps').onchange=e=>{autoCaps=e.target.checked;try{localStorage.setItem('tapshop-broll-captions',autoCaps?'on':'off')}catch{}};dlg.querySelector('#brTidy').onchange=e=>{autoTidy=e.target.checked;try{localStorage.setItem('tapshop-broll-tidy',autoTidy?'on':'off')}catch{}};dlg.querySelector('#brClean').onchange=e=>{autoClean=e.target.checked;try{localStorage.setItem('tapshop-broll-clean',autoClean?'on':'off')}catch{}};dlg.querySelector('#brCloud')&&(dlg.querySelector('#brCloud').onchange=e=>{autoCloud=e.target.checked;try{localStorage.setItem('tapshop-broll-cloud',autoCloud?'on':'off')}catch{}});dlg.querySelector('#brMove').onchange=e=>{autoMove=e.target.checked;try{localStorage.setItem('tapshop-broll-motion',autoMove?'on':'off')}catch{}};if(!dlg._stopsMusic){dlg._stopsMusic=1;dlg.addEventListener('close',stopListen)}
+  dlg.querySelector('#brShape').onchange=e=>shape=e.target.value;dlg.querySelector('#brMood').onchange=e=>{mood=e.target.value;stopListen()};dlg.querySelector('#brListen').onclick=listen;dlg.querySelector('#brCaps').onchange=e=>{autoCaps=e.target.checked;try{localStorage.setItem('tapshop-broll-captions',autoCaps?'on':'off')}catch{}};dlg.querySelector('#brTidy').onchange=e=>{autoTidy=e.target.checked;try{localStorage.setItem('tapshop-broll-tidy',autoTidy?'on':'off')}catch{}};dlg.querySelector('#brClean').onchange=e=>{autoClean=e.target.checked;try{localStorage.setItem('tapshop-broll-clean',autoClean?'on':'off')}catch{}};dlg.querySelector('#brCloud')&&(dlg.querySelector('#brCloud').onchange=e=>{autoCloud=e.target.checked;try{localStorage.setItem('tapshop-broll-cloud',autoCloud?'on':'off')}catch{}});dlg.querySelector('#brMove').onchange=e=>{autoMove=e.target.checked;try{localStorage.setItem('tapshop-broll-motion',autoMove?'on':'off')}catch{}};dlg.querySelector('#brSfx').onchange=e=>{autoSfx=e.target.checked;try{localStorage.setItem('tapshop-broll-sfx',autoSfx?'on':'off')}catch{}};if(!dlg._stopsMusic){dlg._stopsMusic=1;dlg.addEventListener('close',stopListen)}
   dlg.querySelector('#brGo').onclick=analyse;dlg.querySelector('#brSkip').onclick=()=>{number();choose(false);step3('Kept your order.'+pickedNote()+' Move any clip with the menu under it.')}}
 async function addFiles(files){let got=0;for(const f of files){if(!/^video\//.test(f.type)&&!/\.(mp4|mov|webm|m4v)$/i.test(f.name))continue;try{toast('Loading '+f.name+'…');let a=await loadAsset(f);items.push({asset:a,in:0,out:a.duration});got++}catch(e){toast(e.message)}}if(got&&dlg.open)step1()}
 function useTimeline(quiet){let seen=new Set(items.map(c=>c.key));for(const c of clips){let a=asset(c);if(!a)continue;let key=c.id;if(seen.has(key))continue;items.push({asset:a,in:c.in,out:c.out,key})}if(!quiet)toast('Your timeline clips are in.')}
@@ -432,11 +434,12 @@ function bestStory(){let best=null,top=-1e9;for(const T of TEMPLATES){const P=ar
     if(sc>top){top=sc;best=T}}return best}
 const BY_COUNT={2:'beforeafter',3:'pas',4:'pas',5:'reasons'};
 // Music that suits what the clips mostly show; talky videos get calmer beats so the voice stays clear.
-const LOOK_MOOD={talk:'chill',product:'upbeat',unbox:'futurebass',messy:'funk',clean:'bright',using:'acoustic',happy:'playful',upset:'dark',screen:'synthwave',food:'jazz',beauty:'rnb',outside:'tropical'};
+// Mostly the For creators tracks, which leave room in the middle for a voice.
+const LOOK_MOOD={talk:'story',product:'haul',unbox:'unbox',messy:'reveal',clean:'tutorial',using:'tutorial',happy:'haul',upset:'hook',screen:'tech',food:'unbox',beauty:'luxe',outside:'tropical'};
 function bestMood(){const seen=items.filter(c=>c.seen);if(!seen.length)return tp.mood;
   const sum=LOOKS.map((_,i)=>seen.reduce((n,c)=>n+c.seen[i],0)),talky=items.filter(c=>c.talking).length/items.length;
   const order=sum.map((v,i)=>[v,LOOKS[i][0]]).sort((a,b)=>b[0]-a[0]);let key=order[0][1];if(key==='talk')key=order[1][1];
-  let m=LOOK_MOOD[key]||tp.mood;if(talky>=.5&&MOODS[m]&&MOODS[m].bpm>=125)m='chill';return m}
+  let m=LOOK_MOOD[key]||tp.mood;if(talky>=.5&&MOODS[m]&&MOODS[m].bpm>=125)m='story';return m}
 function choose(read){picked='';number();
   if(autoStory){tp=read?bestStory():TEMPLATES.find(t=>t.id===BY_COUNT[items.length])||TEMPLATES[0];picked='story'}
   parts=arrange(items,tp);if(mood==='auto'){mood=read?bestMood():tp.mood;picked+=' music'}}
@@ -530,8 +533,12 @@ async function build(){if(exporting)return;const btn=dlg.querySelector('#brBuild
       if(t>s)spans.push([p,s,t-s,j])}
     btn.textContent='Building…';
     for(const [p,s,len,j] of spans){let text=String(partText(j)).trim();if(!text)continue;createGraphicTrack('text');let g=graphicTracks.at(-1);
-      Object.assign(g,{name:p.label+': '+text.slice(0,18),text,color:p.color||'#ffffff',size:textFrac(text,W,H)*H*1280/W,x:50,y:p.y,bold:true,background:false,animation:p.anim,offset:Math.round(s*10)/10,length:Math.max(.8,Math.round(Math.min(len,p.textMax||len)*10)/10),boxColor:p.box,boxOpacity:1,boxPad:26,boxRadius:18})}
-    if(M&&t>0){btn.textContent='Making your music…';let file=await makeBeat(t,mood);addTrack('audio');let tr=extraTracks.at(-1);tr.name='🎵 '+M.name+' beat';targetTrack=tr.id;await loadTrackMedia(file);tr.volume=talky?.22:.7;renderTracks()}
+      Object.assign(g,{name:p.label+': '+text.slice(0,18),text,color:p.color||'#ffffff',size:textFrac(text,W,H)*H*1280/W,x:50,y:p.y,bold:true,background:false,animation:p.anim,offset:Math.round(s*10)/10,length:Math.max(.8,Math.round(Math.min(len,p.textMax||len)*10)/10),boxColor:p.box,boxOpacity:1,boxPad:26,boxRadius:18,_part:p.id})}
+    if(M&&t>0){btn.textContent='Making your music…';const after=spans.find(([p])=>p.id==='after');let file=await makeBeat(t,mood,{dropAt:after?after[1]:0});addTrack('audio');let tr=extraTracks.at(-1);tr.name='🎵 '+M.name+' beat';targetTrack=tr.id;await loadTrackMedia(file);tr.volume=talky?.22:.7;renderTracks()}
+    if(autoSfx&&window.TapSFX){btn.textContent='Adding sound effects…';const words=graphicTracks.filter(g=>g._part);
+      for(const g of words){const key=partSfx(g._part,tp.id);delete g._part;if(key)try{await TapSFX.add(key,{at:g.offset,forId:g.id,noSnap:1,quiet:1})}catch{}}
+      renderTracks()}
+    for(const g of graphicTracks)delete g._part;
     for(const c of clips)if(asset(c)?.cleanFile)c.clean=true;
     $$('projectName').value='B-roll · '+tp.name;selected=-1;render();renderTracks();renderGraphicTracks();await seekTimeline(0);
     items=[];parts=null;dlg.close();
@@ -541,6 +548,9 @@ async function build(){if(exporting)return;const btn=dlg.querySelector('#brBuild
 
 // Split a talking stretch [a, b] into the parts worth keeping: drop um/uh, fumbles the cloud AI marked (w.drop) and pauses over half a second,
 // leaving a little air around each word so cuts don't clip them.
+// Which sound effect goes with each kind of story part (see video-sfx.js). The hook hits harder on the punchy stories.
+const partSfx=(id,story)=>id==='hook'?(/^(pas|versus|myth)$/.test(story)?'drop':story==='pov'?'scratch':'whoosh'):/^(problem|old|myth|bad)$/.test(id)?'buzz':id==='after'?'sparkle':
+  /^(solution|new|truth|good|result|proof|verdict|why|fav)$/.test(id)?'ding':/^(look|product)$/.test(id)?'shutter':id==='twist'?'scratch':id==='cta'?'click':/^(before|night)$/.test(id)?'swoosh':'pop';
 const FILLER=/^(u+m+|u+h+|uhm+|e+r+m*|a+h+|h+m+|m+h*m+)$/i;
 // Words that mean nothing on their own: a clip with only these (and fillers) is a throwaway take.
 const EMPTY=/^(ok(ay)?|k|alright|all|right|so|yeah|yep|yes|cool|and|well|mhm|uh-?huh|go|action|cut|again|one|more|time|sorry|wait|hold|on)$/i;
@@ -552,7 +562,7 @@ function tidy(words,a,b){const ws=words.filter(w=>w.e>a&&w.s<b),isF=w=>w.drop||F
   out.push([start,Math.min(b,kept.at(-1).e+.3)]);const good=out.filter(([x,y])=>y-x>.15);return good.length?good:[[a,b]]}
 
 // ---------- ways in ----------
-window.openBroll=open;window.veMakeBeat=makeBeat;
+window.openBroll=open;window.veMakeBeat=makeBeat;window.veMoods=MOODS;window.veCreatorMoods=CREATOR;
 // Free music for any audio track: pick a style, hear 10 seconds, then it's made as long as the video
 // (at least 15 s, at most 5 minutes) and put on that track.
 window.openFreeMusic=function(trackId){if(exporting)return;pause();let fmH=0;let d=$$('fmDialog');

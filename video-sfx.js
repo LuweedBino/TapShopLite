@@ -84,14 +84,14 @@ window.TapSFX={list:LIST,fx:FX,
   play(key){const f=FX[key];if(!f)return;let ctx,out;
     if(typeof audioCtx!=='undefined'&&audioCtx&&veSpk){ctx=audioCtx;out=veSpk}else{live=live||new (window.AudioContext||window.webkitAudioContext)();liveOut=liveOut||veLimiter(live,live.destination);ctx=live;out=liveOut}
     ctx.resume?.();return f(ctx,leveled(ctx,out,key),ctx.currentTime+.02)},
-  async render(key){const f=FX[key],SR=44100,oc=new OfflineAudioContext(2,Math.ceil(1.6*SR),SR),d=f(oc,leveled(oc,veLimiter(oc,oc.destination),key),0);const b=await oc.startRendering(),n=Math.ceil((d+.03)*SR),o=new AudioBuffer({length:n,numberOfChannels:2,sampleRate:SR});
+  async render(key){const f=FX[key],SR=44100,oc=new OfflineAudioContext(2,Math.ceil(1.6*SR),SR),d=f(oc,leveled(oc,veLimiter(oc,oc.destination),key),0);const b=await oc.startRendering(),n=Math.ceil(Math.max(d+.03,.15)*SR),o=new AudioBuffer({length:n,numberOfChannels:2,sampleRate:SR});
     for(let c=0;c<2;c++)o.copyToChannel(b.getChannelData(c).subarray(0,n),c);return o},
   async file(key){const it=LIST.find(x=>x[0]===key);return new File([wav(await this.render(key))],`TapShopLite sound · ${it?it[2]:key}.wav`,{type:'audio/wav'})},
   // Put one on the timeline (at the playhead unless o.at), on a "Sound effects" row (all effects share it when they don't overlap). Undo-able.
-  // o.forId ties it to a text or sticker strip: it then starts when that strip starts and goes away with it.
+  // o.forId ties it to a strip: it then starts when that strip starts (plus o.rel seconds) and goes away with it.
   async add(key,o={}){if(exporting)return;const it=LIST.find(x=>x[0]===key);if(!it)return;const at=+(o.at??playhead).toFixed(2);if(!o.noSnap)snapshot();addTrack('audio');const t=extraTracks.at(-1);
-    Object.assign(t,{name:it[1]+' '+it[2],lane:'sfx',offset:at},o.forId?{sfxFor:o.forId,sfxKey:key}:{});targetTrack=t.id;await loadTrackMedia(await this.file(key));
-    if(!t.media){undo();return false}t.offset=at;renderTracks();await seekTimeline(playhead);if(!o.quiet)toast(`${it[2]} added at ${at.toFixed(1)} s. Drag it to move it.`);return true}};
+    Object.assign(t,{name:it[1]+' '+it[2],lane:'sfx',offset:at},o.forId?{sfxFor:o.forId,sfxKey:key,sfxAt:+(o.rel||0).toFixed(2)}:{});targetTrack=t.id;await loadTrackMedia(await this.file(key));
+    if(!t.media){if(o.noSnap)deleteTrack(t.id);else undo();return false}t.offset=at;renderTracks();await seekTimeline(playhead);if(!o.quiet)toast(`${it[2]} added at ${at.toFixed(1)} s. Drag it to move it.`);return true}};
 
 // ---- A sound effect on a text box or sticker: a "🔊 Sound effect" menu in its editing menu (timeline and preview pop-up).
 // The sound is its own audio track (sfxFor = the strip's id, sfxKey = which sound) that always starts with the strip.
@@ -104,10 +104,10 @@ window.veSfxPick=async function(id,key){if(exporting)return;const g=graphicTrack
   expandedStrip=id;renderGraphicTracks()};
 // Keep each tied sound at its strip's start; drop it when the strip is gone. Runs before every redraw of the strips.
 let syncing=false;const syncLinks=()=>{if(syncing)return false;syncing=true;try{let gone=extraTracks.filter(t=>t.sfxFor&&!graphicTracks.some(g=>g.id===t.sfxFor));
-  for(const t of extraTracks)if(t.sfxFor){const g=graphicTracks.find(g=>g.id===t.sfxFor);if(g&&Math.abs(t.offset-g.offset)>1e-3)t.offset=+g.offset.toFixed(3)}
+  for(const t of extraTracks)if(t.sfxFor){const g=graphicTracks.find(g=>g.id===t.sfxFor);const want=+(g?g.offset+(t.sfxAt||0):0).toFixed(3);if(g&&Math.abs(t.offset-want)>1e-3)t.offset=want}
   if(gone.length){for(const t of gone)deleteTrack(t.id);return true}return false}finally{syncing=false}};
 {const base=decorateStrips;decorateStrips=function(){if(syncLinks())return;base()}}
-const sfxMenu=g=>{const cur=linked(g.id)[0]?.sfxKey||'';return `<div class="sfx-pick"><label>🔊 Sound effect<select onchange="veSfxPick('${g.id}',this.value)"><option value="">None</option>${LIST.map(([k,e,n])=>`<option value="${k}"${k===cur?' selected':''}>${e} ${n}</option>`).join('')}</select></label><button type="button" onclick="const v=this.previousElementSibling.querySelector('select').value;v?TapSFX.play(v):toast('Pick a sound first.')" aria-label="Listen to the sound effect">▶</button><small>Plays when it appears and moves with it.</small></div>`};
+const sfxMenu=g=>{const cur=linked(g.id).find(t=>!t.sfxAt)?.sfxKey||'';return `<div class="sfx-pick"><label>🔊 Sound effect<select onchange="veSfxPick('${g.id}',this.value)"><option value="">None</option>${LIST.map(([k,e,n])=>`<option value="${k}"${k===cur?' selected':''}>${e} ${n}</option>`).join('')}</select></label><button type="button" onclick="const v=this.previousElementSibling.querySelector('select').value;v?TapSFX.play(v):toast('Pick a sound first.')" aria-label="Listen to the sound effect">▶</button><small>Plays when it appears and moves with it.</small></div>`};
 {const base=renderGraphicTracks;renderGraphicTracks=function(){base();for(const g of graphicTracks){if(!canSfx(g))continue;const box=document.querySelector(`#graphicTracks .strip-row[data-trackid="${g.id}"] .strip-options`);
   if(!box||box.querySelector('.sfx-pick'))continue;box.insertAdjacentHTML('afterbegin',sfxMenu(g))}}}
 
