@@ -90,7 +90,9 @@ function render(){
   <h3 style="margin:14px 0 4px">Style</h3><div class="rv-layouts">${LAYOUTS.map(([k,n])=>`<button type="button" data-l="${k}" class="${work.layout===k?'on':''}"><canvas width="200" height="250"></canvas>${enc(n)}</button>`).join('')}</div>
   <div class="rv-grid"><label>Animation<select data-k="anim">${opts(ANIMS,work.anim)}</select></label><label>Extra on each review<select data-k="badge">${opts(BADGES,work.badge)}</select></label><label>Behind the reviews<select data-k="bg">${opts(BGS,work.bg)}</select></label>
   <label>Seconds per review <small>${work.per}s</small><input type="range" min=".8" max="6" step=".1" value="${work.per}" data-k="per"></label><label>Opening line (leave empty for none)<input type="text" value="${enc(work.t1)}" data-k="t1"></label><label>Ending line (leave empty for none)<input type="text" value="${enc(work.t2)}" data-k="t2"></label>
-  <label>Accent colour<input type="color" value="${work.c1}" data-k="c1"></label><label>Background colour<input type="color" value="${work.c3}" data-k="c3"></label><label>Confetti at the end<select data-k="confetti">${opts([['yes','Yes'],['no','No']],work.confetti)}</select></label></div>
+  <label>Accent colour<input type="color" value="${work.c1}" data-k="c1"></label><label>Background colour<input type="color" value="${work.c3}" data-k="c3"></label><label>Confetti at the end<select data-k="confetti">${opts([['yes','Yes'],['no','No']],work.confetti)}</select></label>
+  <label>Sound effects<select data-k="sfx">${opts([['yes','Yes · pops and a sparkle'],['no','No']],work.sfx||'yes')}</select></label>
+  <label>Music<select data-k="music">${opts([['','No music'],...(window.veCreatorMoods||[]).filter(k=>window.veMoods?.[k]).map(k=>[k,'🛍️ '+veMoods[k].name]),...Object.keys(window.veMoods||{}).filter(k=>!(window.veCreatorMoods||[]).includes(k)).map(k=>[k,'🎵 '+veMoods[k].name])],work.music||'')}</select></label></div>
   <div class="row"><button type="button" id="rvCancel">Cancel</button><button type="button" class="primary" id="rvGo">Make my review video</button></div>`;
   dlg.querySelector('.dialog-x').onclick=dlg.querySelector('#rvCancel').onclick=()=>dlg.close();
   let fi=dlg.querySelector('#rvFiles');dlg.querySelector('#rvChoose').onclick=()=>fi.click();fi.onchange=()=>{add([...fi.files]);fi.value=''};
@@ -106,7 +108,15 @@ dlg.addEventListener('paste',e=>{let f=[...(e.clipboardData?.files||[])].filter(
 document.addEventListener('paste',e=>{if(dlg.open&&!dlg.contains(e.target)){let f=[...(e.clipboardData?.files||[])].filter(f=>f.type.startsWith('image/'));if(f.length){e.preventDefault();add(f)}}});
 dlg.addEventListener('close',()=>cancelAnimationFrame(raf));
 function build(){if(!work.imgs.length)return toast('Add at least one review first.');if(typeof snapshot==='function')snapshot();
-  let t=editing||{id:uid(),offset:Math.max(0,Math.round(playhead*10)/10),hidden:false};Object.assign(t,work,{id:t.id,offset:t.offset,hidden:t.hidden,type:'gfx',gfx:'reviews'});t.length=lengthOf(t);dlg.close();veGfxInsert(t);toast(editing?'Review video updated.':'Review video added. Press ▶ to watch it.')}
+  let t=editing||{id:uid(),offset:Math.max(0,Math.round(playhead*10)/10),hidden:false};Object.assign(t,work,{id:t.id,offset:t.offset,hidden:t.hidden,type:'gfx',gfx:'reviews'});t.length=lengthOf(t);dlg.close();veGfxInsert(t);toast(editing?'Review video updated.':'Review video added. Press ▶ to watch it.');sounds(t)}
+// Sounds tied to the review video (they move with it and go when it's deleted): a whoosh on the opening line, a pop as each review lands,
+// a sparkle (with confetti) or a tap on the ending line, and music as long as the video. Remade when the review video is updated.
+async function sounds(t){if(typeof extraTracks==='undefined')return;for(const x of extraTracks.filter(x=>x.sfxFor===t.id))deleteTrack(x.id);
+  const i0=intro(t),n=(t.imgs||[]).length,per=+t.per||2.2,step=t.layout==='wall'?Math.min(per,.7):per;
+  if(t.music&&window.veMakeBeat&&veMoods?.[t.music]){try{const f=await veMakeBeat(t.length,t.music);addTrack('audio');const m=extraTracks.at(-1);Object.assign(m,{name:'🎵 '+veMoods[t.music].name+' beat',offset:t.offset,sfxFor:t.id,sfxAt:0,volume:.6});targetTrack=m.id;await loadTrackMedia(f);if(!m.media)deleteTrack(m.id)}catch{}}
+  if(t.sfx!=='no'&&window.TapSFX){const list=[];if(t.t1)list.push(['whoosh',0]);for(let i=0;i<n;i++)list.push(['pop',i0+i*step+.05]);if(t.t2)list.push([t.confetti!=='no'?'sparkle':'click',i0+n*per+.1]);
+    for(const [k,at] of list)try{await TapSFX.add(k,{at:t.offset+at,rel:at,forId:t.id,noSnap:1,quiet:1})}catch{}}
+  renderTracks();renderGraphicTracks()}
 
 veGfxAdd([],[{id:'reviews',pack:'review',name:'⭐ Reviews Video Maker (your screenshots)',full:true,xy:true,len:9,x:50,y:52,pv:1,open,
   tags:'testimonials screenshots customer reviews paste social proof affiliate',
