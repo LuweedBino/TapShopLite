@@ -699,23 +699,43 @@ function tidy(words,a,b){const ws=words.filter(w=>w.e>a&&w.s<b),isF=w=>w.drop||F
 window.openBroll=open;window.veMakeBeat=makeBeat;window.veMoods=MOODS;window.veCreatorMoods=CREATOR;window.veMusicGroups=GROUPS;
 // Free music for any audio track: pick a style, hear 10 seconds, then it's made as long as the video
 // (at least 15 s, at most 5 minutes) and put on that track.
-window.openFreeMusic=function(trackId){if(exporting)return;pause();let fmH=0;let d=$$('fmDialog');
+window.openFreeMusic=function(trackId){if(exporting)return;pause();let d=$$('fmDialog');
   if(!d){d=document.createElement('dialog');d.id='fmDialog';d.className='closable';document.body.appendChild(d);d.addEventListener('close',()=>{fmAudio?.pause();fmAudio=null})}
-  const len=Math.min(300,Math.max(15,Math.ceil(total()||0)));
+  const len=Math.min(300,Math.max(15,Math.ceil(total()||0))),S=window.searchAudio?1:0;
+  // Search, one-tap filters and pace (audio-search.js); with none of them set, the list is grouped as before.
+  const pills=S?[...getQuickFilters().filter(q=>q.id!=='sfx'&&q.id!=='music'),{id:'fav',emoji:'★',label:'Favorites'},{id:'recent',emoji:'🕘',label:'Recent'}]:[];
+  let q='',pill='',pace='',like='';
   d.innerHTML=`<button type="button" class="dialog-x" aria-label="Close" title="Close">×</button><h2>🎵 Free music</h2><p class="sub">Made on your device, free to use anywhere. Press ▶ to hear a style, then <b>Use</b> to put it on this track (${len} seconds${total()>=15&&total()<=300?', the length of your video':''}).</p>
-  <div class="fm-list">${GROUPS().flatMap(([l,ks],gi)=>ks.filter(k=>MOODS[k]).map((k,i)=>[k,MOODS[k],i?'':gi?l:'🛍️ Made for creators · your voice stays clear on top'])).map(([k,m,h])=>`${h?`<div class="fm-h">${h}</div>`:''}<div class="fm-row"><button type="button" class="fm-play" data-p="${k}" aria-label="Listen to ${enc(m.name)}">▶</button><span><b>${enc(m.name)}</b><small>${m.bpm} BPM${m.for?' · '+enc(m.for):''}</small></span><button type="button" class="primary" data-u="${k}">Use</button></div>`).join('')}</div>
-  <p class="sub" id="fmStatus" aria-live="polite"></p>`;
-  const say=s=>d.querySelector('#fmStatus').textContent=s;
+  ${S?`<div class="fm-find"><input type="search" class="fm-q" placeholder="Search: cozy coffee, hook, gym, skincare…" aria-label="Search music"><select class="fm-pace" aria-label="Pace"><option value="">Any pace</option>${getPaceFilters().map(p=>`<option value="${p.id}">${p.label}</option>`).join('')}</select></div>
+  <div class="fm-pills">${pills.map(p=>`<button type="button" data-pill="${p.id}">${p.emoji} ${p.label}</button>`).join('')}</div>`:''}
+  <div class="fm-list"></div><p class="sub" id="fmStatus" aria-live="polite"></p>`;
+  const list=d.querySelector('.fm-list'),say=s=>d.querySelector('#fmStatus').textContent=s;
+  const row=k=>{const m=MOODS[k],fav=S&&isFavorite(k);return `<div class="fm-row"><button type="button" class="fm-play" data-p="${k}" aria-label="Listen to ${enc(m.name)}">▶</button><span><b>${enc(m.name)}</b><small>${m.bpm} BPM${m.for?' · '+enc(m.for):''}</small></span>${S?`<button type="button" class="fm-ic${fav?' on':''}" data-f="${k}" aria-label="${fav?'Remove from':'Add to'} favorites" title="Favorite">${fav?'★':'☆'}</button><button type="button" class="fm-ic" data-s="${k}" aria-label="Similar to ${enc(m.name)}" title="Similar vibes">≈</button>`:''}<button type="button" class="primary" data-u="${k}">Use</button></div>`};
+  const draw=()=>{fmAudio?.pause();fmAudio=null;d.querySelectorAll('[data-pill]').forEach(b=>b.classList.toggle('on',b.dataset.pill===pill));
+    if(like){const sim=getSimilarTracks(like,6).map(t=>t.id).filter(k=>MOODS[k]);list.innerHTML=`<div class="fm-h">≈ Similar to ${enc(MOODS[like].name)} <button type="button" class="fm-back" data-back>← All music</button></div>${[like,...sim].map(row).join('')}`;return}
+    if(S&&(q.trim()||pill||pace)){const hits=searchAudio(q,{type:'music',filter:pill==='fav'||pill==='recent'?'':pill,pace,favorites:pill==='fav',recent:pill==='recent'}).map(t=>t.id).filter(k=>MOODS[k]);
+      list.innerHTML=`<div class="fm-h">${hits.length?hits.length+' match'+(hits.length>1?'es':''):'Nothing matches yet. Try fewer words.'}</div>${hits.map(row).join('')}`;return}
+    list.innerHTML=GROUPS().flatMap(([l,ks],gi)=>ks.filter(k=>MOODS[k]).map((k,i)=>(i?'':`<div class="fm-h">${gi?l:'🛍️ Made for creators · your voice stays clear on top'}</div>`)+row(k))).join('')};
+  draw();
   d.querySelector('.dialog-x').onclick=()=>d.close();
-  d.querySelectorAll('[data-p]').forEach(b=>b.onclick=async()=>{const was=b.textContent==='■';fmAudio?.pause();fmAudio=null;d.querySelectorAll('[data-p]').forEach(x=>x.textContent='▶');if(was)return;
-    b.textContent='…';try{const a=new Audio(URL.createObjectURL(await makeBeat(10,b.dataset.p)));fmAudio=a;a.onended=()=>b.textContent='▶';await a.play();b.textContent='■'}catch{b.textContent='▶';say('Couldn’t play it here.')}});
-  d.querySelectorAll('[data-u]').forEach(b=>b.onclick=async()=>{const k=b.dataset.u;fmAudio?.pause();d.querySelectorAll('button').forEach(x=>x.disabled=true);say(`Making your ${MOODS[k].name} music…`);
-    try{const f=await makeBeat(len,k);targetTrack=trackId;await loadTrackMedia(f);const t=extraTracks.find(x=>x.id===trackId);if(t)t.name='🎵 '+MOODS[k].name+' beat';renderTracks();d.close();toast(`${MOODS[k].name} music added.`)}
-    catch(e){say('Couldn’t make the music: '+(e.message||e))}finally{d.querySelectorAll('button').forEach(x=>x.disabled=false)}});
+  if(S){let tm;d.querySelector('.fm-q').oninput=e=>{clearTimeout(tm);tm=setTimeout(()=>{q=e.target.value;like='';draw()},150)};d.querySelector('.fm-pace').onchange=e=>{pace=e.target.value;like='';draw()};
+    d.querySelectorAll('[data-pill]').forEach(b=>b.onclick=()=>{pill=pill===b.dataset.pill?'':b.dataset.pill;like='';draw()})}
+  list.onclick=async e=>{const b=e.target.closest('button');if(!b)return;
+    if(b.dataset.back!==undefined){like='';draw();return}
+    if(b.dataset.f){const on=toggleFavorite(b.dataset.f);b.classList.toggle('on',on);b.textContent=on?'★':'☆';b.setAttribute('aria-label',(on?'Remove from':'Add to')+' favorites');if(pill==='fav'&&!on)draw();return}
+    if(b.dataset.s){like=b.dataset.s;draw();list.scrollTop=0;return}
+    if(b.dataset.p){const was=b.textContent==='■';fmAudio?.pause();fmAudio=null;d.querySelectorAll('[data-p]').forEach(x=>x.textContent='▶');if(was)return;
+      b.textContent='…';try{const a=new Audio(URL.createObjectURL(await makeBeat(10,b.dataset.p)));fmAudio=a;a.onended=()=>b.textContent='▶';await a.play();b.textContent='■'}catch{b.textContent='▶';say('Couldn’t play it here.')}return}
+    if(b.dataset.u){const k=b.dataset.u;fmAudio?.pause();d.querySelectorAll('button').forEach(x=>x.disabled=true);say(`Making your ${MOODS[k].name} music…`);
+      try{const f=await makeBeat(len,k);targetTrack=trackId;await loadTrackMedia(f);const t=extraTracks.find(x=>x.id===trackId);if(t)t.name='🎵 '+MOODS[k].name+' beat';window.recordRecent?.(k);renderTracks();d.close();toast(`${MOODS[k].name} music added.`)}
+      catch(e){say('Couldn’t make the music: '+(e.message||e))}finally{d.querySelectorAll('button').forEach(x=>x.disabled=false)}}};
   d.showModal()};
 let fmAudio=null;
 {const st=document.createElement('style');st.textContent=`#fmDialog{width:min(520px,94vw)}.fm-list{display:flex;flex-direction:column;gap:6px;max-height:min(60vh,520px);overflow:auto;margin:10px 0}
 .fm-h{font-weight:700;font-size:13px;margin:8px 2px 2px;color:#ff3ea5}.fm-row{display:flex;align-items:center;gap:10px;padding:6px 8px;border:1px solid var(--ts-border,#8884);border-radius:12px}.fm-row span{flex:1;min-width:0}.fm-row b,.fm-row small{display:block}.fm-row small{opacity:.65;font-size:12px}
+.fm-find{display:flex;gap:8px;margin-top:10px}.fm-find .fm-q{flex:1;min-width:0}.fm-find .fm-pace{flex:none;max-width:42%}
+.fm-pills{display:flex;gap:6px;overflow-x:auto;padding:8px 0 2px;scrollbar-width:none}.fm-pills button{flex:none;border-radius:999px!important;padding:5px 11px!important;font-size:12.5px;white-space:nowrap}.fm-pills button.on{background:#ff3ea5!important;color:#fff!important;border-color:#ff3ea5!important}
+.fm-ic{width:30px;height:30px;padding:0!important;border-radius:50%!important;flex:none;font-size:16px}.fm-ic.on{color:#ffb800}.fm-back{float:right;font-size:12px;padding:2px 10px!important}
 .fm-play{width:40px;height:40px;padding:0!important;border-radius:50%!important;flex:none}`;document.head.appendChild(st)}
 {let g=[...document.querySelectorAll('.timebar button')].find(b=>/Review|Graphics/.test(b.textContent)),b=document.createElement('button');b.type='button';b.textContent='🎞️ B-roll Video';b.title='Build a video from your clips with a story template and free music';b.onclick=()=>open();if(g)g.after(b);else document.querySelector('.timebar')?.appendChild(b)}
 // The two quick makers (this one and ⭐ Reviews) sit together at the top of the start screen, right under
