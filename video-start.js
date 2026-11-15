@@ -208,6 +208,8 @@ const TIPS=[
   ['🔊','Sound effects','Tap 🔊 Sound FX for 12 free sounds: swoosh, pop, cha-ching, shutter, sparkle, bass drop and more. Move the playhead first; Add drops it right there.'],
   ['🎞️','Makers add sounds too','The B-roll and Reviews makers now pick creator music and add sound effects as words and reviews pop in. Turn it off with one tick box.'],
   ['🫧','Sounds on text and stickers','Double-tap a text box or sticker and pick a 🔊 Sound effect. It plays the moment it appears and moves with it.'],
+  ['🎙️','Music ducks under your voice','Music tracks get quieter by themselves while someone talks, and come back up after. Change how much with Duck strength, or switch it off.'],
+  ['🥁','Snap to the beat','Free music shows pink beat marks on the timeline. Drag clips, text or stickers near one and they snap right onto the beat. Hold Shift to place freely.'],
   ['🔍','Find music fast','In 🎵 Free music, type a vibe like “cozy coffee” (typos are fine), tap a filter like ⚡ 2-second hooks, or pick a pace. ≈ shows similar tracks, ☆ saves favorites.'],
   ['⭐','Sales and story music','10 tracks for honest reviews, gift guides, testimonials, small business, travel, BookTok and more. “Link in bio finale” ends on a bright final chord.'],
   ['💻','Tech and style music','15 tracks for dupes, packing, perfume, gaming setups, app demos, Notion tours, drop tests, side hustles, scam warnings and more.'],
