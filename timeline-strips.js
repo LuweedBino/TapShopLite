@@ -12,10 +12,10 @@ function makeStripLine(kind,id,label,color){let model=stripModel(kind,id),line=d
 const MIN_STRIP_LENGTH=.1,SNAP=.1;
 // Edges of the other pieces on the same row: every main clip, or pieces split from the same layer/text/shape/effect.
 function neighbourEdgesOnly(kind,id){let ids=kind==='main'?clips.map(c=>c.id):(kind==='extra'?extraTracks:graphicTracks).filter(t=>{let me=(kind==='extra'?extraTracks:graphicTracks).find(x=>x.id===id);return (t.lane||t.id)===(me?.lane||me?.id)}).map(t=>t.id);let edges=[];for(let other of ids){if(other===id)continue;let m=stripModel(kind,other);if(m&&m.length>0)edges.push(m.offset,m.offset+m.length)}return edges}
-// Beat times of every music track that knows its tempo (t.bpm): its first beat is at the start of the file (generated music),
-// so beat k lands at offset + (k·60/bpm − start)/speed. A track's own beats are left out while that track is being moved.
+// Beat times of every music track that knows its tempo (t.bpm): its first beat is t.beatOffset seconds into the file (0 for
+// generated music; found by video-bpm.js for uploads), so beat k lands at offset + (beatOffset + k·60/bpm − start)/speed. A track's own beats are left out while that track is being moved.
 function beatTimes(skip){const out=[];for(const t of extraTracks){if(!t.bpm||!t.media||t.id===skip)continue;const b=60/t.bpm;
-  for(let k=Math.ceil(t.start/b-1e-6);k*b<=t.end+1e-6&&out.length<4000;k++)out.push({T:t.offset+(k*b-t.start)/t.speed,bar:k%4===0})}return out}
+  const o=t.beatOffset||0;for(let k=Math.ceil((t.start-o)/b-1e-6);o+k*b<=t.end+1e-6&&out.length<4000;k++)out.push({T:t.offset+(o+k*b-t.start)/t.speed,bar:k%4===0})}return out}
 // Strips snap to the edges of their neighbours and to the music's beats (hold Shift to move freely).
 function neighbourEdges(kind,id){return [...neighbourEdgesOnly(kind,id),...beatTimes(kind==='extra'?id:null).map(b=>b.T)]}
 function snapEdge(kind,id,t){let best=null,bd=SNAP+1e-6;for(let e of neighbourEdges(kind,id)){let dd=Math.abs(t-e);if(dd<=bd){bd=dd;best=e}}return best}
@@ -311,8 +311,8 @@ async function layerToClip(id){const L=extraTracks.find(t=>t.id===id);if(!L?.fil
 // ---- Beat markers: small pink ticks on the ruler at every beat of each music track with a tempo, taller ones every bar (4 beats),
 // and faint lines across the music strip itself. Redrawn with the ruler (zoom, moves, trims).
 {const base=setRuler;setRuler=function(){base();const r=$('ruler');if(!r)return;r.querySelectorAll('.beat-marks').forEach(x=>x.remove());
-  for(const t of extraTracks){if(!t.bpm||!t.media)continue;const b=60/t.bpm,k0=Math.ceil(t.start/b-1e-6),T0=t.offset+(k0*b-t.start)/t.speed,end=t.offset+(t.end-t.start)/t.speed,beatPx=b/t.speed*timelineScale;
-    if(beatPx<3||end<=T0)continue;const kb=Math.ceil(k0/4)*4,B0=t.offset+(kb*b-t.start)/t.speed;
+  for(const t of extraTracks){if(!t.bpm||!t.media)continue;const b=60/t.bpm,o=t.beatOffset||0,k0=Math.ceil((t.start-o)/b-1e-6),T0=t.offset+(o+k0*b-t.start)/t.speed,end=t.offset+(t.end-t.start)/t.speed,beatPx=b/t.speed*timelineScale;
+    if(beatPx<3||end<=T0)continue;const kb=Math.ceil(k0/4)*4,B0=t.offset+(o+kb*b-t.start)/t.speed;
     for(const [from,size,cls] of [[T0,beatPx,'beat-marks'],[B0,beatPx*4,'beat-marks bar']]){const m=document.createElement('div');m.className=cls;m.style.left=from*timelineScale+'px';m.style.width=Math.max(0,(end-from)*timelineScale)+'px';m.style.backgroundSize=size+'px 100%';r.appendChild(m)}
     const strip=document.querySelector(`#extraTracks .duration-strip[data-id="${t.id}"]`);if(strip){strip.querySelector('.beat-lines')?.remove();const l=document.createElement('span');l.className='beat-lines';l.style.backgroundSize=beatPx*4+'px 100%';l.style.backgroundPositionX=(B0-t.offset)*timelineScale+'px';strip.appendChild(l)}}}}
 {const st=document.createElement('style');st.textContent=`.ruler .beat-marks{position:absolute;bottom:0;height:5px;pointer-events:none;background-image:linear-gradient(90deg,#ff3ea5 0 1px,transparent 1px);background-repeat:repeat-x;opacity:.75;z-index:1}
