@@ -31,7 +31,7 @@ function open(btn){if(menu){close();return}const name=user?.user_metadata?.name;
   <a role="menuitem" href="./">🏠 Home page</a><button type="button" role="menuitem" class="am-out" data-a="out" style="background:none">🚪 Sign out</button>`;
   document.body.appendChild(menu);const r=btn.getBoundingClientRect(),w=menu.offsetWidth;
   menu.style.top=Math.round(r.bottom+8)+'px';menu.style.left=Math.round(Math.max(8,Math.min(innerWidth-w-8,r.right-w)))+'px';
-  btn.setAttribute('aria-expanded','true');menu.querySelector('a,button').focus();
+  btn.setAttribute('aria-expanded','true');anchor=btn;at=btn.getBoundingClientRect();menu.querySelector('a,button').focus({preventScroll:true});
   menu.onclick=async e=>{const a=e.target.closest('[data-a]')?.dataset.a;if(!a)return;close();
     if(a==='invite')veInvite();
     if(a==='out'){await TapAuth.signOut().catch(()=>{});location.href='./'}}}
@@ -39,7 +39,10 @@ function wire(btn){btn.classList.add('am-btn');btn.setAttribute('aria-haspopup',
   btn.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();open(btn)})}
 document.addEventListener('click',e=>{if(menu&&!menu.contains(e.target))close()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&menu)close()});
-addEventListener('resize',close);addEventListener('scroll',close,true);
+// Close when the page moves under the menu, but not for strips that scroll by themselves (the Quick tips strip, the toolbar glide):
+// on phones those fire scroll events all the time and used to shut the menu the moment it opened.
+let anchor=null,at=null;const moved=()=>{if(!menu||!anchor)return;const r=anchor.getBoundingClientRect();if(Math.abs(r.top-at.top)>4||Math.abs(r.left-at.left)>4)close()};
+addEventListener('resize',moved);addEventListener('scroll',moved,true);
 // Start screen: the existing 👤 link becomes the menu button.
 const start=document.getElementById('vsAcct');if(start){start.hidden=false;wire(start)}
 // Editor: a matching button at the right of the top bar's first row, before the light/dark switch.
