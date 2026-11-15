@@ -719,7 +719,14 @@ window.openFreeMusic=function(trackId){if(exporting)return;pause();let d=$$('fmD
   draw();
   d.querySelector('.dialog-x').onclick=()=>d.close();
   if(S){let tm;d.querySelector('.fm-q').oninput=e=>{clearTimeout(tm);tm=setTimeout(()=>{q=e.target.value;like='';draw()},150)};d.querySelector('.fm-pace').onchange=e=>{pace=e.target.value;like='';draw()};
-    d.querySelectorAll('[data-pill]').forEach(b=>b.onclick=()=>{pill=pill===b.dataset.pill?'':b.dataset.pill;like='';draw()})}
+    d.querySelectorAll('[data-pill]').forEach(b=>b.onclick=()=>{pill=pill===b.dataset.pill?'':b.dataset.pill;like='';draw()})
+    // The pill row scrolls sideways: by touch, a mouse wheel (up/down turns into left/right), or by dragging with the mouse.
+    const row=d.querySelector('.fm-pills'),edge=()=>row.classList.toggle('end',row.scrollLeft+row.clientWidth>=row.scrollWidth-4);edge();row.addEventListener('scroll',edge,{passive:true});
+    row.addEventListener('wheel',e=>{if(Math.abs(e.deltaY)>Math.abs(e.deltaX)&&row.scrollWidth>row.clientWidth){row.scrollLeft+=e.deltaY;e.preventDefault()}},{passive:false});
+    let dx=null,moved=false;row.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse')return;dx=[e.clientX,row.scrollLeft];moved=false});
+    addEventListener('pointermove',e=>{if(!dx)return;const m=e.clientX-dx[0];if(Math.abs(m)>4){moved=true;row.classList.add('drag')}row.scrollLeft=dx[1]-m});
+    addEventListener('pointerup',()=>{dx=null;setTimeout(()=>row.classList.remove('drag'))});
+    row.addEventListener('click',e=>{if(moved){e.stopPropagation();e.preventDefault();moved=false}},true)}
   list.onclick=async e=>{const b=e.target.closest('button');if(!b)return;
     if(b.dataset.back!==undefined){like='';draw();return}
     if(b.dataset.f){const on=toggleFavorite(b.dataset.f);b.classList.toggle('on',on);b.textContent=on?'★':'☆';b.setAttribute('aria-label',(on?'Remove from':'Add to')+' favorites');if(pill==='fav'&&!on)draw();return}
@@ -734,7 +741,7 @@ let fmAudio=null;
 {const st=document.createElement('style');st.textContent=`#fmDialog{width:min(520px,94vw)}.fm-list{display:flex;flex-direction:column;gap:6px;max-height:min(60vh,520px);overflow:auto;margin:10px 0}
 .fm-h{font-weight:700;font-size:13px;margin:8px 2px 2px;color:#ff3ea5}.fm-row{display:flex;align-items:center;gap:10px;padding:6px 8px;border:1px solid var(--ts-border,#8884);border-radius:12px}.fm-row span{flex:1;min-width:0}.fm-row b,.fm-row small{display:block}.fm-row small{opacity:.65;font-size:12px}
 .fm-find{display:flex;gap:8px;margin-top:10px}.fm-find .fm-q{flex:1;min-width:0}.fm-find .fm-pace{flex:none;max-width:42%}
-.fm-pills{display:flex;gap:6px;overflow-x:auto;padding:8px 0 2px;scrollbar-width:none}.fm-pills button{flex:none;border-radius:999px!important;padding:5px 11px!important;font-size:12.5px;white-space:nowrap}.fm-pills button.on{background:#ff3ea5!important;color:#fff!important;border-color:#ff3ea5!important}
+.fm-pills{display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto;overscroll-behavior-x:contain;padding:8px 0 6px;scrollbar-width:thin;scrollbar-color:#ff3ea566 transparent;cursor:grab;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}.fm-pills.end{-webkit-mask-image:none;mask-image:none}.fm-pills::-webkit-scrollbar{height:5px}.fm-pills::-webkit-scrollbar-thumb{background:#ff3ea566;border-radius:9px}.fm-pills.drag{cursor:grabbing;user-select:none}.fm-pills button{flex:none;border-radius:999px!important;padding:5px 11px!important;font-size:12.5px;white-space:nowrap}.fm-pills button.on{background:#ff3ea5!important;color:#fff!important;border-color:#ff3ea5!important}
 .fm-ic{width:30px;height:30px;padding:0!important;border-radius:50%!important;flex:none;font-size:16px}.fm-ic.on{color:#ffb800}.fm-back{float:right;font-size:12px;padding:2px 10px!important}
 .fm-play{width:40px;height:40px;padding:0!important;border-radius:50%!important;flex:none}`;document.head.appendChild(st)}
 {let g=[...document.querySelectorAll('.timebar button')].find(b=>/Review|Graphics/.test(b.textContent)),b=document.createElement('button');b.type='button';b.textContent='🎞️ B-roll Video';b.title='Build a video from your clips with a story template and free music';b.onclick=()=>open();if(g)g.after(b);else document.querySelector('.timebar')?.appendChild(b)}
