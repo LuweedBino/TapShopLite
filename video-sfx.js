@@ -148,12 +148,27 @@ const META={
   thrift:['Fashion & Beauty',['quirky','creative','fun'],['thrift flip','DIY upcycle','sewing project'],['thrift','diy','upcycle','indie pop','bassline','vintage'],'B♭ Ionian'],
   jewelry:['Fashion & Beauty',['luxurious','delicate','glowing'],['jewelry close-up','watch reveal','unboxing a gift'],['jewelry','watch','luxury','chimes','drone','sparkle'],'F♯ Lydian'],
   grwm:['Fashion & Beauty',['glamorous','upbeat','stylish'],['get ready with me','night out','makeup routine'],['grwm','night out','house','makeup','party','dance'],'C Aeolian'],
-  silk:['Fashion & Beauty',['silky','lush','elegant'],['haircare','slow-mo hair flip','blowout results'],['hair','haircare','slow motion','strings','lush','beauty'],'D Ionian']};
+  silk:['Fashion & Beauty',['silky','lush','elegant'],['haircare','slow-mo hair flip','blowout results'],['hair','haircare','slow motion','strings','lush','beauty'],'D Ionian'],
+  dupes:['Fashion & Beauty',['clever','curious','playful'],['dupe vs high-end','side-by-side comparison','price check'],['dupe','comparison','versus','call and response','plucks','fashion'],'G Dorian',2],
+  capsule:['Fashion & Beauty',['breezy','optimistic','fresh'],['capsule wardrobe','packing for a trip','outfit planning'],['capsule','packing','travel','acoustic','strum','wardrobe'],'F Lydian',2],
+  perfume:['Fashion & Beauty',['dark','seductive','mysterious'],['fragrance review','perfume editorial','scent unboxing'],['perfume','fragrance','editorial','chimes','dark','luxury'],'C♯ Phrygian',2],
+  athleisure:['Fashion & Beauty',['confident','modern','driving'],['activewear try-on','athleisure haul','gym outfit'],['activewear','athleisure','gym','synth bass','try on','fitness'],'E Dorian',2],
+  shades:['Fashion & Beauty',['sunny','relaxed','retro'],['sunglasses','summer vacation','beach day'],['sunglasses','summer','vacation','retro','coastal','tape'],'A♭ Mixolydian',2],
+  rgb:['Tech & Gaming',['futuristic','energetic','neon'],['desk gaming setup','RGB showcase','PC build'],['gaming','rgb','cyberpunk','arpeggio','setup','pc'],'B Aeolian',2],
+  saas:['Tech & Gaming',['clean','smart','focused'],['AI tool walkthrough','SaaS app demo','screen recording'],['ai','saas','app','marimba','walkthrough','software'],'A Ionian',2],
+  notion:['Productivity',['calm','focused','soft'],['Notion template tour','study with me','planner setup'],['notion','productivity','study','lofi','template','focus'],'D♭ Ionian',2],
+  droptest:['Tech & Gaming',['tense','building','punchy'],['phone case drop test','EDC drop','durability test'],['drop test','phone case','edc','impact','build up','tension'],'D Aeolian',2],
+  smarthome:['Tech & Gaming',['sleek','futuristic','precise'],['smart home','home automation','gadget tour'],['smart home','automation','sci-fi','glass','robotic','gadget'],'F♯ Aeolian',2],
+  wfh:['Productivity',['uplifting','confident','modern'],['work from home gear','remote job setup','desk upgrade'],['wfh','remote work','office','corporate','indie','plucks'],'C Ionian',2],
+  filmmaker:['Tech & Gaming',['cinematic','moody','dramatic'],['camera gear','filmmaking b-roll','lens review'],['camera','filmmaking','cinematic','b-roll','swells','moody'],'A Aeolian',2],
+  subbox:['Tech & Gaming',['curious','building','upbeat'],['app unboxing','subscription box reveal','first look'],['subscription box','unboxing','reveal','marimba','layers','app'],'E♭ Ionian',2],
+  hustle:['Productivity',['smooth','confident','smart'],['side hustle tip','passive income','money advice'],['side hustle','money','passive income','groove','bassline','business'],'B♭ Dorian',2],
+  scam:['Tech & Gaming',['urgent','nervous','tense'],['scam warning hook','cybersecurity tip','do not buy'],['scam','warning','security','pulse','ticking','alert'],'F Phrygian',2]};
 const LEN={swoosh:.5,pop:.15,cash:.8,shutter:.2,sparkle:1,drop:.9,click:.05,buzz:.35,ding:.6,riser:1.2,scratch:.3,whoosh:.4};
 let cur=null;const stop=()=>{try{cur?.pause()}catch{}cur=null};
 const music=k=>{const m=veMoods[k],x=META[k],g=(window.veMusicGroups?veMusicGroups():[]).find(([,ks])=>ks.includes(k));
   return {id:k,title:m.name,type:'music',category:x?x[0]:g&&/creators/.test(g[0])?'Creators':'General',moods:x?x[1]:[],useCases:x?x[2]:m.for?m.for.split(/,\s*/):[],
-    keywords:x?x[3]:m.name.toLowerCase().split(/\W+/).filter(Boolean),bpm:m.bpm,mode:x?x[4]:undefined,durationSeconds:30,anyLength:true,voiceoverSafe:!!(m.fx&&m.fx.mid),batch:x?1:undefined,
+    keywords:x?x[3]:m.name.toLowerCase().split(/\W+/).filter(Boolean),bpm:m.bpm,mode:x?x[4]:undefined,batch:x?(x[5]||1):undefined,durationSeconds:30,anyLength:true,voiceoverSafe:!!(m.fx&&m.fx.mid),
     async play(seconds=10){stop();const a=new Audio(URL.createObjectURL(await veMakeBeat(seconds,k)));cur=a;await a.play();return {stop}},
     file(seconds=30){return veMakeBeat(seconds,k)}}};
 const fx=([k,e,n,u])=>({id:'sfx-'+k,key:k,title:e+' '+n,type:'sfx',category:'Sound effects',moods:[],useCases:[u],keywords:[k,n.toLowerCase()],bpm:null,durationSeconds:LEN[k],voiceoverSafe:true,
