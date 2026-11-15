@@ -320,3 +320,41 @@ async function layerToClip(id){const L=extraTracks.find(t=>t.id===id);if(!L?.fil
 .duration-strip .beat-lines{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(90deg,#ffffff38 0 1px,transparent 1px);background-repeat:repeat-x;border-radius:inherit}
 html body .extra-track-fields label.duck-toggle{display:flex!important;flex-direction:row!important;align-items:center;gap:8px;flex-basis:200px;font-size:12.5px;font-weight:600;color:inherit;align-self:end;min-height:38px}.extra-track-fields .duck-toggle input{width:auto;accent-color:#ff3ea5}.duck-pct{font-weight:700;color:#ff3ea5}
 .extra-track-fields input[type=range]:disabled{opacity:.4}.beat-note{flex-basis:100%;font-size:11.5px;opacity:.7}`;document.head.appendChild(st)}
+
+// ---- Waveforms on audio strips: loudness bars drawn on a canvas inside each audio track's strip (generated music and uploads
+// alike), so beats, quiet spots and drops show. The file is decoded once (mono, 8 kHz) into loudness every 20 ms (cached per
+// file); each strip draws the part it plays (start → end, at its speed), one bar every 2 px. The canvas is kept and re-attached
+// while nothing about the strip changes, so drags and redraws stay cheap.
+{const STEP=.02,levels=new WeakMap();
+ function loud(file){let r=levels.get(file);if(r)return r;
+  r=(async()=>{try{const buf=await new OfflineAudioContext(1,1,8000).decodeAudioData(await file.arrayBuffer()),d=buf.getChannelData(0),hop=Math.round(buf.sampleRate*STEP),n=Math.floor(d.length/hop),out=new Float32Array(n);let top=0;
+     for(let i=0;i<n;i++){let s=0;for(let k=i*hop;k<(i+1)*hop;k++)s+=d[k]*d[k];out[i]=Math.sqrt(s/hop);if(out[i]>top)top=out[i]}
+     for(let i=0;i<n;i++)out[i]=top?Math.sqrt(out[i]/top):0;levels.set(file,out);decorateStrips();return out}catch{levels.set(file,'none');return 'none'}})();
+  levels.set(file,r);return r}
+ function wave(t,strip){const lv=loud(t.file);if(!(lv instanceof Float32Array))return;const w=Math.max(1,Math.round((t.end-t.start)/t.speed*timelineScale)),h=strip.clientHeight||19,key=[t.start,t.end,t.speed,w,h].join();
+  let c=t._wave;if(!c||c._key!==key||c._lv!==lv){c=document.createElement('canvas');c.className='wave';c._key=key;c._lv=lv;const dpr=Math.min(2,devicePixelRatio||1),cw=Math.min(16000,Math.round(w*dpr));c.width=cw;c.height=Math.round(h*dpr);
+    const g=c.getContext('2d'),bar=Math.max(1,Math.round(2*dpr)),mid=c.height/2;g.fillStyle='#ffffffb8';
+    for(let x=0;x<cw;x+=bar+1){const a=t.start+(x/cw)*(t.end-t.start),b=t.start+((x+bar)/cw)*(t.end-t.start);let m=0;for(let i=Math.floor(a/STEP);i<=Math.min(lv.length-1,Math.floor(b/STEP));i++)m=Math.max(m,lv[i]);
+      const hh=Math.max(1,m*(c.height-2*dpr));g.fillRect(x,mid-hh/2,bar,hh)}
+    Object.defineProperty(t,'_wave',{value:c,writable:true,configurable:true,enumerable:false})}
+  if(c.parentNode!==strip)strip.prepend(c)}
+ const base=decorateStrips;decorateStrips=function(){const r=base.apply(this,arguments);
+  for(const t of extraTracks){if(t.type!=='audio'||!t.file||!t.media)continue;const s=document.querySelector(`#extraTracks .duration-strip[data-id="${t.id}"]`);if(s)wave(t,s)}return r};
+ window.veTrackWave=t=>loud(t.file)}
+
+// ---- Live ducking meter: while the video plays, each auto-ducking music strip shows a small 🎙️ gain bar at the playhead.
+// The bar is the music's level right now (its duck only, not fades): it shrinks while someone talks and the strip's waveform
+// dims with it, so you can see the dip happen. Hidden when paused or not ducking. Driven from syncExtra(), every frame.
+{const base=syncExtra;syncExtra=function(){base.apply(this,arguments);
+  for(const t of extraTracks){if(t.type!=='audio'||!t.duck)continue;const s=document.querySelector(`#extraTracks .duration-strip[data-id="${t.id}"]`);if(!s)continue;
+    const local=playhead-t.offset,on=playing&&!t.muted&&local>=0&&local<=(t.end-t.start)/t.speed,depth=on&&window.veSpeechWindows?veDuckDepth(veSpeechWindows(),playhead):0,level=1-Math.max(0,Math.min(1,t.duckAmt??.85))*depth;
+    let m=s.querySelector('.duck-meter');if(!m){m=document.createElement('span');m.className='duck-meter';m.innerHTML='<b>🎙️</b><i><u></u></i>';s.appendChild(m)}
+    m.classList.toggle('on',depth>.05);m.style.left=Math.max(0,local*timelineScale+4)+'px';m.querySelector('u').style.height=Math.round(level*100)+'%';m.title=`Music at ${Math.round(level*100)}% while someone talks`;
+    s.style.setProperty('--duck',depth.toFixed(2))}};
+ // Clear the meters when playback stops (syncExtra keeps running on seeks, but `playing` is false then).
+ const p=pause;pause=function(){const r=p.apply(this,arguments);document.querySelectorAll('.duration-strip .duck-meter.on').forEach(m=>m.classList.remove('on'));document.querySelectorAll('#extraTracks .duration-strip').forEach(s=>s.style.removeProperty('--duck'));return r}}
+{const st=document.createElement('style');st.textContent=`.duration-strip .wave{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:calc(.55 - .35*var(--duck,0));transition:opacity .12s;border-radius:inherit}
+.duration-strip .strip-label{position:relative;z-index:1;text-shadow:0 1px 2px #000a}
+.duration-strip .duck-meter{position:absolute;top:1px;bottom:1px;display:flex;align-items:center;gap:2px;padding:0 3px;border-radius:6px;background:#0009;opacity:0;transform:translateX(-2px);transition:opacity .15s,transform .15s;pointer-events:none;z-index:2}
+.duration-strip .duck-meter.on{opacity:1;transform:none}.duration-strip .duck-meter b{font-size:9px;line-height:1;font-weight:400}
+.duration-strip .duck-meter i{position:relative;width:5px;height:100%;border-radius:2px;background:#ffffff33;overflow:hidden;display:block}.duration-strip .duck-meter u{position:absolute;left:0;right:0;bottom:0;background:#ff3ea5;transition:height .1s;text-decoration:none}`;document.head.appendChild(st)}
