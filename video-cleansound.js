@@ -70,7 +70,7 @@ function hook(a){if(a._cleanHooked)return;a._cleanHooked=true;const v=a.video;
 // picture by its sound, and a video whose sound goes nowhere stutters, which made the preview flash.
 function route(a){if(typeof audioCtx==='undefined'||!audioCtx||!a.gain||!a.node)return;
   if(a.cleanEl&&!a.cleanNode){a.cleanNode=audioCtx.createMediaElementSource(a.cleanEl);a.cleanNode.connect(a.gain)}
-  if(!a.silent){a.silent=audioCtx.createGain();a.silent.gain.value=0;a.silent.connect(audioCtx.destination)}
+  if(!a.silent){a.silent=audioCtx.createGain();a.silent.gain.value=0;a.silent.connect(veSpk||audioCtx.destination)}
   try{a.node.disconnect()}catch{}a.node.connect(a.cleanEl?a.silent:a.gain)}
 const prevEnsure=ensureAudio;ensureAudio=async function(){await prevEnsure();for(const a of assets)if(a.cleanEl)route(a)};
 

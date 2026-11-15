@@ -27,7 +27,7 @@ html .timebar button.tb-btn:disabled{opacity:.4;cursor:default}html .timebar but
 @media (pointer:coarse){.timebar{scroll-snap-type:x proximity}.tb-sec{scroll-snap-align:start}}`;document.head.appendChild(st);
 
 const SECTIONS=[
- ['add','Add',b=>/^(📹|🎵|🔤|🔶|🌈)/.test(label(b))||/openVideoDialog|addTrack\(|addGraphicTrack\(/.test(act(b))],
+ ['add','Add',b=>/^(📹|🎵|🔊|🔤|🔶|🌈)/.test(label(b))||/openVideoDialog|addTrack\(|addGraphicTrack\(/.test(act(b))],
  ['create','Create',b=>/Graphics|Review|Captions|Brand|Smart tools/.test(label(b))],
  ['edit','Edit',b=>/Undo|Redo|Split|Duplicate|Delete/.test(label(b))||/moveClip|undo\(|redo\(|splitClip|duplicateClip|removeClip/.test(act(b))],
 ];

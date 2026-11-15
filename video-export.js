@@ -55,12 +55,12 @@ async function addSound(off,opened,file,from,to,speed,gain,when){
   if(speed!==1)data=data.map(ch=>stretch(ch,speed));
   if(!data[0].length)return false;
   let buf=off.createBuffer(count,data[0].length,rate);data.forEach((ch,c)=>buf.copyToChannel(ch,c));
-  let src=off.createBufferSource(),amp=off.createGain();src.buffer=buf;amp.gain.value=gain;src.connect(amp);amp.connect(off.destination);src.start(when);
+  let src=off.createBufferSource(),amp=off.createGain();src.buffer=buf;amp.gain.value=gain;src.connect(amp);amp.connect(off._out||off.destination);src.start(when);
   return true;
 }
 
 async function mixSound(opened,seconds){
-  let off=new OfflineAudioContext(2,Math.ceil(seconds*RATE),RATE),any=false,start=0;
+  let off=new OfflineAudioContext(2,Math.ceil(seconds*RATE),RATE),any=false,start=0;off._out=veLimiter(off,off.destination);
   for(let c of clips){any=await addSound(off,opened,asset(c).cleanFile||asset(c).file,c.in,c.out,c.speed,c.volume??1,start)||any;start+=duration(c)}
   for(let t of extraTracks){if(t.file&&!t.muted)any=await addSound(off,opened,t.file,t.start,t.end,t.speed,t.volume,t.offset)||any}
   if(musicFile)any=await addSound(off,opened,musicFile,0,Math.min(seconds,music.duration||seconds),1,music.volume,0)||any;
