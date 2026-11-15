@@ -13,7 +13,7 @@ async function store(name,mode='readonly'){return (await db()).transaction(name,
 
 let projId=null,lastSig='',saving=false,warned=false;
 const plain=t=>{let o={};for(let [k,v] of Object.entries(t))if(!['media','node','gain','url','file'].includes(k)&&(v==null||typeof v!=='object'||Array.isArray(v)))o[k]=v;o.hasFile=!!t.file;return o};
-const capture=()=>({clips,selected,graphic:graphicTracks,extra:extraTracks.map(plain),aspect:$('aspect').value,name:$('projectName').value});
+const capture=()=>({clips,selected,graphic:graphicTracks,extra:extraTracks.map(plain),aspect:$('aspect').value,name:$('projectName').value,audioFx:window.veAudioFx?{...veAudioFx,bypass:false}:undefined});
 const empty=()=>!clips.length&&!graphicTracks.length&&!extraTracks.length;
 function thumb(){try{let h=180,w=Math.round(h*canvas.width/canvas.height),c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(canvas,0,0,w,h);return c.toDataURL('image/jpeg',.6)}catch{return null}}
 
@@ -46,7 +46,7 @@ async function fill(rec,files){let st=rec.state,id=rec.id;
   $('aspect').value=st.aspect||'16:9';setAspect();$('projectName').value=st.name||rec.name;
   // Re-load each video under its saved id so the saved clips point at it unchanged.
   for(let aid of new Set(st.clips.map(c=>c.assetId))){let f=files[id+':a:'+aid];if(!f)continue;try{let a=await loadAsset(f);a.id=aid}catch(e){toast(e.message)}}
-  clips=st.clips.filter(c=>assets.some(a=>a.id===c.assetId));selected=Math.min(st.selected??0,clips.length-1);graphicTracks=st.graphic||[];
+  clips=st.clips.filter(c=>assets.some(a=>a.id===c.assetId));selected=Math.min(st.selected??0,clips.length-1);graphicTracks=st.graphic||[];if(window.veAudioFx)Object.assign(veAudioFx,{main:'none',master:'none',bypass:false},st.audioFx||{});
   for(let s of st.extra||[]){addTrack(s.type);let t=extraTracks.at(-1),f=s.hasFile&&Object.entries(files).find(([k])=>k.startsWith(id+':x:'+s.id+':'))?.[1];
     if(f){targetTrack=t.id;await loadTrackMedia(f)}let {hasFile,...keep}=s;Object.assign(t,keep);
     // Videos saved before fades and ducking existed keep sounding as they did.

@@ -43,7 +43,8 @@ function stretch(ch,speed){
 }
 
 // shape (optional): T => volume multiplier at timeline time T (fades and auto-ducking, veTrackGain), written as a volume curve.
-async function addSound(off,opened,file,from,to,speed,gain,when,shape){
+// dest (optional): where it goes, e.g. a sound-style chain (video-fx.js); otherwise the limiter.
+async function addSound(off,opened,file,from,to,speed,gain,when,shape,dest){
   let track=(await opened(file)).audio;
   if(!track||gain<=0||to<=from)return false;
   if(!(await track.canDecode()))throw Error('Audio can’t be decoded here.');
@@ -56,18 +57,21 @@ async function addSound(off,opened,file,from,to,speed,gain,when,shape){
   if(speed!==1)data=data.map(ch=>stretch(ch,speed));
   if(!data[0].length)return false;
   let buf=off.createBuffer(count,data[0].length,rate);data.forEach((ch,c)=>buf.copyToChannel(ch,c));
-  let src=off.createBufferSource(),amp=off.createGain();src.buffer=buf;amp.gain.value=gain;src.connect(amp);amp.connect(off._out||off.destination);src.start(when);
+  let src=off.createBufferSource(),amp=off.createGain();src.buffer=buf;amp.gain.value=gain;src.connect(amp);amp.connect(dest||off._out||off.destination);src.start(when);
   if(shape){const dur=buf.duration,n=Math.max(2,Math.ceil(dur*200)),curve=new Float32Array(n);for(let i=0;i<n;i++)curve[i]=gain*shape(when+i*dur/(n-1));amp.gain.setValueCurveAtTime(curve,when,dur)}
   return true;
 }
 
 async function mixSound(opened,seconds){
-  let off=new OfflineAudioContext(2,Math.ceil(seconds*RATE),RATE),any=false,start=0;off._out=veLimiter(off,off.destination);
+  let off=new OfflineAudioContext(2,Math.ceil(seconds*RATE),RATE),any=false;off._out=veLimiter(off,off.destination);
+  // Sound styles as in the preview: main clips → their style → whole-video style ← each track's style; then the limiter.
+  await window.veFxReady?.();const fx=(id,to)=>{const g=off.createGain();if(window.veFxChain)veFxChain(off,id,g,[to]);else g.connect(to);return g};
+  const master=fx(window.veAudioFx?.master||'none',off._out),main=fx(window.veAudioFx?.main||'none',master);
   // Each main clip at its own place on the timeline (startOf), so gaps between clips stay silent, as in the preview.
-  for(let [i,c] of clips.entries()){any=await addSound(off,opened,asset(c).cleanFile||asset(c).file,c.in,c.out,c.speed,c.volume??1,startOf(i))||any}
+  for(let [i,c] of clips.entries()){any=await addSound(off,opened,asset(c).cleanFile||asset(c).file,c.in,c.out,c.speed,c.volume??1,startOf(i),null,main)||any}
   if(extraTracks.some(t=>t.duck&&t.type==='audio'&&!t.muted))await window.veSpeechReady?.();
-  for(let t of extraTracks){if(t.file&&!t.muted)any=await addSound(off,opened,t.file,t.start,t.end,t.speed,t.volume,t.offset,(t.fadeIn>0||t.fadeOut>0||(t.duck&&t.type==='audio'))?T=>veTrackGain(t,T):null)||any}
-  if(musicFile)any=await addSound(off,opened,musicFile,0,Math.min(seconds,music.duration||seconds),1,music.volume,0)||any;
+  for(let t of extraTracks){if(t.file&&!t.muted)any=await addSound(off,opened,t.file,t.start,t.end,t.speed,t.volume,t.offset,(t.fadeIn>0||t.fadeOut>0||(t.duck&&t.type==='audio'))?T=>veTrackGain(t,T):null,fx(t.fx||'none',master))||any}
+  if(musicFile)any=await addSound(off,opened,musicFile,0,Math.min(seconds,music.duration||seconds),1,music.volume,0,null,master)||any;
   return any?off.startRendering():null;
 }
 

@@ -208,6 +208,7 @@ const TIPS=[
   ['🔊','Sound effects','Tap 🔊 Sound FX for 12 free sounds: swoosh, pop, cha-ching, shutter, sparkle, bass drop and more. Move the playhead first; Add drops it right there.'],
   ['🎞️','Makers add sounds too','The B-roll and Reviews makers now pick creator music and add sound effects as words and reviews pop in. Turn it off with one tick box.'],
   ['🫧','Sounds on text and stickers','Double-tap a text box or sticker and pick a 🔊 Sound effect. It plays the moment it appears and moves with it.'],
+  ['🎚️','Pro sound styles','Tap 🎚️ Sound for Podcast voice, Warm lo-fi, Punchy promo or Crisp clean on your clips or the whole video. Each music track has one too. Compare turns them off to hear the difference.'],
   ['〰️','See your sound','Audio strips show waveforms, so you can spot beats, quiet parts and drops. While playing, a little 🎙️ bar on the music shows it dipping under your voice.'],
   ['🎙️','Music ducks under your voice','Music tracks get quieter by themselves while someone talks, and come back up after. Change how much with Duck strength, or switch it off.'],
   ['🥁','Snap to the beat','Free music and songs you upload show pink beat marks on the timeline (we find your song’s tempo on your device). Drag clips, text or stickers near one and they snap right onto the beat. Hold Shift to place freely.'],
