@@ -95,11 +95,11 @@ async function act(a,id){let rec=await req((await store('projects')).get(id));if
 document.addEventListener('click',e=>{if(menu&&!e.target.closest('.vs-menu')&&!e.target.closest('[data-more]'))closeMenu()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu()});
 function mount(){let start=document.getElementById('veStart');if(!start||document.getElementById('vsRecent'))return;
-  let head=[...start.querySelectorAll('h2')].find(h=>/where you left off/i.test(h.textContent));if(!head)return;
-  head.textContent='Open a saved project file';
+  // (TapShop's start screen had a "where you left off" heading to rename; TapShopLite's doesn't, so Recent videos must not wait for it.)
+  let head=[...start.querySelectorAll('h2')].find(h=>/where you left off/i.test(h.textContent));if(head)head.textContent='Open a saved project file';
   // Recent videos go at the top, above step 1, and stay hidden until there is one.
   let sec=document.createElement('section');sec.id='vsRecentSec';sec.hidden=true;sec.innerHTML='<h2>Recent videos</h2><p class="vs-help">Saved automatically on this device as you edit.</p>';
-  let box=document.createElement('div');box.id='vsRecent';box.className='vs-recent';sec.appendChild(box);start.querySelector('.vs-lead').after(sec);
+  let box=document.createElement('div');box.id='vsRecent';box.className='vs-recent';sec.appendChild(box);const lead=start.querySelector('.vs-lead');lead?lead.after(sec):start.prepend(sec);
   box.onclick=async e=>{let more=e.target.closest('[data-more]');if(more){e.stopPropagation();openMenu(more,more.dataset.more);return}
     let card=e.target.closest('.vs-rec');if(!card)return;document.getElementById('veStart').hidden=true;try{await open(card.dataset.id)}catch(x){toast('Couldn’t open that video: '+(x.message||x))}};
   box.onkeydown=e=>{if(e.key==='Enter')e.target.closest('.vs-rec')?.click()};
