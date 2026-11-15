@@ -92,7 +92,7 @@ function render(){
   <label>Seconds per review <small>${work.per}s</small><input type="range" min=".8" max="6" step=".1" value="${work.per}" data-k="per"></label><label>Opening line (leave empty for none)<input type="text" value="${enc(work.t1)}" data-k="t1"></label><label>Ending line (leave empty for none)<input type="text" value="${enc(work.t2)}" data-k="t2"></label>
   <label>Accent colour<input type="color" value="${work.c1}" data-k="c1"></label><label>Background colour<input type="color" value="${work.c3}" data-k="c3"></label><label>Confetti at the end<select data-k="confetti">${opts([['yes','Yes'],['no','No']],work.confetti)}</select></label>
   <label>Sound effects<select data-k="sfx">${opts([['yes','Yes · pops and a sparkle'],['no','No']],work.sfx||'yes')}</select></label>
-  <label>Music<select data-k="music">${opts([['','No music'],...(window.veCreatorMoods||[]).filter(k=>window.veMoods?.[k]).map(k=>[k,'🛍️ '+veMoods[k].name]),...Object.keys(window.veMoods||{}).filter(k=>!(window.veCreatorMoods||[]).includes(k)).map(k=>[k,'🎵 '+veMoods[k].name])],work.music||'')}</select></label></div>
+  <label>Music<select data-k="music">${opts([['','No music'],...(window.veMusicGroups?veMusicGroups():[]).flatMap(([l,ks])=>ks.filter(k=>veMoods[k]).map(k=>[k,l.split(' ')[0]+' '+veMoods[k].name]))],work.music||'')}</select></label></div>
   <div class="row"><button type="button" id="rvCancel">Cancel</button><button type="button" class="primary" id="rvGo">Make my review video</button></div>`;
   dlg.querySelector('.dialog-x').onclick=dlg.querySelector('#rvCancel').onclick=()=>dlg.close();
   let fi=dlg.querySelector('#rvFiles');dlg.querySelector('#rvChoose').onclick=()=>fi.click();fi.onchange=()=>{add([...fi.files]);fi.value=''};
