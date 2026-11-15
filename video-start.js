@@ -206,7 +206,7 @@ const TIPS=[
   ['🔢','Use numbers','“3 reasons”, “in 10 seconds”: numbers in a hook make people stay to the end.'],
   ['🎵','Free music','38 styles, each with its own tune, made on your device and free to use anywhere. Tap ▶ to listen.'],
   ['🔊','Sound effects','Tap 🔊 Sound FX for 12 free sounds: swoosh, pop, cha-ching, shutter, sparkle, bass drop and more. Move the playhead first; Add drops it right there.'],
-  ['🫧','Pop your text in','Add a 🫧 Bubble pop at the moment a caption or sticker appears. It makes text feel alive.'],
+  ['🫧','Sounds on text and stickers','Double-tap a text box or sticker and pick a 🔊 Sound effect. It plays the moment it appears and moves with it.'],
   ['🛍️','Music made for creators','10 tracks for hooks, unboxings, reviews, sales, hauls and more. They leave room in the middle so your voice stays clear.'],
   ['✨','Before & after music','“Before & after reveal” starts quiet and muffled, then drops into a bright beat. Put your big reveal right on the drop.'],
   ['🎶','Music on any track','Tap 🎵 Audio, then 🎵 Free music, or ＋ Add media for a song of your own.'],
